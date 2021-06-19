@@ -10,10 +10,19 @@
 		074621A45F30F3DE473FF572 /* Pods_Darty.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E009F27392211CD286A38793 /* Pods_Darty.framework */; };
 		446A3478267E4E4600528501 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3477267E4E4600528501 /* AppDelegate.swift */; };
 		446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3479267E4E4600528501 /* SceneDelegate.swift */; };
-		446A347C267E4E4600528501 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A347B267E4E4600528501 /* ViewController.swift */; };
 		446A347F267E4E4600528501 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A347D267E4E4600528501 /* Main.storyboard */; };
 		446A3481267E4E4A00528501 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 446A3480267E4E4A00528501 /* Assets.xcassets */; };
 		446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A3482267E4E4A00528501 /* LaunchScreen.storyboard */; };
+		446A348C267E53F500528501 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A348B267E53F500528501 /* TabBarController.swift */; };
+		446A348E267E541C00528501 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A348D267E541C00528501 /* TabItem.swift */; };
+		446A3492267E549500528501 /* PartiesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3491267E549500528501 /* PartiesVC.swift */; };
+		446A3494267E54AC00528501 /* CreateVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3493267E54AC00528501 /* CreateVC.swift */; };
+		446A3496267E54B600528501 /* MessagesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3495267E54B600528501 /* MessagesVC.swift */; };
+		446A3498267E54C100528501 /* AccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3497267E54C100528501 /* AccountVC.swift */; };
+		446A349C267E578700528501 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A349B267E578700528501 /* LoginVC.swift */; };
+		446A34A9267E5B2100528501 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34A8267E5B2100528501 /* TextField.swift */; };
+		446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AA267E5B4B00528501 /* UIButton + Extension.swift */; };
+		446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AC267E5D3B00528501 /* AppCoordinator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,11 +30,20 @@
 		446A3474267E4E4600528501 /* Darty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Darty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		446A3477267E4E4600528501 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		446A3479267E4E4600528501 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		446A347B267E4E4600528501 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		446A347E267E4E4600528501 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		446A3480267E4E4A00528501 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		446A3483267E4E4A00528501 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		446A3485267E4E4A00528501 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		446A348B267E53F500528501 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		446A348D267E541C00528501 /* TabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabItem.swift; sourceTree = "<group>"; };
+		446A3491267E549500528501 /* PartiesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartiesVC.swift; sourceTree = "<group>"; };
+		446A3493267E54AC00528501 /* CreateVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateVC.swift; sourceTree = "<group>"; };
+		446A3495267E54B600528501 /* MessagesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesVC.swift; sourceTree = "<group>"; };
+		446A3497267E54C100528501 /* AccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVC.swift; sourceTree = "<group>"; };
+		446A349B267E578700528501 /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
+		446A34A8267E5B2100528501 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
+		446A34AA267E5B4B00528501 /* UIButton + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + Extension.swift"; sourceTree = "<group>"; };
+		446A34AC267E5D3B00528501 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.release.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.release.xcconfig"; sourceTree = "<group>"; };
 		E009F27392211CD286A38793 /* Pods_Darty.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Darty.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -63,15 +81,104 @@
 		446A3476267E4E4600528501 /* Darty */ = {
 			isa = PBXGroup;
 			children = (
-				446A3477267E4E4600528501 /* AppDelegate.swift */,
-				446A3479267E4E4600528501 /* SceneDelegate.swift */,
-				446A347B267E4E4600528501 /* ViewController.swift */,
-				446A347D267E4E4600528501 /* Main.storyboard */,
-				446A3480267E4E4A00528501 /* Assets.xcassets */,
-				446A3482267E4E4A00528501 /* LaunchScreen.storyboard */,
 				446A3485267E4E4A00528501 /* Info.plist */,
+				446A34A7267E5B1600528501 /* Components */,
+				446A34A5267E58F700528501 /* TabBar */,
+				446A349F267E58C100528501 /* Screens */,
+				446A349E267E58B400528501 /* Assets */,
+				446A349D267E58A100528501 /* Base */,
 			);
 			path = Darty;
+			sourceTree = "<group>";
+		};
+		446A349D267E58A100528501 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				446A3482267E4E4A00528501 /* LaunchScreen.storyboard */,
+				446A347D267E4E4600528501 /* Main.storyboard */,
+				446A3479267E4E4600528501 /* SceneDelegate.swift */,
+				446A3477267E4E4600528501 /* AppDelegate.swift */,
+				446A34AC267E5D3B00528501 /* AppCoordinator.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		446A349E267E58B400528501 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				446A3480267E4E4A00528501 /* Assets.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		446A349F267E58C100528501 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				446A34A4267E58EC00528501 /* Login */,
+				446A34A3267E58D800528501 /* Create */,
+				446A34A2267E58D300528501 /* Account */,
+				446A34A1267E58CE00528501 /* Messages */,
+				446A34A0267E58C900528501 /* Parties */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		446A34A0267E58C900528501 /* Parties */ = {
+			isa = PBXGroup;
+			children = (
+				446A3491267E549500528501 /* PartiesVC.swift */,
+			);
+			path = Parties;
+			sourceTree = "<group>";
+		};
+		446A34A1267E58CE00528501 /* Messages */ = {
+			isa = PBXGroup;
+			children = (
+				446A3495267E54B600528501 /* MessagesVC.swift */,
+			);
+			path = Messages;
+			sourceTree = "<group>";
+		};
+		446A34A2267E58D300528501 /* Account */ = {
+			isa = PBXGroup;
+			children = (
+				446A3497267E54C100528501 /* AccountVC.swift */,
+			);
+			path = Account;
+			sourceTree = "<group>";
+		};
+		446A34A3267E58D800528501 /* Create */ = {
+			isa = PBXGroup;
+			children = (
+				446A3493267E54AC00528501 /* CreateVC.swift */,
+			);
+			path = Create;
+			sourceTree = "<group>";
+		};
+		446A34A4267E58EC00528501 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				446A349B267E578700528501 /* LoginVC.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		446A34A5267E58F700528501 /* TabBar */ = {
+			isa = PBXGroup;
+			children = (
+				446A348B267E53F500528501 /* TabBarController.swift */,
+				446A348D267E541C00528501 /* TabItem.swift */,
+			);
+			path = TabBar;
+			sourceTree = "<group>";
+		};
+		446A34A7267E5B1600528501 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				446A34A8267E5B2100528501 /* TextField.swift */,
+				446A34AA267E5B4B00528501 /* UIButton + Extension.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		521D3BE346B3AFB185C2528B /* Pods */ = {
@@ -80,7 +187,6 @@
 				13A45EC6C92DC8988E676028 /* Pods-Darty.debug.xcconfig */,
 				7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -188,9 +294,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				446A347C267E4E4600528501 /* ViewController.swift in Sources */,
+				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
+				446A34A9267E5B2100528501 /* TextField.swift in Sources */,
+				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
+				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
+				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
+				446A349C267E578700528501 /* LoginVC.swift in Sources */,
+				446A348E267E541C00528501 /* TabItem.swift in Sources */,
+				446A3498267E54C100528501 /* AccountVC.swift in Sources */,
+				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
 				446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */,
+				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
