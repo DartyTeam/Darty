@@ -1,11 +1,6 @@
 import UIKit
 
 class TabBarController: UITabBarController, UITabBarControllerDelegate {
-        
-    let image: UIImageView = {
-        let image = UIImageView()
-        return image
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
