@@ -37,7 +37,6 @@ extension UIButton {
         case .yellow:
             self.backgroundColor = .systemYellow
         }
-        
     }
     
     enum ButtonColors {
