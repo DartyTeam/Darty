@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -23,6 +23,20 @@
 		446A34A9267E5B2100528501 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34A8267E5B2100528501 /* TextField.swift */; };
 		446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AA267E5B4B00528501 /* UIButton + Extension.swift */; };
 		446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AC267E5D3B00528501 /* AppCoordinator.swift */; };
+		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
+		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
+		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
+		44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AD1268A5D5100EFE76F /* UserModel.swift */; };
+		44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */; };
+		44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */; };
+		44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AD7268A61DB00EFE76F /* PartyModel.swift */; };
+		44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AD9268A632B00EFE76F /* ChatModel.swift */; };
+		44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ADB268A639700EFE76F /* MessageModel.swift */; };
+		44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ADD268A647B00EFE76F /* StorageService.swift */; };
+		44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */; };
+		44D44AE3268A64FE00EFE76F /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AE2268A64FE00EFE76F /* Validators.swift */; };
+		44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 44D44AE6268A684600EFE76F /* GoogleService-Info.plist */; };
+		44D44AE9268A6A3D00EFE76F /* SetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +58,21 @@
 		446A34A8267E5B2100528501 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		446A34AA267E5B4B00528501 /* UIButton + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + Extension.swift"; sourceTree = "<group>"; };
 		446A34AC267E5D3B00528501 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
+		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
+		44D44AD1268A5D5100EFE76F /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController + Extensions.swift"; sourceTree = "<group>"; };
+		44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication + Extension.swift"; sourceTree = "<group>"; };
+		44D44AD7268A61DB00EFE76F /* PartyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartyModel.swift; sourceTree = "<group>"; };
+		44D44AD9268A632B00EFE76F /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
+		44D44ADB268A639700EFE76F /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
+		44D44ADD268A647B00EFE76F /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage + Extension.swift"; sourceTree = "<group>"; };
+		44D44AE2268A64FE00EFE76F /* Validators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validators.swift; sourceTree = "<group>"; };
+		44D44AE6268A684600EFE76F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupProfileVC.swift; sourceTree = "<group>"; };
+		44D44AEE268BAB8100EFE76F /* Darty.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Darty.entitlements; sourceTree = "<group>"; };
 		7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.release.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.release.xcconfig"; sourceTree = "<group>"; };
 		E009F27392211CD286A38793 /* Pods_Darty.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Darty.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -81,12 +110,18 @@
 		446A3476267E4E4600528501 /* Darty */ = {
 			isa = PBXGroup;
 			children = (
+				44D44AEE268BAB8100EFE76F /* Darty.entitlements */,
+				44D44AE1268A64F400EFE76F /* Helpers */,
+				44D44AD0268A5D4600EFE76F /* Models */,
+				44D44AC9268A57F100EFE76F /* Services */,
 				446A3485267E4E4A00528501 /* Info.plist */,
+				44D44AE6268A684600EFE76F /* GoogleService-Info.plist */,
 				446A34A7267E5B1600528501 /* Components */,
 				446A34A5267E58F700528501 /* TabBar */,
 				446A349F267E58C100528501 /* Screens */,
 				446A349E267E58B400528501 /* Assets */,
 				446A349D267E58A100528501 /* Base */,
+				44D44ACC268A586000EFE76F /* Errors.swift */,
 			);
 			path = Darty;
 			sourceTree = "<group>";
@@ -159,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				446A349B267E578700528501 /* LoginVC.swift */,
+				44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -177,8 +213,40 @@
 			children = (
 				446A34A8267E5B2100528501 /* TextField.swift */,
 				446A34AA267E5B4B00528501 /* UIButton + Extension.swift */,
+				44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */,
+				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
+				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		44D44AC9268A57F100EFE76F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				44D44ACA268A580000EFE76F /* AuthService.swift */,
+				44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */,
+				44D44ADD268A647B00EFE76F /* StorageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		44D44AD0268A5D4600EFE76F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				44D44AD1268A5D5100EFE76F /* UserModel.swift */,
+				44D44AD7268A61DB00EFE76F /* PartyModel.swift */,
+				44D44AD9268A632B00EFE76F /* ChatModel.swift */,
+				44D44ADB268A639700EFE76F /* MessageModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		44D44AE1268A64F400EFE76F /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				44D44AE2268A64FE00EFE76F /* Validators.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		521D3BE346B3AFB185C2528B /* Pods */ = {
@@ -209,6 +277,8 @@
 				446A3470267E4E4600528501 /* Sources */,
 				446A3471267E4E4600528501 /* Frameworks */,
 				446A3472267E4E4600528501 /* Resources */,
+				646C94E6EB4F3F55C656BEF7 /* [CP] Embed Pods Frameworks */,
+				2A4A094832F851024B481753 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -256,6 +326,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */,
 				446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */,
 				446A3481267E4E4A00528501 /* Assets.xcassets in Resources */,
 				446A347F267E4E4600528501 /* Main.storyboard in Resources */,
@@ -287,6 +358,40 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		2A4A094832F851024B481753 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		646C94E6EB4F3F55C656BEF7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Darty/Pods-Darty-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -295,14 +400,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
+				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
 				446A34A9267E5B2100528501 /* TextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
 				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
+				44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
+				44D44AE9268A6A3D00EFE76F /* SetupProfileVC.swift in Sources */,
+				44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */,
+				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
+				44D44ACD268A586000EFE76F /* Errors.swift in Sources */,
+				44D44ACB268A580000EFE76F /* AuthService.swift in Sources */,
+				44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */,
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
+				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
+				44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */,
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
+				44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */,
+				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
 				446A3498267E54C100528501 /* AccountVC.swift in Sources */,
+				44D44AE3268A64FE00EFE76F /* Validators.swift in Sources */,
 				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
 				446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */,
 				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
@@ -453,6 +571,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Darty/Darty.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WJ4KQYMHHR;
 				INFOPLIST_FILE = Darty/Info.plist;
@@ -473,6 +592,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Darty/Darty.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WJ4KQYMHHR;
 				INFOPLIST_FILE = Darty/Info.plist;

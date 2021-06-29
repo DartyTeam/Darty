@@ -6,5 +6,15 @@ target 'Darty' do
   use_frameworks!
 
   # Pods for Darty
-
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Storage'
+  
+  pod 'GoogleSignIn'
+  pod 'FBSDKCoreKit'
+  pod 'FBSDKLoginKit'
+  
+  pod 'MessageKit'
+  
 end

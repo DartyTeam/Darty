@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PartiesVC: UIViewController {
+final class PartiesVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

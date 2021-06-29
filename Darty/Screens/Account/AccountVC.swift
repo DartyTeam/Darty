@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AccountVC: UIViewController {
+final class AccountVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class AppCoordinator: NSObject {
     
@@ -23,11 +24,31 @@ class AppCoordinator: NSObject {
     }
 
     private func startScreenFlow() {
-        let navController = UINavigationController()
-        navController.setNavigationBarHidden(true, animated: false)
-        navController.pushViewController(LoginVC(), animated: false)
         
-        self.window.rootViewController = navController
-        self.window.makeKeyAndVisible()
+        if let user = Auth.auth().currentUser {
+            FirestoreService.shared.getUserData(user: user) { [weak self] (result) in
+                switch result {
+                case .success(let user):
+                    let tabBarController = TabBarController(currentUser: user)
+                    tabBarController.modalPresentationStyle = .fullScreen
+                    self?.window.rootViewController = tabBarController
+                case .failure(_):
+                    let navController = UINavigationController()
+                    navController.setNavigationBarHidden(true, animated: false)
+                    navController.pushViewController(LoginVC(), animated: false)
+                    self?.window.rootViewController = navController
+                }
+            }
+        } else {
+            window.rootViewController = LoginVC()
+        }
+        window.makeKeyAndVisible()
+        
+//        let navController = UINavigationController()
+//        navController.setNavigationBarHidden(true, animated: false)
+//        navController.pushViewController(LoginVC(), animated: false)
+//
+//        self.window.rootViewController = navController
+//        self.window.makeKeyAndVisible()
     }
 }
