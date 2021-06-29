@@ -89,5 +89,5 @@ fastlane/test_output
 
 iOSInjectionProject/
 
-podfile.lock
-Pods/
+Podfile.lock
+./Pods
