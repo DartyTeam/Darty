@@ -37,6 +37,7 @@
 		44D44AE3268A64FE00EFE76F /* Validators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AE2268A64FE00EFE76F /* Validators.swift */; };
 		44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 44D44AE6268A684600EFE76F /* GoogleService-Info.plist */; };
 		44D44AE9268A6A3D00EFE76F /* SetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */; };
+		44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +74,7 @@
 		44D44AE6268A684600EFE76F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupProfileVC.swift; sourceTree = "<group>"; };
 		44D44AEE268BAB8100EFE76F /* Darty.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Darty.entitlements; sourceTree = "<group>"; };
+		44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeVC.swift; sourceTree = "<group>"; };
 		7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.release.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.release.xcconfig"; sourceTree = "<group>"; };
 		E009F27392211CD286A38793 /* Pods_Darty.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Darty.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -195,6 +197,7 @@
 			children = (
 				446A349B267E578700528501 /* LoginVC.swift */,
 				44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */,
+				44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -416,6 +419,7 @@
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
 				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
 				44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */,
+				44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */,
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
 				44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */,
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
