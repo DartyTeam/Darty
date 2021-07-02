@@ -12,6 +12,7 @@ final class SetupProfileVC: UIViewController {
     
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Далее 􀰑", color: .blue)
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -39,7 +40,7 @@ final class SetupProfileVC: UIViewController {
     private func setupViews() {
         view.backgroundColor = .systemBackground
         
-
+        view.addSubview(nextButton)
     }
     
     // MARK: - Handlers
@@ -58,8 +59,12 @@ extension SetupProfileVC {
     
     private func setupConstraints() {
         
-        nextButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
-       
+        NSLayoutConstraint.activate([
+            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
+            nextButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
     }
 }
 

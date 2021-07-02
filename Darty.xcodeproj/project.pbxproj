@@ -11,6 +11,13 @@
 		4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF61268E0EB60016F2A7 /* AboutCell.swift */; };
 		4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */; };
 		4430DF66268EF4080016F2A7 /* UINavigationBar + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */; };
+		4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */; };
+		4430DF72268F1E910016F2A7 /* SF-Pro-Rounded-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF6C268F1E8F0016F2A7 /* SF-Pro-Rounded-Medium.otf */; };
+		4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF6D268F1E900016F2A7 /* SF-Pro-Rounded-Semibold.otf */; };
+		4430DF74268F1E910016F2A7 /* SF-Pro-Display-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF6E268F1E900016F2A7 /* SF-Pro-Display-Regular.otf */; };
+		4430DF75268F1E910016F2A7 /* SF-Pro-Display-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF6F268F1E900016F2A7 /* SF-Pro-Display-Semibold.otf */; };
+		4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF70268F1E900016F2A7 /* SF-Pro-Rounded-Regular.otf */; };
+		4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */; };
 		446A3478267E4E4600528501 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3477267E4E4600528501 /* AppDelegate.swift */; };
 		446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3479267E4E4600528501 /* SceneDelegate.swift */; };
 		446A347F267E4E4600528501 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A347D267E4E4600528501 /* Main.storyboard */; };
@@ -48,6 +55,13 @@
 		4430DF61268E0EB60016F2A7 /* AboutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCell.swift; sourceTree = "<group>"; };
 		4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell + Extension.swift"; sourceTree = "<group>"; };
 		4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationBar + Extension.swift"; sourceTree = "<group>"; };
+		4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont + Extension.swift"; sourceTree = "<group>"; };
+		4430DF6C268F1E8F0016F2A7 /* SF-Pro-Rounded-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Medium.otf"; sourceTree = "<group>"; };
+		4430DF6D268F1E900016F2A7 /* SF-Pro-Rounded-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Semibold.otf"; sourceTree = "<group>"; };
+		4430DF6E268F1E900016F2A7 /* SF-Pro-Display-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Display-Regular.otf"; sourceTree = "<group>"; };
+		4430DF6F268F1E900016F2A7 /* SF-Pro-Display-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Display-Semibold.otf"; sourceTree = "<group>"; };
+		4430DF70268F1E900016F2A7 /* SF-Pro-Rounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Regular.otf"; sourceTree = "<group>"; };
+		4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Display-Medium.otf"; sourceTree = "<group>"; };
 		446A3474267E4E4600528501 /* Darty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Darty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		446A3477267E4E4600528501 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		446A3479267E4E4600528501 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -97,6 +111,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4430DF6B268F1E840016F2A7 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */,
+				4430DF6E268F1E900016F2A7 /* SF-Pro-Display-Regular.otf */,
+				4430DF6F268F1E900016F2A7 /* SF-Pro-Display-Semibold.otf */,
+				4430DF6C268F1E8F0016F2A7 /* SF-Pro-Rounded-Medium.otf */,
+				4430DF70268F1E900016F2A7 /* SF-Pro-Rounded-Regular.otf */,
+				4430DF6D268F1E900016F2A7 /* SF-Pro-Rounded-Semibold.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		446A346B267E4E4600528501 = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +176,7 @@
 		446A349E267E58B400528501 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				4430DF6B268F1E840016F2A7 /* Fonts */,
 				446A3480267E4E4A00528501 /* Assets.xcassets */,
 			);
 			path = Assets;
@@ -228,6 +256,7 @@
 				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
 				4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */,
 				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
+				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -338,9 +367,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4430DF75268F1E910016F2A7 /* SF-Pro-Display-Semibold.otf in Resources */,
 				44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */,
+				4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */,
+				4430DF72268F1E910016F2A7 /* SF-Pro-Rounded-Medium.otf in Resources */,
+				4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */,
 				446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */,
+				4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */,
 				446A3481267E4E4A00528501 /* Assets.xcassets in Resources */,
+				4430DF74268F1E910016F2A7 /* SF-Pro-Display-Regular.otf in Resources */,
 				446A347F267E4E4600528501 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,6 +446,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */,
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
 				446A34A9267E5B2100528501 /* TextField.swift in Sources */,
