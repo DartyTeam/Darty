@@ -174,7 +174,7 @@ extension LoginVC: GIDSignInDelegate {
                     case .failure(_):
                         
                         self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
-                            let setupPrifileVC = SetupProfileVC(currentUser: user)
+                            let setupPrifileVC = NameSetupProfileVC(currentUser: user)
                             self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
                         }
                     }
@@ -232,7 +232,7 @@ extension LoginVC {
                     case .failure(_):
                                         
                         self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
-                            let setupPrifileVC = SetupProfileVC(currentUser: user)
+                            let setupPrifileVC = NameSetupProfileVC(currentUser: user)
                             self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
                         }
                     }

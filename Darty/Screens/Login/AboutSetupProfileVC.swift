@@ -1,14 +1,14 @@
 //
-//  SetupProfileVC.swift
+//  AboutSetupProfileVC.swift
 //  Darty
 //
-//  Created by Руслан Садыков on 28.06.2021.
+//  Created by Руслан Садыков on 02.07.2021.
 //
 
 import UIKit
 import FirebaseAuth
 
-final class SetupProfileVC: UIViewController {
+final class AboutSetupProfileVC: UIViewController {
     
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Далее 􀰑", color: .blue)
@@ -32,13 +32,13 @@ final class SetupProfileVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
                 
-        setNavigationBar(withColor: .systemBlue, title: "Имя")
+        setNavigationBar(withColor: .systemBlue, title: "О вас")
         setupViews()
         setupConstraints()
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "setup.profile.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
+        if let image = UIImage(named: "about.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
             addBackground(image)
         }
         
@@ -53,13 +53,13 @@ final class SetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        
-        
+        let aboutSetupProfileVC = SexSetupProfileVC(currentUser: currentUser)
+        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
 }
 
 // MARK: - Setup constraints
-extension SetupProfileVC {
+extension AboutSetupProfileVC {
     
     private func setupConstraints() {
         
@@ -73,34 +73,10 @@ extension SetupProfileVC {
 }
 
 // MARK: - UITextFieldDelegate
-extension SetupProfileVC: UITextFieldDelegate {
+extension AboutSetupProfileVC: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-}
-
-// MARK: - SwiftUI
-import SwiftUI
-
-struct SetupProfileViewControllerProvider: PreviewProvider {
-    
-    static var previews: some View {
-        
-        ContainerView().edgesIgnoringSafeArea(.all)
-    }
-    
-    struct ContainerView: UIViewControllerRepresentable {
-        
-        let setupProfileViewController = SetupProfileVC(currentUser: Auth.auth().currentUser!)
-        
-        func makeUIViewController(context: Context) -> SetupProfileVC {
-            return setupProfileViewController
-        }
-        
-        func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
-            
-        }
     }
 }
