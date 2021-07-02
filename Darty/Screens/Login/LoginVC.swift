@@ -15,17 +15,20 @@ final class LoginVC: UIViewController {
     // MARK: - UI Elements
     private let dartyLogo: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo.big"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let signInButton: UIButton = {
         let button = UIButton(title: "Sign In", color: .blue)
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
         return button
     }()
     
     private let continueWithSocLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.text = "Or continue with social network account"
         label.textColor = .white
@@ -34,22 +37,37 @@ final class LoginVC: UIViewController {
     
     private let googleButton: UIButton = {
         let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "google.login"), for: .normal)
         button.addTarget(self, action: #selector(googleLoginAction), for: .touchUpInside)
+        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
+        button.layer.shadowRadius = 4
+        button.layer.shadowOpacity = 1
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
         return button
     }()
     
     private let appleButton: UIButton = {
         let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "apple.login"), for: .normal)
         button.addTarget(self, action: #selector(appleLoginAction), for: .touchUpInside)
+        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
+        button.layer.shadowRadius = 4
+        button.layer.shadowOpacity = 1
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
         return button
     }()
     
     private let facebookButton: UIButton = {
         let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "facebook.login"), for: .normal)
         button.addTarget(self, action: #selector(facebookLoginAction), for: .touchUpInside)
+        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
+        button.layer.shadowRadius = 4
+        button.layer.shadowOpacity = 1
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
         return button
     }()
     
@@ -59,6 +77,14 @@ final class LoginVC: UIViewController {
             
         setupViews()
         setupConstraints()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+//        let welcomeVC = WelcomeVC()
+//        welcomeVC.modalPresentationStyle = .overFullScreen
+//        present(welcomeVC, animated: true, completion: nil)
     }
     
     private func addBackground() {
@@ -88,40 +114,34 @@ final class LoginVC: UIViewController {
     
     private func setupConstraints() {
         
-        signInButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             signInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signInButton.widthAnchor.constraint(equalToConstant: 300),
-            signInButton.heightAnchor.constraint(equalToConstant: 44),
+            signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            signInButton.heightAnchor.constraint(equalToConstant: 50),
             signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -183)
         ])
         
-        dartyLogo.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             dartyLogo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
             dartyLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
         
-        
-        appleButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -44),
+            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
             appleButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
         
-        googleButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             googleButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
-            googleButton.trailingAnchor.constraint(equalTo: appleButton.leadingAnchor, constant: -44)
+            googleButton.trailingAnchor.constraint(equalTo: appleButton.leadingAnchor, constant: -50)
         ])
         
-        facebookButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             facebookButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
-            facebookButton.leadingAnchor.constraint(equalTo: appleButton.trailingAnchor, constant: 44)
+            facebookButton.leadingAnchor.constraint(equalTo: appleButton.trailingAnchor, constant: 50)
         ])
         
-        continueWithSocLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -32),
             continueWithSocLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),

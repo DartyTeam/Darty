@@ -10,10 +10,15 @@ import FirebaseAuth
 
 final class SetupProfileVC: UIViewController {
     
-    let nextButton = UIButton(title: "Далее")
+    private lazy var nextButton: UIButton = {
+        let button = UIButton(title: "Далее 􀰑", color: .blue)
+        button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+        return button
+    }()
     
     private let currentUser: User
     
+    // MARK: - Lifecycle
     init(currentUser: User) {
         self.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
@@ -25,21 +30,26 @@ final class SetupProfileVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .systemBackground
                 
+        setNavigationBar(withColor: .systemBlue, title: "Имя")
+        setupViews()
         setupConstraints()
+    }
+    
+    private func setupViews() {
+        view.backgroundColor = .systemBackground
         
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+
+    }
+    
+    // MARK: - Handlers
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
     
     @objc private func nextButtonTapped() {
         
         
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
     }
 }
 

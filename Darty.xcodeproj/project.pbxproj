@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		074621A45F30F3DE473FF572 /* Pods_Darty.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E009F27392211CD286A38793 /* Pods_Darty.framework */; };
+		4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF61268E0EB60016F2A7 /* AboutCell.swift */; };
+		4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */; };
+		4430DF66268EF4080016F2A7 /* UINavigationBar + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */; };
 		446A3478267E4E4600528501 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3477267E4E4600528501 /* AppDelegate.swift */; };
 		446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3479267E4E4600528501 /* SceneDelegate.swift */; };
 		446A347F267E4E4600528501 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A347D267E4E4600528501 /* Main.storyboard */; };
@@ -42,6 +45,9 @@
 
 /* Begin PBXFileReference section */
 		13A45EC6C92DC8988E676028 /* Pods-Darty.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.debug.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.debug.xcconfig"; sourceTree = "<group>"; };
+		4430DF61268E0EB60016F2A7 /* AboutCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutCell.swift; sourceTree = "<group>"; };
+		4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell + Extension.swift"; sourceTree = "<group>"; };
+		4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationBar + Extension.swift"; sourceTree = "<group>"; };
 		446A3474267E4E4600528501 /* Darty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Darty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		446A3477267E4E4600528501 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		446A3479267E4E4600528501 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -198,6 +204,7 @@
 				446A349B267E578700528501 /* LoginVC.swift */,
 				44D44AE8268A6A3D00EFE76F /* SetupProfileVC.swift */,
 				44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */,
+				4430DF61268E0EB60016F2A7 /* AboutCell.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -219,6 +226,8 @@
 				44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */,
 				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
 				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
+				4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */,
+				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -413,9 +422,11 @@
 				44D44AE9268A6A3D00EFE76F /* SetupProfileVC.swift in Sources */,
 				44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
+				4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */,
 				44D44ACD268A586000EFE76F /* Errors.swift in Sources */,
 				44D44ACB268A580000EFE76F /* AuthService.swift in Sources */,
 				44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */,
+				4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */,
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
 				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
 				44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */,
@@ -425,6 +436,7 @@
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
 				446A3498267E54C100528501 /* AccountVC.swift in Sources */,
 				44D44AE3268A64FE00EFE76F /* Validators.swift in Sources */,
+				4430DF66268EF4080016F2A7 /* UINavigationBar + Extension.swift in Sources */,
 				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
 				446A347A267E4E4600528501 /* SceneDelegate.swift in Sources */,
 				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
