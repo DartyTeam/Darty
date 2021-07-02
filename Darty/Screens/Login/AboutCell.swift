@@ -32,7 +32,7 @@ final class AboutCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14, weight: .semibold)
+        label.font = .sfProDisplay(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.text = "Создавать и искать вечеринки"
         return label
@@ -41,7 +41,7 @@ final class AboutCell: UITableViewCell {
     let subtitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 12, weight: .regular)
+        label.font = .sfProDisplay(ofSize: 12, weight: .regular)
         label.numberOfLines = 0
         label.textColor = .black.withAlphaComponent(0.4)
         label.text = "Вписка или танцевальная вечеринка? А может, домашний хакатон? Все это уже в твоих руках"

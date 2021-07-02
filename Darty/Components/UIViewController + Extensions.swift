@@ -49,4 +49,17 @@ extension UIViewController {
     @objc func backToMain() {
         self.navigationController?.popViewController(animated: true)
     }
+    
+    func addBackground(_ image: UIImage) {
+        
+        let width = UIScreen.main.bounds.size.width
+        let height = UIScreen.main.bounds.size.height
+        
+        let imageViewBackground = UIImageView(frame: CGRect(x: 0, y: 0, width: width, height: height))
+        imageViewBackground.image = image
+        imageViewBackground.contentMode = UIView.ContentMode.scaleAspectFill
+        
+        view.addSubview(imageViewBackground)
+        view.sendSubviewToBack(imageViewBackground)
+    }
 }

@@ -15,7 +15,7 @@ extension UIButton {
         self.setTitle(title, for: .normal)
         self.setTitleColor(.white, for: .normal)
         
-        self.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        self.titleLabel?.font = .sfProRounded(ofSize: 17, weight: .semibold)
         
         self.layer.cornerRadius = 10
             

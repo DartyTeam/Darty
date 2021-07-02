@@ -29,7 +29,7 @@ final class LoginVC: UIViewController {
     private let continueWithSocLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
+        label.font = .sfProRounded(ofSize: 16, weight: .semibold)
         label.text = "Or continue with social network account"
         label.textColor = .white
         return label
@@ -87,23 +87,11 @@ final class LoginVC: UIViewController {
 //        present(welcomeVC, animated: true, completion: nil)
     }
     
-    private func addBackground() {
-        
-        let width = UIScreen.main.bounds.size.width
-        let height = UIScreen.main.bounds.size.height
-        
-        let imageViewBackground = UIImageView(frame: CGRect(x: 0, y: 0, width: width, height: height))
-        imageViewBackground.image = UIImage(named: "login.background")
-        
-        imageViewBackground.contentMode = UIView.ContentMode.scaleAspectFill
-        
-        view.addSubview(imageViewBackground)
-        view.sendSubviewToBack(imageViewBackground)
-    }
-    
     private func setupViews() {
-        addBackground()
-        
+        if let image = UIImage(named: "login.background") {
+            addBackground(image)
+        }
+       
         view.addSubview(signInButton)
         view.addSubview(dartyLogo)
         view.addSubview(continueWithSocLabel)

@@ -15,7 +15,7 @@ extension UINavigationBar {
         isTranslucent = true
         backgroundColor = .clear
         let attrs = [
-            NSAttributedString.Key.font: UIFont.systemFont(ofSize: 28, weight: .bold)
+            NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 28, weight: .semibold)
         ]
 
         titleTextAttributes = attrs

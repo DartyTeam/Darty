@@ -38,6 +38,10 @@ final class SetupProfileVC: UIViewController {
     }
     
     private func setupViews() {
+        if let image = UIImage(named: "setup.profile.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
+            addBackground(image)
+        }
+        
         view.backgroundColor = .systemBackground
         
         view.addSubview(nextButton)
