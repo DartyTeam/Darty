@@ -89,7 +89,20 @@ extension ImageSetupProfileVC {
 }
 
 extension ImageSetupProfileVC: SetImageDelegate {
-    func showPicker(picker: UIPickerView) {
+    func imageDidSet(_ image: UIImage?) {
         
+    }
+    
+    func showActionSheet(_ actionSheet: UIAlertController) {
+        print("asjdhahudishuiaduhiadhsuias")
+        present(actionSheet, animated: true)
+    }
+    
+    func showImagePicker(_ imagePicker: UIImagePickerController) {
+        present(imagePicker, animated: true)
+    }
+    
+    func dismissImagePicker() {
+        dismiss(animated: true)
     }
 }

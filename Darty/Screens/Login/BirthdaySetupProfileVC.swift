@@ -38,7 +38,7 @@ final class BirthdaySetupProfileVC: UIViewController {
         blurredEffectView.layer.cornerRadius = 40
         blurredEffectView.clipsToBounds = true
         blurredEffectView.layer.borderWidth = 3.5
-        blurredEffectView.layer.borderColor = UIColor.systemBlue.cgColor
+        blurredEffectView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
         return blurredEffectView
     }()
 
