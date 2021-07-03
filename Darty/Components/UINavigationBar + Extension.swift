@@ -18,7 +18,7 @@ extension UINavigationBar {
             NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 28, weight: .semibold)
         ]
 
-        titleTextAttributes = attrs
+        titleTextAttributes = attrs as [NSAttributedString.Key : Any]
         setTitleVerticalPositionAdjustment(10, for: .default)
     }
 }

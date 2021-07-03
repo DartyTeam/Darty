@@ -93,7 +93,6 @@ final class BirthdaySetupProfileVC: UIViewController {
 extension BirthdaySetupProfileVC {
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -114,14 +113,5 @@ extension BirthdaySetupProfileVC {
             datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             datePicker.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height / 2)
         ])
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension BirthdaySetupProfileVC: UITextFieldDelegate {
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }

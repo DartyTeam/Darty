@@ -43,6 +43,9 @@
 		44A171DF26908F0800C154A0 /* SF-Pro-Text-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171DE26908F0700C154A0 /* SF-Pro-Text-Bold.otf */; };
 		44A171E126908F1200C154A0 /* SF-Pro-Text-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171E026908F1100C154A0 /* SF-Pro-Text-Semibold.otf */; };
 		44A171E32690901500C154A0 /* UITextView + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171E22690901500C154A0 /* UITextView + Extension.swift */; };
+		44A171E52690BC5400C154A0 /* String + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171E42690BC5400C154A0 /* String + Extension.swift */; };
+		44A171E72690BF2400C154A0 /* UIStackView + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171E62690BF2400C154A0 /* UIStackView + Extension.swift */; };
+		44A171EA2690C00D00C154A0 /* SexSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171E92690C00D00C154A0 /* SexSelector.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -99,6 +102,9 @@
 		44A171DE26908F0700C154A0 /* SF-Pro-Text-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Bold.otf"; sourceTree = "<group>"; };
 		44A171E026908F1100C154A0 /* SF-Pro-Text-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Semibold.otf"; sourceTree = "<group>"; };
 		44A171E22690901500C154A0 /* UITextView + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView + Extension.swift"; sourceTree = "<group>"; };
+		44A171E42690BC5400C154A0 /* String + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String + Extension.swift"; sourceTree = "<group>"; };
+		44A171E62690BF2400C154A0 /* UIStackView + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView + Extension.swift"; sourceTree = "<group>"; };
+		44A171E92690C00D00C154A0 /* SexSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SexSelector.swift; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -253,10 +259,10 @@
 		446A34A4267E58EC00528501 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				44A171E82690BFE600C154A0 /* SexSetupProfile */,
 				446A349B267E578700528501 /* LoginVC.swift */,
 				44D44AE8268A6A3D00EFE76F /* NameSetupProfileVC.swift */,
 				4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */,
-				4487071F268F5B15006587D0 /* SexSetupProfileVC.swift */,
 				44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */,
 				44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */,
 				44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */,
@@ -287,8 +293,19 @@
 				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 				44870725268F72D3006587D0 /* BlurEffectView.swift */,
 				44A171E22690901500C154A0 /* UITextView + Extension.swift */,
+				44A171E42690BC5400C154A0 /* String + Extension.swift */,
+				44A171E62690BF2400C154A0 /* UIStackView + Extension.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		44A171E82690BFE600C154A0 /* SexSetupProfile */ = {
+			isa = PBXGroup;
+			children = (
+				4487071F268F5B15006587D0 /* SexSetupProfileVC.swift */,
+				44A171E92690C00D00C154A0 /* SexSelector.swift */,
+			);
+			path = SexSetupProfile;
 			sourceTree = "<group>";
 		};
 		44D44AC9268A57F100EFE76F /* Services */ = {
@@ -489,12 +506,15 @@
 				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
 				44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
+				44A171E72690BF2400C154A0 /* UIStackView + Extension.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
 				44D44AE9268A6A3D00EFE76F /* NameSetupProfileVC.swift in Sources */,
 				44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */,
+				44A171E52690BC5400C154A0 /* String + Extension.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
 				4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */,
 				44D44ACD268A586000EFE76F /* Errors.swift in Sources */,
+				44A171EA2690C00D00C154A0 /* SexSelector.swift in Sources */,
 				44D44ACB268A580000EFE76F /* AuthService.swift in Sources */,
 				44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */,
 				4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */,

@@ -29,9 +29,7 @@ extension UIFont {
     }
     
     static func sfProRounded(ofSize size: CGFloat, weight: sfProRoundedWeight) -> UIFont? {
-        
         switch weight {
-            
         case .regular:
             return UIFont.init(name: "SFProRounded-Regular", size: size)
         case .medium:
@@ -42,9 +40,7 @@ extension UIFont {
     }
     
     static func sfProDisplay(ofSize size: CGFloat, weight: sfProRoundedWeight) -> UIFont? {
-        
         switch weight {
-            
         case .regular:
             return UIFont.init(name: "SFProDisplay-Regular", size: size)
         case .medium:
@@ -55,9 +51,7 @@ extension UIFont {
     }
     
     static func sfProText(ofSize size: CGFloat, weight: sfProTextWeight) -> UIFont? {
-        
         switch weight {
-            
         case .regular:
             return UIFont.init(name: "SFProText-Regular", size: size)
         case .medium:

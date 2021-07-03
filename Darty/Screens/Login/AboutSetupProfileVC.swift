@@ -5,6 +5,11 @@
 //  Created by Руслан Садыков on 02.07.2021.
 //
 
+private enum Constants {
+    static let textPlaceholder = "Text here about you..."
+    static let textFont: UIFont? = .sfProText(ofSize: 26, weight: .semibold)
+}
+
 import UIKit
 import FirebaseAuth
 
@@ -21,8 +26,8 @@ final class AboutSetupProfileVC: UIViewController {
     private let aboutTitleLabel: UILabel = {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Text here about you..."
-        label.font = .sfProText(ofSize: 26, weight: .semibold)
+        label.text = Constants.textPlaceholder
+        label.font = Constants.textFont
         label.isUserInteractionEnabled = true
         return label
     }()
@@ -30,11 +35,12 @@ final class AboutSetupProfileVC: UIViewController {
     private lazy var aboutTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.font = .sfProText(ofSize: 26, weight: .semibold)
+        textView.font = Constants.textFont
         textView.delegate = self
         textView.showsVerticalScrollIndicator = false
         textView.backgroundColor = .clear
         textView.isUserInteractionEnabled = false
+        textView.usesStandardTextScaling = true
         return textView
     }()
     
@@ -122,9 +128,24 @@ extension AboutSetupProfileVC {
 
 // MARK: - UITextViewDelegate
 extension AboutSetupProfileVC: UITextViewDelegate {
+    
     func textViewDidChange(_ textView: UITextView) {
-        textView.centerVertically()
-     }
+        if let font = aboutTextView.font {
+            let maxChars = aboutTextView.frame.width / font.pointSize
+            let maxLines = aboutTextView.frame.height / font.lineHeight
+            
+            let currentChars = aboutTextView.contentSize.width / font.pointSize
+            let currentLines = aboutTextView.contentSize.height / font.lineHeight
+            
+            let currentValue = Int(currentChars) * Int(currentLines)
+            let maxValue = Int(maxLines) * Int(maxChars)
+            if currentValue >= maxValue {
+                textView.updateTextFont()
+            } else {
+                textView.centerVertically()
+            }
+        }
+    }
     
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
