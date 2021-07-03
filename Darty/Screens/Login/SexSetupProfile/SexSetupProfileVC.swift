@@ -45,7 +45,6 @@ final class SexSetupProfileVC: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.distribution = .equalSpacing
-//        stackView.spacing = 44
         return stackView
     }()
     
