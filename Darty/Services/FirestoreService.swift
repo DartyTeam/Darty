@@ -59,8 +59,15 @@ class FirestoreService {
         }
     }
     
-    func saveProfileWith(id: String, phone: Int, username: String?, avatarImage: UIImage?, description: String?, sex: Int?, birthday: Date?, interestsList: [String]?, completion: @escaping (Result<UserModel, Error>) -> Void) {
-        
+    func saveProfileWith(id: String,
+                         phone: Int,
+                         username: String?,
+                         avatarImage: UIImage?,
+                         description: String?,
+                         sex: Int?,
+                         birthday: Date?,
+                         interestsList: [String]?,
+                         completion: @escaping (Result<UserModel, Error>) -> Void) {
         guard Validators.isFilled(username: username, description: description, sex: sex, birthday: birthday) else {
             completion(.failure(UserError.notFilled))
             return
@@ -120,8 +127,14 @@ class FirestoreService {
         }
     }
     
-    func updateUserInformation(username: String, birthday: String, avatarStringURL: String, sex: String, description: String, personalColor: String, interestsList: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
+    func updateUserInformation(username: String,
+                               birthday: String,
+                               avatarStringURL: String,
+                               sex: String,
+                               description: String,
+                               personalColor: String,
+                               interestsList: String,
+                               completion: @escaping (Result<Void, Error>) -> Void) {
         userRef.updateData([
             "description": description,
             "sex": sex,
@@ -304,8 +317,9 @@ class FirestoreService {
         return db.collection("parties")
     }
     
-    func savePartyWith(party: PartyModel, partyImage: UIImage?, completion: @escaping (Result<PartyModel, Error>) -> Void) {
-        
+    func savePartyWith(party: PartyModel,
+                       partyImage: UIImage?,
+                       completion: @escaping (Result<PartyModel, Error>) -> Void) {
         var party = party
         party.id = UUID().uuidString
         
@@ -356,7 +370,6 @@ class FirestoreService {
     }
     
     func getPartyBy(uid: String, completion: @escaping (Result<PartyModel, Error>) -> Void) {
-        
         let docRef = partiesRef.document(uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
@@ -404,7 +417,6 @@ class FirestoreService {
     }
     
     func createWaitingGuest(receiver: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let waitingPartiesReference = userRef.collection("waitingParties")
         
         let waitingGuestsReference = db.collection(["parties", receiver, "waitingGuests"].joined(separator: "/"))
@@ -430,7 +442,6 @@ class FirestoreService {
     
     // ToDO - Костыльно сделано: провека на то что дата в документе не нил
     func checkWaitingGuest(receiver: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let reference = db.collection(["parties", receiver, "waitingGuests"].joined(separator: "/"))
         let guestRef = reference.document(self.currentUser.id)
         
@@ -450,7 +461,6 @@ class FirestoreService {
     }
     
     func getApprovedGuestsId(party: PartyModel, completion: @escaping (Result<[String], Error>) -> Void) {
-        
         let reference = db.collection(["parties", party.id, "approvedGuests"].joined(separator: "/"))
         
         reference.getDocuments() { (querySnapshot, err) in
@@ -479,7 +489,6 @@ class FirestoreService {
     }
     
     func getWaitingGuestsId(party: PartyModel, completion: @escaping (Result<[String], Error>) -> Void) {
-        
         let reference = db.collection(["parties", party.id, "waitingGuests"].joined(separator: "/"))
         
         reference.getDocuments() { (querySnapshot, err) in
@@ -508,7 +517,6 @@ class FirestoreService {
     }
     
     func deleteWaitingGuest(user: UserModel, party: PartyModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let userId = user.id
         let partyId = party.id
         

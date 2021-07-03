@@ -26,13 +26,13 @@ final class SexSetupProfileVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         setNavigationBar(withColor: .systemBlue, title: "Пол")
         setupViews()
         setupConstraints()
@@ -63,7 +63,6 @@ final class SexSetupProfileVC: UIViewController {
 extension SexSetupProfileVC {
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),

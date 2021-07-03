@@ -87,7 +87,6 @@ final class WelcomeVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupViews()
         setupConstraints()
     }
@@ -102,7 +101,6 @@ final class WelcomeVC: UIViewController {
     }
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.centerYAnchor, constant: -(UIScreen.main.bounds.height / 3)),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
