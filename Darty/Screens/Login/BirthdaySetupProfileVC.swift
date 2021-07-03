@@ -11,7 +11,8 @@ import FirebaseAuth
 final class BirthdaySetupProfileVC: UIViewController {
     
     private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Далее 􀰑", color: .blue)
+        let button = UIButton(title: "Далее 􀰑")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
@@ -30,19 +31,14 @@ final class BirthdaySetupProfileVC: UIViewController {
         
         return datePicker
     }()
-    
-    private let blurEffect: UIBlurEffect = {
-        let blurEffect = UIBlurEffect(style: .prominent)
-        return blurEffect
-    }()
-    
+
     private lazy var blurredEffectView: BlurEffectView = {
         let blurredEffectView = BlurEffectView()
         blurredEffectView.translatesAutoresizingMaskIntoConstraints = false
         blurredEffectView.layer.cornerRadius = 40
         blurredEffectView.clipsToBounds = true
         blurredEffectView.layer.borderWidth = 3.5
-        blurredEffectView.layer.borderColor = UIColor.systemBlue.cgColor
+        blurredEffectView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
         return blurredEffectView
     }()
 
@@ -54,13 +50,13 @@ final class BirthdaySetupProfileVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         setNavigationBar(withColor: .systemBlue, title: "День рождения")
         setupViews()
         setupConstraints()
@@ -74,7 +70,7 @@ final class BirthdaySetupProfileVC: UIViewController {
         view.backgroundColor = .systemBackground
         
         view.addSubview(blurredEffectView)
-        view.addSubview(datePicker)
+        blurredEffectView.contentView.addSubview(datePicker)
         view.addSubview(nextButton)
     }
     
@@ -108,9 +104,9 @@ extension BirthdaySetupProfileVC {
         ])
     
         NSLayoutConstraint.activate([
-            datePicker.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            datePicker.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            datePicker.centerYAnchor.constraint(equalTo: blurredEffectView.centerYAnchor),
+            datePicker.leadingAnchor.constraint(equalTo: blurredEffectView.leadingAnchor),
+            datePicker.trailingAnchor.constraint(equalTo: blurredEffectView.trailingAnchor),
             datePicker.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.height / 2)
         ])
     }

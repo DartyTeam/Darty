@@ -10,7 +10,7 @@ import Firebase
 
 class AppCoordinator: NSObject {
     
-    var window: UIWindow
+    var window: UIWindow!
 
     init(window: UIWindow?) {
         self.window = window!
@@ -18,13 +18,8 @@ class AppCoordinator: NSObject {
         
         startScreenFlow()
     }
-    
-    func didFinishLaunchingWithOptions(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
-        
-    }
 
     private func startScreenFlow() {
-        
         if let user = Auth.auth().currentUser {
             FirestoreService.shared.getUserData(user: user) { [weak self] (result) in
                 switch result {
@@ -43,12 +38,5 @@ class AppCoordinator: NSObject {
             window.rootViewController = LoginVC()
         }
         window.makeKeyAndVisible()
-        
-//        let navController = UINavigationController()
-//        navController.setNavigationBarHidden(true, animated: false)
-//        navController.pushViewController(LoginVC(), animated: false)
-//
-//        self.window.rootViewController = navController
-//        self.window.makeKeyAndVisible()
     }
 }

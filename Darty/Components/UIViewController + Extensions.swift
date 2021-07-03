@@ -27,7 +27,7 @@ extension UIViewController {
         self.navigationItem.setHidesBackButton(true, animated:false)
 
         //your custom view for back image with custom size
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 17, height: 50))
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 66))
         
         let button = UIButton(frame: CGRect(x: 0, y: 20, width: 0, height: 50))
         button.translatesAutoresizingMaskIntoConstraints = false

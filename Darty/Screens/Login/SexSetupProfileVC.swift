@@ -1,5 +1,5 @@
 //
-//  ImageSetupProfileVC.swift
+//  SexSetupProfileVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 02.07.2021.
@@ -8,9 +8,8 @@
 import UIKit
 import FirebaseAuth
 
-final class ImageSetupProfileVC: UIViewController {
+final class SexSetupProfileVC: UIViewController {
     
-    // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Далее 􀰑")
         button.backgroundColor = .systemBlue
@@ -19,13 +18,6 @@ final class ImageSetupProfileVC: UIViewController {
         return button
     }()
     
-    private lazy var setImageView: SetImageView = {
-        let setImageView = SetImageView(delegate: self)
-        setImageView.translatesAutoresizingMaskIntoConstraints = false
-        return setImageView
-    }()
-    
-    // MARK: - Properties
     private let currentUser: User
     
     // MARK: - Lifecycle
@@ -41,19 +33,18 @@ final class ImageSetupProfileVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemBlue, title: "Изображение")
+        setNavigationBar(withColor: .systemBlue, title: "Пол")
         setupViews()
         setupConstraints()
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "image.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
+        if let image = UIImage(named: "sex.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
             addBackground(image)
         }
         
         view.backgroundColor = .systemBackground
         
-        view.addSubview(setImageView)
         view.addSubview(nextButton)
     }
     
@@ -63,13 +54,13 @@ final class ImageSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        
-        
+        let aboutSetupProfileVC = BirthdaySetupProfileVC(currentUser: currentUser)
+        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
 }
 
 // MARK: - Setup constraints
-extension ImageSetupProfileVC {
+extension SexSetupProfileVC {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
@@ -78,31 +69,14 @@ extension ImageSetupProfileVC {
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
             nextButton.heightAnchor.constraint(equalToConstant: 50)
         ])
-        
-        NSLayoutConstraint.activate([
-            setImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            setImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            setImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            setImageView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44)
-        ])
     }
 }
 
-extension ImageSetupProfileVC: SetImageDelegate {
-    func imageDidSet(_ image: UIImage?) {
-        
-    }
+// MARK: - UITextFieldDelegate
+extension SexSetupProfileVC: UITextFieldDelegate {
     
-    func showActionSheet(_ actionSheet: UIAlertController) {
-        print("asjdhahudishuiaduhiadhsuias")
-        present(actionSheet, animated: true)
-    }
-    
-    func showImagePicker(_ imagePicker: UIImagePickerController) {
-        present(imagePicker, animated: true)
-    }
-    
-    func dismissImagePicker() {
-        dismiss(animated: true)
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

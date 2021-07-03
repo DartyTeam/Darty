@@ -20,7 +20,8 @@ final class LoginVC: UIViewController {
     }()
     
     private let signInButton: UIButton = {
-        let button = UIButton(title: "Sign In", color: .blue)
+        let button = UIButton(title: "Sign In")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
         return button
@@ -74,14 +75,12 @@ final class LoginVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-            
         setupViews()
         setupConstraints()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
 //        let welcomeVC = WelcomeVC()
 //        welcomeVC.modalPresentationStyle = .overFullScreen
 //        present(welcomeVC, animated: true, completion: nil)
@@ -101,7 +100,6 @@ final class LoginVC: UIViewController {
     }
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             signInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -156,7 +154,6 @@ extension LoginVC: GIDSignInDelegate {
     }
     
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        
         AuthService.shared.googleLogin(user: user, error: error) { [weak self] (result) in
             switch result {
             
@@ -190,12 +187,10 @@ extension LoginVC: GIDSignInDelegate {
 extension LoginVC {
     
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
-        
         print("Did log out of facebook")
     }
     
     @objc private func facebookLoginAction() {
-                
         if let token = AccessToken.current, !token.isExpired {
             facebookLoginFirebase()
         } else {

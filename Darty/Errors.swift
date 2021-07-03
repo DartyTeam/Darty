@@ -17,7 +17,6 @@ enum Errors {
 extension Errors: LocalizedError {
     var errorDescription: String? {
         switch self {
-      
         case .notFilled:
             return NSLocalizedString("Заполните все поля", comment: "")
         case .invalidEmail:
@@ -40,7 +39,6 @@ enum UserError {
 extension UserError: LocalizedError {
     var errorDescription: String? {
         switch self {
-      
         case .notFilled:
             return NSLocalizedString("Заполните все поля", comment: "")
         case .photoNotExist:
@@ -54,7 +52,6 @@ extension UserError: LocalizedError {
 }
 
 enum PartyError {
-    
     case cannotUnwrapToParty
     case cannotGetPartyInfo
     case noWaitingGuests
@@ -64,7 +61,6 @@ enum PartyError {
 extension PartyError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        
         case .cannotUnwrapToParty:
             return NSLocalizedString("Невозможно конвертировать PartyModel из Firebase", comment: "")
         case .cannotGetPartyInfo:
