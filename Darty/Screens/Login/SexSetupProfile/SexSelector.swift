@@ -5,6 +5,17 @@
 //  Created by Руслан Садыков on 03.07.2021.
 //
 
+protocol SexSelectorDelegate {
+    func sexSelected(_ sex: Sex)
+    func sexDeselected(_ sex: Sex)
+}
+
+enum Sex: String {
+    case man = "man"
+    case woman = "woman"
+    case another = "another"
+}
+
 import UIKit
 
 private enum Constants {
@@ -37,7 +48,10 @@ class SexSelector: UIView {
     
     private lazy var selectedView: UIView = {
         let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = size / 2
         view.backgroundColor = color.withAlphaComponent(0.5)
+        
         let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 28, weight: .bold))
         let checkMarkIcon = UIImageView(image: UIImage(systemName: "checkmark", withConfiguration: boldConfig)?.withTintColor(.white, renderingMode: .alwaysOriginal))
         checkMarkIcon.translatesAutoresizingMaskIntoConstraints = false
@@ -46,20 +60,40 @@ class SexSelector: UIView {
         
         NSLayoutConstraint.activate([
             checkMarkIcon.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            checkMarkIcon.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            checkMarkIcon.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
         
+        view.alpha = 0
         return view
     }()
     
     // MARK: - Properties
     private let size: CGFloat!
     private let color: UIColor!
+    private let delegate: SexSelectorDelegate!
+    let sex: Sex!
+    var isSelected: Bool = false {
+        didSet {
+            if self.isSelected {
+                UIView.animate(withDuration: 0.3) {
+                    self.selectedView.alpha = 1
+                }
+                self.delegate.sexSelected(sex)
+            } else {
+                UIView.animate(withDuration: 0.3) {
+                    self.selectedView.alpha = 0
+                }
+                self.delegate.sexDeselected(sex)
+            }
+        }
+    }
     
     // MARK: - Lifecycle
-    init(title: String, iconImage: UIImage?, backgroundColor: UIColor, size: CGFloat) {
+    init(title: String, iconImage: UIImage?, backgroundColor: UIColor, size: CGFloat, delegate: SexSelectorDelegate, sex: Sex) {
         self.size = size
         self.color = backgroundColor
+        self.delegate = delegate
+        self.sex = sex
         super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
  
         backView.backgroundColor = backgroundColor
@@ -80,6 +114,7 @@ class SexSelector: UIView {
     private func setupViews() {
         addSubview(backView)
         backView.addSubview(iconImageView)
+        backView.addSubview(selectedView)
         addSubview(titleLabel)
     }
     
@@ -100,6 +135,13 @@ class SexSelector: UIView {
         ])
         
         NSLayoutConstraint.activate([
+            selectedView.topAnchor.constraint(equalTo: backView.topAnchor),
+            selectedView.leadingAnchor.constraint(equalTo: backView.leadingAnchor),
+            selectedView.trailingAnchor.constraint(equalTo: backView.trailingAnchor),
+            selectedView.bottomAnchor.constraint(equalTo: backView.bottomAnchor),
+        ])
+        
+        NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: backView.bottomAnchor, constant: 8),
             titleLabel.centerXAnchor.constraint(equalTo: backView.centerXAnchor)
         ])
@@ -111,6 +153,9 @@ class SexSelector: UIView {
     
     // MARK: - Handlers
     @objc private func tappedAction() {
-       
+        isSelected.toggle()
+        showAnimation {
+            
+        }
     }
 }

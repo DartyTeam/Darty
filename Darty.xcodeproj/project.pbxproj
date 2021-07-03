@@ -36,10 +36,16 @@
 		446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AA267E5B4B00528501 /* UIButton + Extension.swift */; };
 		446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AC267E5D3B00528501 /* AppCoordinator.swift */; };
 		4487071E268F59F4006587D0 /* AboutSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */; };
-		44870720268F5B15006587D0 /* SexSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4487071F268F5B15006587D0 /* SexSetupProfileVC.swift */; };
 		44870722268F5B9B006587D0 /* BirthdaySetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */; };
 		44870724268F5C68006587D0 /* ImageSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */; };
 		44870726268F72D3006587D0 /* BlurEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870725268F72D3006587D0 /* BlurEffectView.swift */; };
+		44A171F12690CBC300C154A0 /* SF-Pro-Text-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */; };
+		44A171F22690CBC300C154A0 /* SF-Pro-Text-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */; };
+		44A171F32690CBC300C154A0 /* SF-Pro-Text-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171EF2690CBC200C154A0 /* SF-Pro-Text-Semibold.otf */; };
+		44A171F42690CBC300C154A0 /* SF-Pro-Text-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171F02690CBC300C154A0 /* SF-Pro-Text-Regular.otf */; };
+		44A171F72690CC6C00C154A0 /* SexSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171F62690CC6C00C154A0 /* SexSelector.swift */; };
+		44A171F92690CC6E00C154A0 /* SexSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171F82690CC6E00C154A0 /* SexSetupProfileVC.swift */; };
+		44A171FB2690CC9400C154A0 /* String + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171FA2690CC9400C154A0 /* String + Extension.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -88,10 +94,16 @@
 		446A34AA267E5B4B00528501 /* UIButton + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + Extension.swift"; sourceTree = "<group>"; };
 		446A34AC267E5D3B00528501 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSetupProfileVC.swift; sourceTree = "<group>"; };
-		4487071F268F5B15006587D0 /* SexSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SexSetupProfileVC.swift; sourceTree = "<group>"; };
 		44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySetupProfileVC.swift; sourceTree = "<group>"; };
 		44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSetupProfileVC.swift; sourceTree = "<group>"; };
 		44870725268F72D3006587D0 /* BlurEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurEffectView.swift; sourceTree = "<group>"; };
+		44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Medium.otf"; sourceTree = "<group>"; };
+		44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Bold.otf"; sourceTree = "<group>"; };
+		44A171EF2690CBC200C154A0 /* SF-Pro-Text-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Semibold.otf"; sourceTree = "<group>"; };
+		44A171F02690CBC300C154A0 /* SF-Pro-Text-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Regular.otf"; sourceTree = "<group>"; };
+		44A171F62690CC6C00C154A0 /* SexSelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SexSelector.swift; sourceTree = "<group>"; };
+		44A171F82690CC6E00C154A0 /* SexSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SexSetupProfileVC.swift; sourceTree = "<group>"; };
+		44A171FA2690CC9400C154A0 /* String + Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String + Extension.swift"; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -126,6 +138,10 @@
 		4430DF6B268F1E840016F2A7 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */,
+				44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */,
+				44A171F02690CBC300C154A0 /* SF-Pro-Text-Regular.otf */,
+				44A171EF2690CBC200C154A0 /* SF-Pro-Text-Semibold.otf */,
 				4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */,
 				4430DF6E268F1E900016F2A7 /* SF-Pro-Display-Regular.otf */,
 				4430DF6F268F1E900016F2A7 /* SF-Pro-Display-Semibold.otf */,
@@ -240,10 +256,10 @@
 		446A34A4267E58EC00528501 /* Login */ = {
 			isa = PBXGroup;
 			children = (
+				44A171F52690CC6200C154A0 /* SexSetupProfile */,
 				446A349B267E578700528501 /* LoginVC.swift */,
 				44D44AE8268A6A3D00EFE76F /* NameSetupProfileVC.swift */,
 				4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */,
-				4487071F268F5B15006587D0 /* SexSetupProfileVC.swift */,
 				44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */,
 				44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */,
 				44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */,
@@ -275,8 +291,18 @@
 				44870725268F72D3006587D0 /* BlurEffectView.swift */,
 				441BF7E5268FCFD300114BF4 /* SetImageView.swift */,
 				441BF7E7268FD84C00114BF4 /* UIView + Extension.swift */,
+				44A171FA2690CC9400C154A0 /* String + Extension.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		44A171F52690CC6200C154A0 /* SexSetupProfile */ = {
+			isa = PBXGroup;
+			children = (
+				44A171F62690CC6C00C154A0 /* SexSelector.swift */,
+				44A171F82690CC6E00C154A0 /* SexSetupProfileVC.swift */,
+			);
+			path = SexSetupProfile;
 			sourceTree = "<group>";
 		};
 		44D44AC9268A57F100EFE76F /* Services */ = {
@@ -390,8 +416,12 @@
 				4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */,
 				4430DF72268F1E910016F2A7 /* SF-Pro-Rounded-Medium.otf in Resources */,
 				4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */,
+				44A171F42690CBC300C154A0 /* SF-Pro-Text-Regular.otf in Resources */,
+				44A171F32690CBC300C154A0 /* SF-Pro-Text-Semibold.otf in Resources */,
 				446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */,
+				44A171F22690CBC300C154A0 /* SF-Pro-Text-Bold.otf in Resources */,
 				4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */,
+				44A171F12690CBC300C154A0 /* SF-Pro-Text-Medium.otf in Resources */,
 				446A3481267E4E4A00528501 /* Assets.xcassets in Resources */,
 				4430DF74268F1E910016F2A7 /* SF-Pro-Display-Regular.otf in Resources */,
 				446A347F267E4E4600528501 /* Main.storyboard in Resources */,
@@ -469,10 +499,12 @@
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
 				446A34A9267E5B2100528501 /* TextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
+				44A171F72690CC6C00C154A0 /* SexSelector.swift in Sources */,
 				44870722268F5B9B006587D0 /* BirthdaySetupProfileVC.swift in Sources */,
 				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
 				44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */,
 				441BF7EA268FE1AA00114BF4 /* Validators.swift in Sources */,
+				44A171FB2690CC9400C154A0 /* String + Extension.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
 				44D44AE9268A6A3D00EFE76F /* NameSetupProfileVC.swift in Sources */,
@@ -486,6 +518,7 @@
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
 				441BF7E6268FCFD300114BF4 /* SetImageView.swift in Sources */,
 				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
+				44A171F92690CC6E00C154A0 /* SexSetupProfileVC.swift in Sources */,
 				44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */,
 				441BF7E8268FD84C00114BF4 /* UIView + Extension.swift in Sources */,
 				4487071E268F59F4006587D0 /* AboutSetupProfileVC.swift in Sources */,
@@ -498,7 +531,6 @@
 				446A3498267E54C100528501 /* AccountVC.swift in Sources */,
 				4430DF66268EF4080016F2A7 /* UINavigationBar + Extension.swift in Sources */,
 				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
-				44870720268F5B15006587D0 /* SexSetupProfileVC.swift in Sources */,
 				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

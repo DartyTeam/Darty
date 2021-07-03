@@ -9,10 +9,11 @@ private struct SexButtonModel {
     let title: String
     let iconImage: UIImage?
     let backgroundColor: UIColor
+    let sex: Sex
 }
 
 private enum Constants {
-    static let sizeSexButton: CGFloat = 100
+    static let sizeSexButton: CGFloat = UIScreen.main.bounds.height / 8.13
     static let textFont: UIFont? = .sfProDisplay(ofSize: 18, weight: .semibold)
     static let infoText = "You may not choose"
 }
@@ -24,7 +25,8 @@ final class SexSetupProfileVC: UIViewController {
     
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Далее 􀰑", color: .blue)
+        let button = UIButton(title: "Далее 􀰑")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
@@ -38,21 +40,23 @@ final class SexSetupProfileVC: UIViewController {
         return label
     }()
     
-    private let sexesStackView: UIStackView = {
+    private let sexStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = 44
+        stackView.distribution = .equalSpacing
+//        stackView.spacing = 44
         return stackView
     }()
     
     // MARK: - Properties
-    private let sexesArray: [SexButtonModel] = [
-        SexButtonModel(title: "Man", iconImage: "🙋‍♂️".textToImage(), backgroundColor: #colorLiteral(red: 0.1607843137, green: 0.3921568627, blue: 0.6509803922, alpha: 1)),
-        SexButtonModel(title: "Woman", iconImage: "🙋‍♀️".textToImage(), backgroundColor: #colorLiteral(red: 0.5019607843, green: 0.1450980392, blue: 0.5764705882, alpha: 1)),
-        SexButtonModel(title: "Another", iconImage: "🙋".textToImage(), backgroundColor: #colorLiteral(red: 0.631372549, green: 0.631372549, blue: 0.631372549, alpha: 1))
+    private let sexArray: [SexButtonModel] = [
+        SexButtonModel(title: "Man", iconImage: "🙋‍♂️".textToImage(), backgroundColor: #colorLiteral(red: 0.1607843137, green: 0.3921568627, blue: 0.6509803922, alpha: 1), sex: .man),
+        SexButtonModel(title: "Woman", iconImage: "🙋‍♀️".textToImage(), backgroundColor: #colorLiteral(red: 0.5019607843, green: 0.1450980392, blue: 0.5764705882, alpha: 1), sex: .woman),
+        SexButtonModel(title: "Another", iconImage: "🙋".textToImage(), backgroundColor: #colorLiteral(red: 0.631372549, green: 0.631372549, blue: 0.631372549, alpha: 1), sex: .another)
     ]
     
+    private var selectedSex: Sex?
     private let currentUser: User
     
     // MARK: - Lifecycle
@@ -74,7 +78,7 @@ final class SexSetupProfileVC: UIViewController {
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "sex.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
+        if let image = UIImage(named: "sex.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
             addBackground(image)
         }
         
@@ -82,13 +86,13 @@ final class SexSetupProfileVC: UIViewController {
         
         view.addSubview(infoLabel)
         view.addSubview(nextButton)
-        view.addSubview(sexesStackView)
+        view.addSubview(sexStackView)
     }
     
     private func setupSexes() {
-        for sex in sexesArray {
-            let sexSelector = SexSelector(title: sex.title, iconImage: sex.iconImage, backgroundColor: sex.backgroundColor, size: Constants.sizeSexButton)
-            sexesStackView.addArrangedSubview(sexSelector)
+        for item in sexArray {
+            let sexSelector = SexSelector(title: item.title, iconImage: item.iconImage, backgroundColor: item.backgroundColor, size: Constants.sizeSexButton, delegate: self, sex: item.sex)
+            sexStackView.addArrangedSubview(sexSelector)
         }
     }
     
@@ -120,8 +124,27 @@ extension SexSetupProfileVC {
         ])
         
         NSLayoutConstraint.activate([
-            sexesStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sexesStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            sexStackView.topAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
+            sexStackView.bottomAnchor.constraint(greaterThanOrEqualTo: infoLabel.topAnchor, constant: -44),
+            sexStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
+    }
+}
+
+extension SexSetupProfileVC: SexSelectorDelegate {
+    func sexDeselected(_ sex: Sex) {
+        if selectedSex == sex {
+            selectedSex = nil
+        }
+    }
+    
+    func sexSelected(_ sex: Sex) {
+        selectedSex = sex
+        for item in sexStackView.arrangedSubviews {
+            let item = item as? SexSelector
+            if item?.sex != sex {
+                item?.isSelected = false
+            }
+        }
     }
 }
