@@ -9,26 +9,8 @@ import Foundation
 
 class Validators {
     
-    static func isFilled(partyName: String?, aboutParty: String?) -> Bool {
-        guard let partyName = partyName,
-              let aboutParty = aboutParty,
-              partyName != "",
-              aboutParty != ""
-        else { return false }
-        
-        return true
-    }
-    
-    static func isFilled(email: String?, password: String?, confirmPassword: String?) -> Bool {
-        guard let email = email,
-              let password = password,
-              let confirmPassword = confirmPassword,
-              email != "",
-              password != "",
-              confirmPassword != ""
-        else { return false }
-        
-        return true
+    static func isFilled(partyName: String, aboutParty: String) -> Bool {
+        return !partyName.isEmpty && !partyName.isEmpty
     }
     
     static func isFilled(username: String?, description: String?, sex: Int?, birthday: Date?) -> Bool {

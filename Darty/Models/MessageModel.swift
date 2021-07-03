@@ -5,7 +5,6 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-import UIKit
 import FirebaseFirestore
 import MessageKit
 
@@ -28,7 +27,6 @@ struct MessageModel: Hashable, MessageType {
     }
     
     var kind: MessageKind {
-//        return .text(content)
         if let image = image {
             let mediaItem = ImageItem(url: nil, image: nil, placeholderImage: image, size: image.size)
             return .photo(mediaItem)
@@ -61,12 +59,10 @@ struct MessageModel: Hashable, MessageType {
         guard let sentDate = data["created"] as? Timestamp else { return nil }
         guard let senderId = data["senderID"] as? String else { return nil }
         guard let senderName = data["senderName"] as? String else { return nil }
-//        guard let content = data["content"] as? String else { return nil }
-        
+
         self.id = document.documentID
         self.sentDate = sentDate.dateValue()
         sender = Sender(senderId: senderId, displayName: senderName)
-        
         
         if let content = data["content"] as? String {
             self.content = content

@@ -9,7 +9,7 @@ import UIKit
 
 extension UIButton {
     
-    convenience init(title: String? = "", color: ButtonColors = .blue) {
+    convenience init(title: String? = "") {
         self.init(type: .system)
         
         self.setTitle(title, for: .normal)
@@ -23,31 +23,6 @@ extension UIButton {
         self.layer.shadowRadius = 4
         self.layer.shadowOpacity = 1
         self.layer.shadowOffset = CGSize(width: 0, height: 4)
-        
-        switch color {
-
-        case .red:
-            self.backgroundColor = .systemRed
-        case .blue:
-            self.backgroundColor = .systemBlue
-        case .purple:
-            self.backgroundColor = .systemPurple
-        case .green:
-            self.backgroundColor = .systemGreen
-        case .orange:
-            self.backgroundColor = .systemOrange
-        case .yellow:
-            self.backgroundColor = .systemYellow
-        }
-    }
-    
-    enum ButtonColors {
-        case red
-        case blue
-        case purple
-        case green
-        case orange
-        case yellow
     }
     
     // Add touch area

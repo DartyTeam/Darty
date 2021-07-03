@@ -20,7 +20,8 @@ final class LoginVC: UIViewController {
     }()
     
     private let signInButton: UIButton = {
-        let button = UIButton(title: "Sign In", color: .blue)
+        let button = UIButton(title: "Sign In")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
         return button

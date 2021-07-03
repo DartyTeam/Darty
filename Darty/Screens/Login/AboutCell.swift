@@ -7,18 +7,19 @@
 
 import UIKit
 
+private enum Constants {
+    static let iconViewSize: CGFloat = 44.0
+    static let bottomOffset: CGFloat = 32
+    static let horizontalInsets: CGFloat = 32
+}
+
 final class AboutCell: UITableViewCell {
     
-    // MARK: - Constants
-    private let iconViewSize: CGFloat = 44
-    private let bottomOffset: CGFloat = 32
-    private let horizontalInsets: CGFloat = 32
-
     // MARK: - UI Elements    
     private lazy var backIconView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = iconViewSize / 2
+        view.layer.cornerRadius = Constants.iconViewSize / 2
         view.backgroundColor = .systemOrange
         return view
     }()
@@ -48,7 +49,6 @@ final class AboutCell: UITableViewCell {
         return label
     }()
    
-        
     // MARK: - Lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -80,33 +80,32 @@ final class AboutCell: UITableViewCell {
     }
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             iconImage.centerYAnchor.constraint(equalTo: backIconView.centerYAnchor),
             iconImage.centerXAnchor.constraint(equalTo: backIconView.centerXAnchor),
         ])
         
         NSLayoutConstraint.activate([
-            backIconView.heightAnchor.constraint(equalToConstant: iconViewSize),
-            backIconView.widthAnchor.constraint(equalToConstant: iconViewSize),
-            backIconView.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: -bottomOffset / 2),
-            backIconView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: horizontalInsets)
+            backIconView.heightAnchor.constraint(equalToConstant: Constants.iconViewSize),
+            backIconView.widthAnchor.constraint(equalToConstant: Constants.iconViewSize),
+            backIconView.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: -Constants.bottomOffset / 2),
+            backIconView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: Constants.horizontalInsets)
         ])
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: backIconView.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -horizontalInsets)
+            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.horizontalInsets)
         ])
         
         NSLayoutConstraint.activate([
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             subtitleLabel.leadingAnchor.constraint(equalTo: backIconView.trailingAnchor, constant: 16),
-            subtitleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -horizontalInsets)
+            subtitleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -Constants.horizontalInsets)
         ])
         
         NSLayoutConstraint.activate([
-            self.bottomAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: bottomOffset),
+            self.bottomAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: Constants.bottomOffset),
         ])
     }
 }

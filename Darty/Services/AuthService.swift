@@ -5,7 +5,6 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-import UIKit
 import Firebase
 import GoogleSignIn
 import FBSDKLoginKit
@@ -56,21 +55,7 @@ class AuthService {
     }
     
     func facebookLogin(error: Error!, completion: @escaping (Result<User, Error>) -> Void) {
-                
-//        logIn(permissions: ["public_profile", "email"], from: self, handler: { result, error in
-//            if error != nil {
-//                print("ERROR: Trying to get login results")
-//            } else if result?.isCancelled != nil {
-//                print("The token is \(result?.token?.tokenString ?? "")")
-//                if result?.token?.tokenString != nil {
-//                    print("Logged in")
-//                    self.getUserProfile(token: result?.token, userId: result?.token?.userID)
-//                } else {
-//                    print("Cancelled")
-//                }
-//            }
-//        })
-    
+                    
         if let error = error {
             completion(.failure(error))
             return

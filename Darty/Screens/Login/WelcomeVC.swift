@@ -5,19 +5,16 @@
 //  Created by Руслан Садыков on 29.06.2021.
 //
 
-import UIKit
-
-fileprivate struct AboutInfoModel {
+private struct AboutInfoModel {
     let title: String
     let subtitle: String
     let iconImage: UIImage?
     let iconBackgroundColor: UIColor
 }
 
+import UIKit
+
 final class WelcomeVC: UIViewController {
-    
-    // MARK: - Elements sizes
-    private var iconViewSize: CGFloat = 44
     
     // MARK: - UI Elements
     private let titleLabel: UILabel = {
@@ -55,7 +52,8 @@ final class WelcomeVC: UIViewController {
     }()
     
     private let continueButton: UIButton = {
-        let button = UIButton(title: "Веселиться!", color: .purple)
+        let button = UIButton(title: "Веселиться!")
+        button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(continueAction), for: .touchUpInside)
         return button

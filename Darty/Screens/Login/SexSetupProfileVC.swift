@@ -11,7 +11,8 @@ import FirebaseAuth
 final class SexSetupProfileVC: UIViewController {
     
     private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Далее 􀰑", color: .blue)
+        let button = UIButton(title: "Далее 􀰑")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button

@@ -12,20 +12,17 @@ final class ImageSetupProfileVC: UIViewController {
     
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Далее 􀰑", color: .blue)
+        let button = UIButton(title: "Далее 􀰑")
+        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    private lazy var blurredEffectView: BlurEffectView = {
-        let blurredEffectView = BlurEffectView()
-        blurredEffectView.translatesAutoresizingMaskIntoConstraints = false
-        blurredEffectView.layer.cornerRadius = 40
-        blurredEffectView.clipsToBounds = true
-        blurredEffectView.layer.borderWidth = 3.5
-        blurredEffectView.layer.borderColor = UIColor.systemBlue.cgColor
-        return blurredEffectView
+    private lazy var setImageView: SetImageView = {
+        let setImageView = SetImageView(delegate: self)
+        setImageView.translatesAutoresizingMaskIntoConstraints = false
+        return setImageView
     }()
     
     // MARK: - Properties
@@ -56,7 +53,7 @@ final class ImageSetupProfileVC: UIViewController {
         
         view.backgroundColor = .systemBackground
         
-        view.addSubview(blurredEffectView)
+        view.addSubview(setImageView)
         view.addSubview(nextButton)
     }
     
@@ -84,19 +81,16 @@ extension ImageSetupProfileVC {
         ])
         
         NSLayoutConstraint.activate([
-            blurredEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            blurredEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            blurredEffectView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            blurredEffectView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44)
+            setImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            setImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            setImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
+            setImageView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44)
         ])
     }
 }
 
-// MARK: - UITextFieldDelegate
-extension ImageSetupProfileVC: UITextFieldDelegate {
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
+extension ImageSetupProfileVC: SetImageDelegate {
+    func showPicker(picker: UIPickerView) {
+        
     }
 }

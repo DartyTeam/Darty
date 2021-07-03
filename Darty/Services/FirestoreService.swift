@@ -359,7 +359,6 @@ class FirestoreService {
         
         let docRef = partiesRef.document(uid)
         docRef.getDocument { (document, error) in
-            print("asfiasifojafiojasfi: ", document?.exists)
             if let document = document, document.exists {
                 guard let party = PartyModel(document: document) else {
                     completion(.failure(PartyError.cannotUnwrapToParty))
@@ -580,6 +579,7 @@ class FirestoreService {
         }
     }
     
+    // MARK: - Will be need in future
     //    func getWaitingParties(completion: @escaping (Result<[Party], Error>) -> Void) {
     //
     //        var query: Query = db.collection("parties").document().collection("waitingGuests")

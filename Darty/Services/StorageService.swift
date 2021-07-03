@@ -5,7 +5,6 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-import UIKit
 import FirebaseAuth
 import FirebaseStorage
 
@@ -24,7 +23,8 @@ class StorageService {
     }
     
     private var currentUserId: String {
-        return Auth.auth().currentUser!.uid
+        guard let currentUser = Auth.auth().currentUser else { return "error" }
+        return currentUser.uid
     }
     
     func upload(photo: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
