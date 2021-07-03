@@ -32,7 +32,7 @@
 		446A3496267E54B600528501 /* MessagesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3495267E54B600528501 /* MessagesVC.swift */; };
 		446A3498267E54C100528501 /* AccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3497267E54C100528501 /* AccountVC.swift */; };
 		446A349C267E578700528501 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A349B267E578700528501 /* LoginVC.swift */; };
-		446A34A9267E5B2100528501 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34A8267E5B2100528501 /* TextField.swift */; };
+		446A34A9267E5B2100528501 /* BottomLineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34A8267E5B2100528501 /* BottomLineTextField.swift */; };
 		446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AA267E5B4B00528501 /* UIButton + Extension.swift */; };
 		446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A34AC267E5D3B00528501 /* AppCoordinator.swift */; };
 		4487071E268F59F4006587D0 /* AboutSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */; };
@@ -91,7 +91,7 @@
 		446A3495267E54B600528501 /* MessagesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesVC.swift; sourceTree = "<group>"; };
 		446A3497267E54C100528501 /* AccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountVC.swift; sourceTree = "<group>"; };
 		446A349B267E578700528501 /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
-		446A34A8267E5B2100528501 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
+		446A34A8267E5B2100528501 /* BottomLineTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomLineTextField.swift; sourceTree = "<group>"; };
 		446A34AA267E5B4B00528501 /* UIButton + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + Extension.swift"; sourceTree = "<group>"; };
 		446A34AC267E5D3B00528501 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutSetupProfileVC.swift; sourceTree = "<group>"; };
@@ -282,7 +282,7 @@
 		446A34A7267E5B1600528501 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				446A34A8267E5B2100528501 /* TextField.swift */,
+				446A34A8267E5B2100528501 /* BottomLineTextField.swift */,
 				446A34AA267E5B4B00528501 /* UIButton + Extension.swift */,
 				44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */,
 				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
@@ -500,7 +500,7 @@
 				4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */,
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
-				446A34A9267E5B2100528501 /* TextField.swift in Sources */,
+				446A34A9267E5B2100528501 /* BottomLineTextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
 				44A171F72690CC6C00C154A0 /* SexSelector.swift in Sources */,
 				44870722268F5B9B006587D0 /* BirthdaySetupProfileVC.swift in Sources */,
