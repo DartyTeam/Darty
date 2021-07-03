@@ -21,6 +21,13 @@ extension UIFont {
         case semibold
     }
     
+    enum sfProTextWeight {
+        case regular
+        case medium
+        case semibold
+        case bold
+    }
+    
     static func sfProRounded(ofSize size: CGFloat, weight: sfProRoundedWeight) -> UIFont? {
         
         switch weight {
@@ -44,6 +51,21 @@ extension UIFont {
             return UIFont.init(name: "SFProDisplay-Medium", size: size)
         case .semibold:
             return UIFont.init(name: "SFProDisplay-Semibold", size: size)
+        }
+    }
+    
+    static func sfProText(ofSize size: CGFloat, weight: sfProTextWeight) -> UIFont? {
+        
+        switch weight {
+            
+        case .regular:
+            return UIFont.init(name: "SFProText-Regular", size: size)
+        case .medium:
+            return UIFont.init(name: "SFProText-Medium", size: size)
+        case .semibold:
+            return UIFont.init(name: "SFProText-Semibold", size: size)
+        case .bold:
+            return UIFont.init(name: "SFProText-Bold", size: size)
         }
     }
 }

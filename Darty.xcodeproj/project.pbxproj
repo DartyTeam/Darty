@@ -38,6 +38,11 @@
 		44870722268F5B9B006587D0 /* BirthdaySetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */; };
 		44870724268F5C68006587D0 /* ImageSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */; };
 		44870726268F72D3006587D0 /* BlurEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44870725268F72D3006587D0 /* BlurEffectView.swift */; };
+		44A171DB26908EEF00C154A0 /* SF-Pro-Text-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171DA26908EEF00C154A0 /* SF-Pro-Text-Regular.otf */; };
+		44A171DD26908EFB00C154A0 /* SF-Pro-Text-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171DC26908EFB00C154A0 /* SF-Pro-Text-Medium.otf */; };
+		44A171DF26908F0800C154A0 /* SF-Pro-Text-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171DE26908F0700C154A0 /* SF-Pro-Text-Bold.otf */; };
+		44A171E126908F1200C154A0 /* SF-Pro-Text-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171E026908F1100C154A0 /* SF-Pro-Text-Semibold.otf */; };
+		44A171E32690901500C154A0 /* UITextView + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A171E22690901500C154A0 /* UITextView + Extension.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -89,6 +94,11 @@
 		44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySetupProfileVC.swift; sourceTree = "<group>"; };
 		44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSetupProfileVC.swift; sourceTree = "<group>"; };
 		44870725268F72D3006587D0 /* BlurEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurEffectView.swift; sourceTree = "<group>"; };
+		44A171DA26908EEF00C154A0 /* SF-Pro-Text-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Regular.otf"; sourceTree = "<group>"; };
+		44A171DC26908EFB00C154A0 /* SF-Pro-Text-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Medium.otf"; sourceTree = "<group>"; };
+		44A171DE26908F0700C154A0 /* SF-Pro-Text-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Bold.otf"; sourceTree = "<group>"; };
+		44A171E026908F1100C154A0 /* SF-Pro-Text-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Semibold.otf"; sourceTree = "<group>"; };
+		44A171E22690901500C154A0 /* UITextView + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView + Extension.swift"; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -124,6 +134,10 @@
 		4430DF6B268F1E840016F2A7 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				44A171E026908F1100C154A0 /* SF-Pro-Text-Semibold.otf */,
+				44A171DE26908F0700C154A0 /* SF-Pro-Text-Bold.otf */,
+				44A171DC26908EFB00C154A0 /* SF-Pro-Text-Medium.otf */,
+				44A171DA26908EEF00C154A0 /* SF-Pro-Text-Regular.otf */,
 				4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */,
 				4430DF6E268F1E900016F2A7 /* SF-Pro-Display-Regular.otf */,
 				4430DF6F268F1E900016F2A7 /* SF-Pro-Display-Semibold.otf */,
@@ -272,6 +286,7 @@
 				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
 				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 				44870725268F72D3006587D0 /* BlurEffectView.swift */,
+				44A171E22690901500C154A0 /* UITextView + Extension.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -382,13 +397,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44A171DB26908EEF00C154A0 /* SF-Pro-Text-Regular.otf in Resources */,
 				4430DF75268F1E910016F2A7 /* SF-Pro-Display-Semibold.otf in Resources */,
 				44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */,
 				4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */,
 				4430DF72268F1E910016F2A7 /* SF-Pro-Rounded-Medium.otf in Resources */,
 				4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */,
+				44A171E126908F1200C154A0 /* SF-Pro-Text-Semibold.otf in Resources */,
 				446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */,
+				44A171DF26908F0800C154A0 /* SF-Pro-Text-Bold.otf in Resources */,
 				4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */,
+				44A171DD26908EFB00C154A0 /* SF-Pro-Text-Medium.otf in Resources */,
 				446A3481267E4E4A00528501 /* Assets.xcassets in Resources */,
 				4430DF74268F1E910016F2A7 /* SF-Pro-Display-Regular.otf in Resources */,
 				446A347F267E4E4600528501 /* Main.storyboard in Resources */,
@@ -486,6 +505,7 @@
 				44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */,
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
 				44870726268F72D3006587D0 /* BlurEffectView.swift in Sources */,
+				44A171E32690901500C154A0 /* UITextView + Extension.swift in Sources */,
 				44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */,
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
 				44870724268F5C68006587D0 /* ImageSetupProfileVC.swift in Sources */,

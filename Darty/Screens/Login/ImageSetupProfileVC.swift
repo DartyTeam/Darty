@@ -61,10 +61,6 @@ final class ImageSetupProfileVC: UIViewController {
     }
     
     // MARK: - Handlers
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
     @objc private func nextButtonTapped() {
         
         
@@ -75,7 +71,6 @@ final class ImageSetupProfileVC: UIViewController {
 extension ImageSetupProfileVC {
     
     private func setupConstraints() {
-                
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -89,14 +84,5 @@ extension ImageSetupProfileVC {
             blurredEffectView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
             blurredEffectView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44)
         ])
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension ImageSetupProfileVC: UITextFieldDelegate {
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }
