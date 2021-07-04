@@ -10,11 +10,8 @@ private enum Constants {
     static let textFont: UIFont? = .sfProText(ofSize: 24, weight: .medium)
 }
 
-
 import UIKit
 import FirebaseAuth
-
-
 
 final class NameSetupProfileVC: UIViewController {
     
@@ -28,7 +25,7 @@ final class NameSetupProfileVC: UIViewController {
     }()
     
     private lazy var nameTextField: BottomLineTextField = {
-        let textField = BottomLineTextField()
+        let textField = BottomLineTextField(color: .systemBlue)
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.placeholder = Constants.textPlaceholder
         textField.font = Constants.textFont

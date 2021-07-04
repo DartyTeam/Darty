@@ -24,3 +24,9 @@ extension String {
         return image ?? UIImage()
     }
 }
+
+extension RangeReplaceableCollection where Self: StringProtocol {
+    var digits: Self {
+        return filter(("0"..."9").contains)
+    }
+}

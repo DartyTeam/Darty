@@ -10,11 +10,16 @@ import GoogleSignIn
 import FBSDKLoginKit
 import FirebaseAuth
 
+private enum Constants {
+    static let socialButtonSize: CGFloat = 50
+    static let textFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
+}
+
 final class LoginVC: UIViewController {
     
     // MARK: - UI Elements
     private let dartyLogo: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "darty.logo.big"))
+        let imageView = UIImageView(image: UIImage(named: "darty.logo.text"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -30,45 +35,33 @@ final class LoginVC: UIViewController {
     private let continueWithSocLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .sfProRounded(ofSize: 16, weight: .semibold)
+        label.font = Constants.textFont
         label.text = "Or continue with social network account"
         label.textColor = .white
         return label
     }()
     
-    private let googleButton: UIButton = {
-        let button = UIButton()
+    private let googleButton: SocialButton = {
+        let button = SocialButton(social: .google)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "google.login"), for: .normal)
+        button.layer.cornerRadius = Constants.socialButtonSize / 2
         button.addTarget(self, action: #selector(googleLoginAction), for: .touchUpInside)
-        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
-        button.layer.shadowRadius = 4
-        button.layer.shadowOpacity = 1
-        button.layer.shadowOffset = CGSize(width: 0, height: 4)
         return button
     }()
     
-    private let appleButton: UIButton = {
-        let button = UIButton()
+    private let appleButton: SocialButton = {
+        let button = SocialButton(social: .apple)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "apple.login"), for: .normal)
-        button.addTarget(self, action: #selector(appleLoginAction), for: .touchUpInside)
-        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
-        button.layer.shadowRadius = 4
-        button.layer.shadowOpacity = 1
-        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.cornerRadius = Constants.socialButtonSize / 2
+        button.addTarget(self, action: #selector(appleLoginAction(_:)), for: .touchUpInside)
         return button
     }()
     
-    private let facebookButton: UIButton = {
-        let button = UIButton()
+    private let facebookButton: SocialButton = {
+        let button = SocialButton(social: .facebook)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(named: "facebook.login"), for: .normal)
-        button.addTarget(self, action: #selector(facebookLoginAction), for: .touchUpInside)
-        button.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
-        button.layer.shadowRadius = 4
-        button.layer.shadowOpacity = 1
-        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.cornerRadius = Constants.socialButtonSize / 2
+        button.addTarget(self, action: #selector(facebookLoginAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -81,9 +74,12 @@ final class LoginVC: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-//        let welcomeVC = WelcomeVC()
-//        welcomeVC.modalPresentationStyle = .overFullScreen
-//        present(welcomeVC, animated: true, completion: nil)
+        
+        if !(UserDefaults.standard.isPrevLaunched ?? false) {
+            let welcomeVC = WelcomeVC()
+            welcomeVC.modalPresentationStyle = .overFullScreen
+            present(welcomeVC, animated: true, completion: nil)
+        }
     }
     
     private func setupViews() {
@@ -101,7 +97,6 @@ final class LoginVC: UIViewController {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            signInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             signInButton.heightAnchor.constraint(equalToConstant: 50),
@@ -114,16 +109,22 @@ final class LoginVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
+            appleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            appleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
             appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
             appleButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
         
         NSLayoutConstraint.activate([
+            googleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            googleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
             googleButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
             googleButton.trailingAnchor.constraint(equalTo: appleButton.leadingAnchor, constant: -50)
         ])
         
         NSLayoutConstraint.activate([
+            facebookButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            facebookButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
             facebookButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
             facebookButton.leadingAnchor.constraint(equalTo: appleButton.trailingAnchor, constant: 50)
         ])
@@ -136,10 +137,11 @@ final class LoginVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func signInAction() {
-        
+        let signInVC = SignInVC()
+        navigationController?.pushViewController(signInVC, animated: true)
     }
     
-    @objc private func appleLoginAction() {
+    @objc private func appleLoginAction(_ sender: SocialButton) {
         
     }
 }
@@ -148,6 +150,7 @@ final class LoginVC: UIViewController {
 extension LoginVC: GIDSignInDelegate {
     
     @objc private func googleLoginAction() {
+        view.isUserInteractionEnabled = false
         GIDSignIn.sharedInstance()?.delegate = self
         GIDSignIn.sharedInstance()?.presentingViewController = self
         GIDSignIn.sharedInstance()?.signIn()
@@ -165,18 +168,24 @@ extension LoginVC: GIDSignInDelegate {
                     case .success(let user):
                         
                         UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
+                            self?.googleButton.hideLoading()
+                            self?.view.isUserInteractionEnabled = true
                             let tabBarController = TabBarController(currentUser: user)
                             self?.navigationController?.pushViewController(tabBarController, animated: false)
                         })
                     case .failure(_):
                         
                         self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
+                            self?.googleButton.hideLoading()
+                            self?.view.isUserInteractionEnabled = true
                             let setupPrifileVC = NameSetupProfileVC(currentUser: user)
                             self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
                         }
                     }
                 }
             case .failure(let error):
+                self?.googleButton.hideLoading()
+                self?.view.isUserInteractionEnabled = true
                 self?.showAlert(title: "Ошибка", message: error.localizedDescription)
             }
         }
@@ -190,9 +199,11 @@ extension LoginVC {
         print("Did log out of facebook")
     }
     
-    @objc private func facebookLoginAction() {
+    @objc private func facebookLoginAction(_ sender: SocialButton) {
+        view.isUserInteractionEnabled = false
+        
         if let token = AccessToken.current, !token.isExpired {
-            facebookLoginFirebase()
+            facebookLoginFirebase(sender)
         } else {
             
             let loginManager = LoginManager()
@@ -200,17 +211,21 @@ extension LoginVC {
                 switch loginResult {
                 case .failed(let error):
                     print("\(error)")
+                    sender.hideLoading()
+                    self?.view.isUserInteractionEnabled = true
                 case .cancelled:
                     print("cancelled fb login")
+                    sender.hideLoading()
+                    self?.view.isUserInteractionEnabled = true
                 case .success(let grantedPermissions, let declinedPermissions, let accessToken):
                     print("\(grantedPermissions) \(declinedPermissions)")
-                    self?.facebookLoginFirebase()
+                    self?.facebookLoginFirebase(sender)
                 }
             })
         }
     }
     
-    private func facebookLoginFirebase() {
+    private func facebookLoginFirebase(_ sender: SocialButton) {
         AuthService.shared.facebookLogin(error: Error?.self as? Error) { [weak self] result in
             switch result {
             
@@ -221,18 +236,24 @@ extension LoginVC {
                     case .success(let user):
                         
                         UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
+                            sender.hideLoading()
+                            self?.view.isUserInteractionEnabled = true
                             let tabBarController = TabBarController(currentUser: user)
                             self?.navigationController?.pushViewController(tabBarController, animated: false)
                         })
                     case .failure(_):
                                         
                         self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
+                            sender.hideLoading()
+                            self?.view.isUserInteractionEnabled = true
                             let setupPrifileVC = NameSetupProfileVC(currentUser: user)
                             self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
                         }
                     }
                 }
             case .failure(let error):
+                sender.hideLoading()
+                self?.view.isUserInteractionEnabled = true
                 self?.showAlert(title: "Ошибка", message: error.localizedDescription)
             }
         }

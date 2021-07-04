@@ -125,6 +125,7 @@ final class WelcomeVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func continueAction() {
+        UserDefaults.standard.isPrevLaunched = true
         dismiss(animated: true, completion: nil)
     }
 }
