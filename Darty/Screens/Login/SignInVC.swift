@@ -149,6 +149,7 @@ extension SignInVC: UITextFieldDelegate {
         let newString = (text as NSString).replacingCharacters(in: range, with: string)
         textField.text = format(with: "+X (XXX) XXX XX XX", phone: newString)
         if textField.text?.digits.count == 11 {
+            phoneTextField.select(true)
             resignFirstResponder()
         }
         return false
