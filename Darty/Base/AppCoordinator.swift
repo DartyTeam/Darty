@@ -37,6 +37,7 @@ class AppCoordinator: NSObject {
         } else {
             window.rootViewController = LoginVC()
         }
+        
         window.makeKeyAndVisible()
     }
 }

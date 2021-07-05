@@ -28,6 +28,11 @@ extension UIFont {
         case bold
     }
     
+    enum sfCompactDisplayWeight {
+        case medium
+        case thin
+    }
+    
     static func sfProRounded(ofSize size: CGFloat, weight: sfProRoundedWeight) -> UIFont? {
         switch weight {
         case .regular:
@@ -62,4 +67,13 @@ extension UIFont {
             return UIFont.init(name: "SFProText-Bold", size: size)
         }
     }
+    
+    static func sfCompactDisplay(ofSize size: CGFloat, weight: sfCompactDisplayWeight) -> UIFont? {
+        switch weight {
+        case .medium:
+            return UIFont.init(name: "SFCompactDisplay-Medium", size: size)
+        case .thin:
+            return UIFont.init(name: "SFCompactDisplay-Thin", size: size)
+    }
+}
 }

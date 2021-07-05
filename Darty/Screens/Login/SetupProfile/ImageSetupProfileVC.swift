@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 
 final class ImageSetupProfileVC: UIViewController {
-    
+        
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Далее 􀰑")
@@ -27,10 +27,12 @@ final class ImageSetupProfileVC: UIViewController {
     
     // MARK: - Properties
     private let currentUser: User
+    private var setuppedUser: SetuppedUser
     
     // MARK: - Lifecycle
-    init(currentUser: User) {
+    init(currentUser: User, setuppedUser: SetuppedUser) {
         self.currentUser = currentUser
+        self.setuppedUser = setuppedUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -63,8 +65,13 @@ final class ImageSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        
-        
+        guard let userimage = setImageView.image else {
+            showAlert(title: "Выберите изображение", message: "")
+            return
+        }
+        setuppedUser.image = userimage
+        let interestsSetupProfileVC = InterestsSetupProfileVC(currentUser: currentUser, setupedUser: setuppedUser)
+        navigationController?.pushViewController(interestsSetupProfileVC, animated: true)
     }
 }
 
@@ -82,9 +89,16 @@ extension ImageSetupProfileVC {
         NSLayoutConstraint.activate([
             setImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             setImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            setImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            setImageView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44)
+            setImageView.heightAnchor.constraint(equalToConstant: setImageView.frame.size.width - 40),
+            setImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+
+        #warning("Хотелось бы это всунуть в сам класс SetImageView")
+        setImageView.layoutIfNeeded()
+        setImageView.layer.cornerRadius = setImageView.frame.size.width / 2
+        setImageView.clipsToBounds = true
+        setImageView.layer.borderWidth = 3.5
+        setImageView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
     }
 }
 
@@ -94,7 +108,6 @@ extension ImageSetupProfileVC: SetImageDelegate {
     }
     
     func showActionSheet(_ actionSheet: UIAlertController) {
-        print("asjdhahudishuiaduhiadhsuias")
         present(actionSheet, animated: true)
     }
     

@@ -22,7 +22,6 @@
 		4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF70268F1E900016F2A7 /* SF-Pro-Rounded-Regular.otf */; };
 		4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */; };
 		446A3478267E4E4600528501 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A3477267E4E4600528501 /* AppDelegate.swift */; };
-		446A347F267E4E4600528501 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A347D267E4E4600528501 /* Main.storyboard */; };
 		446A3481267E4E4A00528501 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 446A3480267E4E4A00528501 /* Assets.xcassets */; };
 		446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 446A3482267E4E4A00528501 /* LaunchScreen.storyboard */; };
 		446A348C267E53F500528501 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A348B267E53F500528501 /* TabBarController.swift */; };
@@ -64,6 +63,12 @@
 		44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 44D44AE6268A684600EFE76F /* GoogleService-Info.plist */; };
 		44D44AE9268A6A3D00EFE76F /* NameSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AE8268A6A3D00EFE76F /* NameSetupProfileVC.swift */; };
 		44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */; };
+		44E82E3726938C25000E3D35 /* InterestsSetupProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E82E3626938C25000E3D35 /* InterestsSetupProfileVC.swift */; };
+		44E82E3926938F0B000E3D35 /* InterestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E82E3826938F0B000E3D35 /* InterestCell.swift */; };
+		44E82E3B26938F63000E3D35 /* UICollectionViewCell + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E82E3A26938F63000E3D35 /* UICollectionViewCell + Extension.swift */; };
+		44E82E3E269390A8000E3D35 /* SF-Compact-Display-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E3C269390A8000E3D35 /* SF-Compact-Display-Medium.otf */; };
+		44E82E3F269390A8000E3D35 /* SF-Compact-Display-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E3D269390A8000E3D35 /* SF-Compact-Display-Thin.otf */; };
+		44E82E4126939443000E3D35 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E4026939442000E3D35 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,7 +88,6 @@
 		4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Display-Medium.otf"; sourceTree = "<group>"; };
 		446A3474267E4E4600528501 /* Darty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Darty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		446A3477267E4E4600528501 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		446A347E267E4E4600528501 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		446A3480267E4E4A00528501 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		446A3483267E4E4A00528501 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		446A3485267E4E4A00528501 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -127,6 +131,12 @@
 		44D44AE8268A6A3D00EFE76F /* NameSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameSetupProfileVC.swift; sourceTree = "<group>"; };
 		44D44AEE268BAB8100EFE76F /* Darty.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Darty.entitlements; sourceTree = "<group>"; };
 		44D44AEF268BB22B00EFE76F /* WelcomeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeVC.swift; sourceTree = "<group>"; };
+		44E82E3626938C25000E3D35 /* InterestsSetupProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsSetupProfileVC.swift; sourceTree = "<group>"; };
+		44E82E3826938F0B000E3D35 /* InterestCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestCell.swift; sourceTree = "<group>"; };
+		44E82E3A26938F63000E3D35 /* UICollectionViewCell + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionViewCell + Extension.swift"; sourceTree = "<group>"; };
+		44E82E3C269390A8000E3D35 /* SF-Compact-Display-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Medium.otf"; sourceTree = "<group>"; };
+		44E82E3D269390A8000E3D35 /* SF-Compact-Display-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Thin.otf"; sourceTree = "<group>"; };
+		44E82E4026939442000E3D35 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.release.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.release.xcconfig"; sourceTree = "<group>"; };
 		E009F27392211CD286A38793 /* Pods_Darty.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Darty.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -146,6 +156,8 @@
 		4430DF6B268F1E840016F2A7 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				44E82E3C269390A8000E3D35 /* SF-Compact-Display-Medium.otf */,
+				44E82E3D269390A8000E3D35 /* SF-Compact-Display-Thin.otf */,
 				44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */,
 				44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */,
 				44A171F02690CBC300C154A0 /* SF-Pro-Text-Regular.otf */,
@@ -201,7 +213,7 @@
 			isa = PBXGroup;
 			children = (
 				446A3482267E4E4A00528501 /* LaunchScreen.storyboard */,
-				446A347D267E4E4600528501 /* Main.storyboard */,
+				44E82E4026939442000E3D35 /* Main.storyboard */,
 				446A3477267E4E4600528501 /* AppDelegate.swift */,
 				446A34AC267E5D3B00528501 /* AppCoordinator.swift */,
 			);
@@ -266,7 +278,6 @@
 			children = (
 				44A171FF2691181A00C154A0 /* Welcome */,
 				44A171FE2691180100C154A0 /* SetupProfile */,
-				44A171F52690CC6200C154A0 /* SexSetupProfile */,
 				446A349B267E578700528501 /* LoginVC.swift */,
 				44A172002691183000C154A0 /* SignInVC.swift */,
 				44A1720226911A6300C154A0 /* SocialButton.swift */,
@@ -292,6 +303,7 @@
 				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
 				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
 				4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */,
+				44E82E3A26938F63000E3D35 /* UICollectionViewCell + Extension.swift */,
 				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
 				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 				44870725268F72D3006587D0 /* BlurEffectView.swift */,
@@ -300,6 +312,7 @@
 				44A171FA2690CC9400C154A0 /* String + Extension.swift */,
 				44A171FC2691059400C154A0 /* UITextView + Extension.swift */,
 				44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */,
+				44E82E3826938F0B000E3D35 /* InterestCell.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -316,10 +329,12 @@
 		44A171FE2691180100C154A0 /* SetupProfile */ = {
 			isa = PBXGroup;
 			children = (
+				44A171F52690CC6200C154A0 /* SexSetupProfile */,
 				44D44AE8268A6A3D00EFE76F /* NameSetupProfileVC.swift */,
 				4487071D268F59F4006587D0 /* AboutSetupProfileVC.swift */,
 				44870721268F5B9B006587D0 /* BirthdaySetupProfileVC.swift */,
 				44870723268F5C68006587D0 /* ImageSetupProfileVC.swift */,
+				44E82E3626938C25000E3D35 /* InterestsSetupProfileVC.swift */,
 			);
 			path = SetupProfile;
 			sourceTree = "<group>";
@@ -442,6 +457,7 @@
 				4430DF75268F1E910016F2A7 /* SF-Pro-Display-Semibold.otf in Resources */,
 				44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */,
 				4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */,
+				44E82E3E269390A8000E3D35 /* SF-Compact-Display-Medium.otf in Resources */,
 				4430DF72268F1E910016F2A7 /* SF-Pro-Rounded-Medium.otf in Resources */,
 				4430DF77268F1E910016F2A7 /* SF-Pro-Display-Medium.otf in Resources */,
 				44A171F42690CBC300C154A0 /* SF-Pro-Text-Regular.otf in Resources */,
@@ -449,10 +465,11 @@
 				446A3484267E4E4A00528501 /* LaunchScreen.storyboard in Resources */,
 				44A171F22690CBC300C154A0 /* SF-Pro-Text-Bold.otf in Resources */,
 				4430DF76268F1E910016F2A7 /* SF-Pro-Rounded-Regular.otf in Resources */,
+				44E82E4126939443000E3D35 /* Main.storyboard in Resources */,
 				44A171F12690CBC300C154A0 /* SF-Pro-Text-Medium.otf in Resources */,
 				446A3481267E4E4A00528501 /* Assets.xcassets in Resources */,
+				44E82E3F269390A8000E3D35 /* SF-Compact-Display-Thin.otf in Resources */,
 				4430DF74268F1E910016F2A7 /* SF-Pro-Display-Regular.otf in Resources */,
-				446A347F267E4E4600528501 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +539,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44E82E3B26938F63000E3D35 /* UICollectionViewCell + Extension.swift in Sources */,
 				4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */,
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
@@ -532,6 +550,7 @@
 				44A1720326911A6300C154A0 /* SocialButton.swift in Sources */,
 				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
 				44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */,
+				44E82E3726938C25000E3D35 /* InterestsSetupProfileVC.swift in Sources */,
 				441BF7EA268FE1AA00114BF4 /* Validators.swift in Sources */,
 				44A171FB2690CC9400C154A0 /* String + Extension.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
@@ -556,6 +575,7 @@
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
 				44870726268F72D3006587D0 /* BlurEffectView.swift in Sources */,
 				44A171FD2691059400C154A0 /* UITextView + Extension.swift in Sources */,
+				44E82E3926938F0B000E3D35 /* InterestCell.swift in Sources */,
 				44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */,
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
 				44A172012691183000C154A0 /* SignInVC.swift in Sources */,
@@ -570,14 +590,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		446A347D267E4E4600528501 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				446A347E267E4E4600528501 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		446A3482267E4E4A00528501 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

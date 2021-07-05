@@ -17,4 +17,6 @@ target 'Darty' do
   
   pod 'MessageKit'
   
+  pod 'Lottie'
+  
 end

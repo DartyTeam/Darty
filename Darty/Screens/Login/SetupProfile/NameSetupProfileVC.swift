@@ -5,15 +5,24 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-private enum Constants {
-    static let textPlaceholder = "Text here..."
-    static let textFont: UIFont? = .sfProText(ofSize: 24, weight: .medium)
-}
-
 import UIKit
 import FirebaseAuth
 
+struct SetuppedUser {
+    var image: UIImage?
+    var name: String
+    var description: String
+    var sex: Sex?
+    var birthday: Date?
+    var interestsList: [String]?
+}
+
 final class NameSetupProfileVC: UIViewController {
+    
+    private enum Constants {
+        static let textPlaceholder = "Text here..."
+        static let textFont: UIFont? = .sfProText(ofSize: 24, weight: .medium)
+    }
     
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
@@ -72,7 +81,13 @@ final class NameSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        let aboutSetupProfileVC = AboutSetupProfileVC(currentUser: currentUser)
+        guard let username = nameTextField.text, !username.isEmpty else {
+            showAlert(title: "Необходимо ввести имя", message: "")
+            return
+        }
+        
+        let setuppedUser = SetuppedUser(image: nil, name: username, description: "", sex: nil, birthday: nil, interestsList: nil)
+        let aboutSetupProfileVC = AboutSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
         navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
 }

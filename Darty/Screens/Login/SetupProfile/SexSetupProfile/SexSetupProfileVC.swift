@@ -57,10 +57,12 @@ final class SexSetupProfileVC: UIViewController {
     
     private var selectedSex: Sex?
     private let currentUser: User
+    private var setuppedUser: SetuppedUser
     
     // MARK: - Lifecycle
-    init(currentUser: User) {
+    init(currentUser: User, setuppedUser: SetuppedUser) {
         self.currentUser = currentUser
+        self.setuppedUser = setuppedUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -102,7 +104,8 @@ final class SexSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        let aboutSetupProfileVC = BirthdaySetupProfileVC(currentUser: currentUser)
+        setuppedUser.sex = selectedSex
+        let aboutSetupProfileVC = BirthdaySetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
         navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
 }

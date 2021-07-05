@@ -60,71 +60,48 @@ class FirestoreService {
     }
     
     func saveProfileWith(id: String,
-                         phone: Int,
-                         username: String?,
+                         phone: String,
+                         username: String,
                          avatarImage: UIImage?,
-                         description: String?,
-                         sex: Int?,
-                         birthday: Date?,
-                         interestsList: [String]?,
+                         description: String,
+                         sex: Sex,
+                         birthday: Date,
+                         interestsList: [Int],
                          completion: @escaping (Result<UserModel, Error>) -> Void) {
-        guard Validators.isFilled(username: username, description: description, sex: sex, birthday: birthday) else {
-            completion(.failure(UserError.notFilled))
-            return
-        }
+
+        var puser = UserModel(username: username,
+                              phone: phone,
+                              avatarStringURL: "",
+                              description: description,
+                              sex: sex.rawValue,
+                              birthday: birthday,
+                              interestsList: interestsList,
+                              personalColor: "",
+                              id: id)
         
-        var puser = UserModel(username: username!, phone: phone, avatarStringURL: "", description: description!, sex: sex!, birthday: birthday!, interestsList: interestsList!, personalColor: "", id: id)
-        
-        if avatarImage != UIImage(systemName: "plus.viewfinder") {
+        StorageService.shared.upload(photo: avatarImage!) { (result) in
+            switch result {
             
-            StorageService.shared.upload(photo: avatarImage!) { (result) in
-                switch result {
+            case .success(let url):
+                puser.avatarStringURL = url.absoluteString
                 
-                case .success(let url):
-                    puser.avatarStringURL = url.absoluteString
-                    
-                    // Сохранение данных в firestore
-                    self.usersRef.document(puser.id).setData(puser.representation) { (error) in
-                        if let error = error {
-                            completion(.failure(error))
-                        } else {
-                            completion(.success(puser))
-                        }
+                // Сохранение данных в firestore
+                self.usersRef.document(puser.id).setData(puser.representation) { (error) in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(puser))
                     }
-                    
-                case .failure(let error):
-                    completion(.failure(error))
                 }
-            } // StorageService
-        } else {
-            // Сохранение данных в firestore
-            self.usersRef.document(puser.id).setData(puser.representation) { (error) in
-                if let error = error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(puser))
-                }
+                
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
-    } // saveProfileWith
+    }
     
     private var userRef: DocumentReference {
         return usersRef.document(Auth.auth().currentUser!.uid)
-    }
-    
-    func changeUserEmail(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
-        userRef.updateData([
-            "email": email
-        ]) { err in
-            if let err = err {
-                completion(.failure(err))
-                print("Error updating document: \(err)")
-            } else {
-                completion(.success(Void()))
-                print("Document successfully updated")
-            }
-        }
     }
     
     func updateUserInformation(username: String,

@@ -19,6 +19,8 @@ protocol SetImageDelegate {
 final class SetImageView: BlurEffectView {
     
     // MARK: - UI Elements
+    var image: UIImage?
+    
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -27,7 +29,7 @@ final class SetImageView: BlurEffectView {
     
     private let plusIcon: UIImageView = {
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 50, weight: .medium))
-        let imageView = UIImageView(image: UIImage(systemName: "plus.viewfinder", withConfiguration: configIcon))
+        let imageView = UIImageView(image: UIImage(systemName: "plus", withConfiguration: configIcon))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -56,11 +58,6 @@ final class SetImageView: BlurEffectView {
     }
     
     private func setupView() {
-        layer.cornerRadius = 40
-        clipsToBounds = true
-        layer.borderWidth = 3.5
-        layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
-        
         contentView.addSubview(plusIcon)
         contentView.addSubview(imageView)
     }
@@ -166,6 +163,7 @@ final class SetImageView: BlurEffectView {
     
     private func setImage(_ image: UIImage?) {
         imageView.image = image
+        self.image = image
         delegate.imageDidSet(image)
     }
 }

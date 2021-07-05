@@ -77,7 +77,7 @@ final class LoginVC: UIViewController {
         
         if !(UserDefaults.standard.isPrevLaunched ?? false) {
             let welcomeVC = WelcomeVC()
-            welcomeVC.modalPresentationStyle = .overFullScreen
+            welcomeVC.modalPresentationStyle = .popover
             present(welcomeVC, animated: true, completion: nil)
         }
     }

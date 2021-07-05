@@ -43,10 +43,12 @@ final class BirthdaySetupProfileVC: UIViewController {
     }()
 
     private let currentUser: User
+    private var setuppedUser: SetuppedUser
     
     // MARK: - Lifecycle
-    init(currentUser: User) {
+    init(currentUser: User, setuppedUser: SetuppedUser) {
         self.currentUser = currentUser
+        self.setuppedUser = setuppedUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -80,7 +82,8 @@ final class BirthdaySetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        let aboutSetupProfileVC = ImageSetupProfileVC(currentUser: currentUser)
+        setuppedUser.birthday = datePicker.date
+        let aboutSetupProfileVC = ImageSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
         navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
 }

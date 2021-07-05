@@ -47,10 +47,12 @@ final class AboutSetupProfileVC: UIViewController {
     
     // MARK: - Properties
     private let currentUser: User
+    private var setuppedUser: SetuppedUser
     
     // MARK: - Lifecycle
-    init(currentUser: User) {
+    init(currentUser: User, setuppedUser: SetuppedUser) {
         self.currentUser = currentUser
+        self.setuppedUser = setuppedUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -88,7 +90,12 @@ final class AboutSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        let aboutSetupProfileVC = SexSetupProfileVC(currentUser: currentUser)
+        guard let descriptionText = aboutTextView.text, !descriptionText.isEmpty else {
+            showAlert(title: "Введите описание себя", message: "")
+            return
+        }
+        setuppedUser.description = descriptionText
+        let aboutSetupProfileVC = SexSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
         navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
     }
     
