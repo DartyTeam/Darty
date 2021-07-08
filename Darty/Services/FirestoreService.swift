@@ -32,11 +32,11 @@ class FirestoreService {
         let docRef = usersRef.document(uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                guard let puser = UserModel(document: document) else {
+                guard let user = UserModel(document: document) else {
                     completion(.failure(UserError.cannotUnwrapToUserModel))
                     return
                 }
-                completion(.success(puser))
+                completion(.success(user))
             } else {
                 completion(.failure(UserError.cannotGetUserInfo))
             }
@@ -47,12 +47,12 @@ class FirestoreService {
         let docRef = usersRef.document(user.uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                guard let puser = UserModel(document: document) else {
+                guard let user = UserModel(document: document) else {
                     completion(.failure(UserError.cannotUnwrapToUserModel))
                     return
                 }
-                completion(.success(puser))
-                self.currentUser = puser
+                completion(.success(user))
+                self.currentUser = user
             } else {
                 completion(.failure(UserError.cannotGetUserInfo))
             }
@@ -69,7 +69,7 @@ class FirestoreService {
                          interestsList: [Int],
                          completion: @escaping (Result<UserModel, Error>) -> Void) {
 
-        var puser = UserModel(username: username,
+        var user = UserModel(username: username,
                               phone: phone,
                               avatarStringURL: "",
                               description: description,
@@ -83,14 +83,14 @@ class FirestoreService {
             switch result {
             
             case .success(let url):
-                puser.avatarStringURL = url.absoluteString
+                user.avatarStringURL = url.absoluteString
                 
                 // Сохранение данных в firestore
-                self.usersRef.document(puser.id).setData(puser.representation) { (error) in
+                self.usersRef.document(user.id).setData(user.representation) { (error) in
                     if let error = error {
                         completion(.failure(error))
                     } else {
-                        completion(.success(puser))
+                        completion(.success(user))
                     }
                 }
                 

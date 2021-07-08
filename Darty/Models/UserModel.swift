@@ -39,7 +39,7 @@ struct UserModel: Hashable, Decodable {
         let phone = data["phone"] as? String,
         let avatarStringURL = data["avatarStringURL"] as? String,
         let description = data["description"] as? String,
-        let birthday = data["birthday"] as? Date,
+        let birthday = (data["birthday"] as? Timestamp)?.dateValue(),
         let interestsList = data["interestsList"] as? [Int],
         let personalColor = data["personalColor"] as? String,
         let id = data["uid"] as? String

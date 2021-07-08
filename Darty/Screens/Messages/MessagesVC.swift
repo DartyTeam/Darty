@@ -7,20 +7,15 @@
 
 import UIKit
 import FirebaseFirestore
-import Lottie
 
 class MessagesVC: UIViewController {
     
     // MARK: - UI Elements
     var collectionView: UICollectionView!
-    var emptyWaitChatsAnim = AnimationView()
-    var emptyActiveChatsAnim = AnimationView()
 
     // MARK: - Properties
-    let animationSpider = Animation.named("SpiderWeb")
-    
-    var activeChats = [PChat]()
-    var waitingChats = [PChat]()
+    var activeChats = [ChatModel]()
+    var waitingChats = [ChatModel]()
     
     private var waitingChatsListener: ListenerRegistration?
     private var activeChatsListener: ListenerRegistration?
@@ -41,12 +36,12 @@ class MessagesVC: UIViewController {
         }
     }
     
-    var dataSource: UICollectionViewDiffableDataSource<Section, PChat>?
+    var dataSource: UICollectionViewDiffableDataSource<Section, ChatModel>?
     
-    private let currentUser: PUser
+    private let currentUser: UserModel
     
     // MARK: - Lifecycle
-    init(currentUser: PUser) {
+    init(currentUser: UserModel) {
         self.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
 //        title = currentUser.username
@@ -57,7 +52,7 @@ class MessagesVC: UIViewController {
     }
     
     deinit {
-        print("deinit", ChatlistViewController.self)
+        print("deinit", MessagesVC.self)
         waitingChatsListener?.remove()
         activeChatsListener?.remove()
     }
@@ -67,7 +62,6 @@ class MessagesVC: UIViewController {
         
         setupSearchBar()
         setupCollectionView()
-        setupViews()
         createDataSource()
         reloadData()
         
@@ -77,18 +71,12 @@ class MessagesVC: UIViewController {
             case .success(let chats):
                 
                 if self.waitingChats != [], self.waitingChats.count <= chats.count {
-                    let chatRequestVC = ChatRequestViewController(chat: chats.last!)
+                    let chatRequestVC = ChatRequestVC(chat: chats.last!)
                     chatRequestVC.delegate = self
                     self.present(chatRequestVC, animated: true, completion: nil)
                 }
                 
                 self.waitingChats = chats
-                
-                if self.waitingChats.isEmpty {
-                    self.emptyWaitChatsAnim.isHidden = false
-                } else {
-                    self.emptyWaitChatsAnim.isHidden = true
-                }
                 
                 self.reloadData()
                 
@@ -102,12 +90,6 @@ class MessagesVC: UIViewController {
             
             case .success(let chats):
                 self.activeChats = chats
-                
-                if self.activeChats.isEmpty {
-                    self.emptyActiveChatsAnim.isHidden = false
-                } else {
-                    self.emptyActiveChatsAnim.isHidden = true
-                }
                 
                 self.reloadData()
                 
@@ -126,50 +108,18 @@ class MessagesVC: UIViewController {
 //        searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.delegate = self
     }
-    
-    private func setupViews() {
         
-        emptyWaitChatsAnim.animation = animationSpider
-        emptyWaitChatsAnim.contentMode = .scaleAspectFit
-        emptyWaitChatsAnim.backgroundColor = .clear
-        
-        emptyActiveChatsAnim.animation = animationSpider
-        emptyActiveChatsAnim.contentMode = .scaleAspectFit
-        emptyActiveChatsAnim.backgroundColor = .clear
-        
-        view.addSubview(emptyWaitChatsAnim)
-        view.addSubview(emptyActiveChatsAnim)
-        
-        emptyWaitChatsAnim.play(fromFrame: 0, toFrame: 40, loopMode: .loop)
-        emptyWaitChatsAnim.animationSpeed = 0.25
-        
-        emptyActiveChatsAnim.play(fromFrame: 0, toFrame: 40, loopMode: .loop)
-        emptyActiveChatsAnim.animationSpeed = 0.25
-        
-        emptyWaitChatsAnim.snp.makeConstraints { (make) in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(20)
-            make.height.equalTo(86)
-        }
-        
-        emptyActiveChatsAnim.snp.makeConstraints { (make) in
-            make.leading.trailing.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(170)
-            make.height.equalTo(86)
-        }
-    }
-    
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .mainWhite()
+        collectionView.backgroundColor = .systemBackground
         
         view = collectionView
         
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeader.reuseId)
         
-        collectionView.register(ActiveChatCell.self, forCellWithReuseIdentifier: ActiveChatCell.reuseId)
-        collectionView.register(WaitingChatCell.self, forCellWithReuseIdentifier: WaitingChatCell.reuseId)
+        collectionView.register(ActiveChatCell.self, forCellWithReuseIdentifier: ActiveChatCell.reuseIdentifier)
+        collectionView.register(WaitingChatCell.self, forCellWithReuseIdentifier: WaitingChatCell.reuseIdentifier)
         
         collectionView.delegate = self
     }
@@ -177,7 +127,7 @@ class MessagesVC: UIViewController {
     // Отвечает за заполнение реальными данными. Создает snapshot, добавляет нужные айтемы в нужные секции и регистрируется на dataSource
     private func reloadData() {
         
-        var snapshot = NSDiffableDataSourceSnapshot<Section, PChat>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, ChatModel>()
         snapshot.appendSections([.waitingChats, .activeChats])
         snapshot.appendItems(waitingChats, toSection: .waitingChats)
         snapshot.appendItems(activeChats, toSection: .activeChats)
@@ -191,7 +141,7 @@ extension MessagesVC {
     // Отвечает за то, в каких секциях буду те или иные ячейки
     private func createDataSource() {
         
-        dataSource = UICollectionViewDiffableDataSource<Section, PChat>(collectionView: collectionView, cellProvider: { [weak self] (collectionView, indexPath, chat) -> UICollectionViewCell? in
+        dataSource = UICollectionViewDiffableDataSource<Section, ChatModel>(collectionView: collectionView, cellProvider: { [weak self] (collectionView, indexPath, chat) -> UICollectionViewCell? in
             
             guard let section = Section(rawValue: indexPath.section) else {
                 fatalError("Неизвестная секция для ячейки")
@@ -331,11 +281,11 @@ extension MessagesVC: UICollectionViewDelegate {
         switch section {
 
         case .waitingChats:
-            let chatRequestVC = ChatRequestViewController(chat: chat)
+            let chatRequestVC = ChatRequestVC(chat: chat)
             chatRequestVC.delegate = self
             self.present(chatRequestVC, animated: true, completion: nil)
         case .activeChats:
-            let chatVC = ChatViewController(user: currentUser, chat: chat)
+            let chatVC = ChatVC(user: currentUser, chat: chat)
             navigationController?.pushViewController(chatVC, animated: true)
         }
     }
@@ -343,7 +293,7 @@ extension MessagesVC: UICollectionViewDelegate {
 
 // MARK: - WaitingChatsNavigation
 extension MessagesVC: WaitingChatsNavigation {
-    func removeWaitingChat(chat: PChat) {
+    func removeWaitingChat(chat: ChatModel) {
         FirestoreService.shared.deleteWaitingChat(chat: chat) { (result) in
             switch result {
             
@@ -355,7 +305,7 @@ extension MessagesVC: WaitingChatsNavigation {
         }
     }
     
-    func changeToActive(chat: PChat) {
+    func changeToActive(chat: ChatModel) {
         FirestoreService.shared.changeToActive(chat: chat) { (result) in
             switch result {
             

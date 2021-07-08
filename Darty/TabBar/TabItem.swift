@@ -19,9 +19,9 @@ enum TabItem: String, CaseIterable {
         case .parties:
             return PartiesVC()
         case .create:
-            return CreateVC()
+            return CreateVC(currentUser: AuthService.shared.currentUser!)
         case .messages:
-            return MessagesVC()
+            return MessagesVC(currentUser: AuthService.shared.currentUser!)
         case .account:
             return AccountVC()
         }

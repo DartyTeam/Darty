@@ -5,8 +5,8 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     private let currentUser: UserModel
     
     init(currentUser: UserModel) {
-        
         self.currentUser = currentUser
+        AuthService.shared.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
     }
     

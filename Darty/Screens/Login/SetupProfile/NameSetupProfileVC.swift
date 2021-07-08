@@ -40,6 +40,7 @@ final class NameSetupProfileVC: UIViewController {
         textField.font = Constants.textFont
         textField.textAlignment = .center
         textField.delegate = self
+        textField.returnKeyType = .next
         return textField
     }()
     
@@ -115,8 +116,9 @@ extension NameSetupProfileVC {
 extension NameSetupProfileVC: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
+        nextButtonTapped()
+//        textField.resignFirstResponder()
+        return false
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {

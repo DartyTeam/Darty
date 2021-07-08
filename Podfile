@@ -17,6 +17,6 @@ target 'Darty' do
   
   pod 'MessageKit'
   
-  pod 'Lottie'
+  pod 'SDWebImage', '~> 5.0'
   
 end

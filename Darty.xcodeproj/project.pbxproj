@@ -49,6 +49,15 @@
 		44A172012691183000C154A0 /* SignInVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A172002691183000C154A0 /* SignInVC.swift */; };
 		44A1720326911A6300C154A0 /* SocialButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A1720226911A6300C154A0 /* SocialButton.swift */; };
 		44A1720526912AB200C154A0 /* UserDefaults + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */; };
+		44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D369FF26963438002886D0 /* WaitingChatCell.swift */; };
+		44D36A02269635B0002886D0 /* ListenerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A01269635B0002886D0 /* ListenerService.swift */; };
+		44D36A042696366D002886D0 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A032696366D002886D0 /* SectionHeader.swift */; };
+		44D36A07269636F4002886D0 /* ChatRequestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A06269636F4002886D0 /* ChatRequestVC.swift */; };
+		44D36A0926963729002886D0 /* UIStackView + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A0826963729002886D0 /* UIStackView + Extension.swift */; };
+		44D36A0B26963894002886D0 /* AboutInputText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A0A26963894002886D0 /* AboutInputText.swift */; };
+		44D36A0D26963A78002886D0 /* ChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A0C26963A78002886D0 /* ChatVC.swift */; };
+		44D36A1126963F58002886D0 /* SelfConfigutingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */; };
+		44D36A132697A243002886D0 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A122697A243002886D0 /* TextField.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -69,6 +78,7 @@
 		44E82E3E269390A8000E3D35 /* SF-Compact-Display-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E3C269390A8000E3D35 /* SF-Compact-Display-Medium.otf */; };
 		44E82E3F269390A8000E3D35 /* SF-Compact-Display-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E3D269390A8000E3D35 /* SF-Compact-Display-Thin.otf */; };
 		44E82E4126939443000E3D35 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44E82E4026939442000E3D35 /* Main.storyboard */; };
+		44E82E432693ADAE000E3D35 /* ActiveChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E82E422693ADAE000E3D35 /* ActiveChatCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -116,6 +126,15 @@
 		44A172002691183000C154A0 /* SignInVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInVC.swift; sourceTree = "<group>"; };
 		44A1720226911A6300C154A0 /* SocialButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialButton.swift; sourceTree = "<group>"; };
 		44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults + Extension.swift"; sourceTree = "<group>"; };
+		44D369FF26963438002886D0 /* WaitingChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingChatCell.swift; sourceTree = "<group>"; };
+		44D36A01269635B0002886D0 /* ListenerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenerService.swift; sourceTree = "<group>"; };
+		44D36A032696366D002886D0 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
+		44D36A06269636F4002886D0 /* ChatRequestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRequestVC.swift; sourceTree = "<group>"; };
+		44D36A0826963729002886D0 /* UIStackView + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView + Extension.swift"; sourceTree = "<group>"; };
+		44D36A0A26963894002886D0 /* AboutInputText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutInputText.swift; sourceTree = "<group>"; };
+		44D36A0C26963A78002886D0 /* ChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatVC.swift; sourceTree = "<group>"; };
+		44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfConfigutingCell.swift; sourceTree = "<group>"; };
+		44D36A122697A243002886D0 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -137,6 +156,7 @@
 		44E82E3C269390A8000E3D35 /* SF-Compact-Display-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Medium.otf"; sourceTree = "<group>"; };
 		44E82E3D269390A8000E3D35 /* SF-Compact-Display-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Compact-Display-Thin.otf"; sourceTree = "<group>"; };
 		44E82E4026939442000E3D35 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		44E82E422693ADAE000E3D35 /* ActiveChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveChatCell.swift; sourceTree = "<group>"; };
 		7EA54C487840E342DAB7AC35 /* Pods-Darty.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Darty.release.xcconfig"; path = "Target Support Files/Pods-Darty/Pods-Darty.release.xcconfig"; sourceTree = "<group>"; };
 		E009F27392211CD286A38793 /* Pods_Darty.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Darty.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -253,6 +273,10 @@
 			isa = PBXGroup;
 			children = (
 				446A3495267E54B600528501 /* MessagesVC.swift */,
+				44E82E422693ADAE000E3D35 /* ActiveChatCell.swift */,
+				44D369FF26963438002886D0 /* WaitingChatCell.swift */,
+				44D36A06269636F4002886D0 /* ChatRequestVC.swift */,
+				44D36A0C26963A78002886D0 /* ChatVC.swift */,
 			);
 			path = Messages;
 			sourceTree = "<group>";
@@ -297,22 +321,15 @@
 		446A34A7267E5B1600528501 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				44D36A05269636A9002886D0 /* Extensions */,
 				446A34A8267E5B2100528501 /* BottomLineTextField.swift */,
-				446A34AA267E5B4B00528501 /* UIButton + Extension.swift */,
-				44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */,
-				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
-				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
-				4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */,
-				44E82E3A26938F63000E3D35 /* UICollectionViewCell + Extension.swift */,
-				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
-				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 				44870725268F72D3006587D0 /* BlurEffectView.swift */,
 				441BF7E5268FCFD300114BF4 /* SetImageView.swift */,
-				441BF7E7268FD84C00114BF4 /* UIView + Extension.swift */,
-				44A171FA2690CC9400C154A0 /* String + Extension.swift */,
-				44A171FC2691059400C154A0 /* UITextView + Extension.swift */,
-				44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */,
 				44E82E3826938F0B000E3D35 /* InterestCell.swift */,
+				44D36A032696366D002886D0 /* SectionHeader.swift */,
+				44D36A0A26963894002886D0 /* AboutInputText.swift */,
+				44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */,
+				44D36A122697A243002886D0 /* TextField.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -348,12 +365,33 @@
 			path = Welcome;
 			sourceTree = "<group>";
 		};
+		44D36A05269636A9002886D0 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				441BF7E7268FD84C00114BF4 /* UIView + Extension.swift */,
+				44A171FA2690CC9400C154A0 /* String + Extension.swift */,
+				44A171FC2691059400C154A0 /* UITextView + Extension.swift */,
+				44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */,
+				446A34AA267E5B4B00528501 /* UIButton + Extension.swift */,
+				44D44AD3268A5F2C00EFE76F /* UIViewController + Extensions.swift */,
+				44D44AD5268A603600EFE76F /* UIApplication + Extension.swift */,
+				44D44ADF268A64C400EFE76F /* UIImage + Extension.swift */,
+				4430DF63268E0EDB0016F2A7 /* UITableViewCell + Extension.swift */,
+				44E82E3A26938F63000E3D35 /* UICollectionViewCell + Extension.swift */,
+				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
+				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
+				44D36A0826963729002886D0 /* UIStackView + Extension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		44D44AC9268A57F100EFE76F /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				44D44ACA268A580000EFE76F /* AuthService.swift */,
 				44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */,
 				44D44ADD268A647B00EFE76F /* StorageService.swift */,
+				44D36A01269635B0002886D0 /* ListenerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -553,15 +591,21 @@
 				44E82E3726938C25000E3D35 /* InterestsSetupProfileVC.swift in Sources */,
 				441BF7EA268FE1AA00114BF4 /* Validators.swift in Sources */,
 				44A171FB2690CC9400C154A0 /* String + Extension.swift in Sources */,
+				44D36A07269636F4002886D0 /* ChatRequestVC.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
 				44D44AE9268A6A3D00EFE76F /* NameSetupProfileVC.swift in Sources */,
+				44D36A042696366D002886D0 /* SectionHeader.swift in Sources */,
+				44D36A1126963F58002886D0 /* SelfConfigutingCell.swift in Sources */,
 				44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
 				4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */,
+				44D36A132697A243002886D0 /* TextField.swift in Sources */,
 				44A1720526912AB200C154A0 /* UserDefaults + Extension.swift in Sources */,
 				44D44ACD268A586000EFE76F /* Errors.swift in Sources */,
 				44D44ACB268A580000EFE76F /* AuthService.swift in Sources */,
+				44D36A02269635B0002886D0 /* ListenerService.swift in Sources */,
+				44D36A0D26963A78002886D0 /* ChatVC.swift in Sources */,
 				44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */,
 				4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */,
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
@@ -572,10 +616,13 @@
 				441BF7E8268FD84C00114BF4 /* UIView + Extension.swift in Sources */,
 				4487071E268F59F4006587D0 /* AboutSetupProfileVC.swift in Sources */,
 				44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */,
+				44D36A0926963729002886D0 /* UIStackView + Extension.swift in Sources */,
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
 				44870726268F72D3006587D0 /* BlurEffectView.swift in Sources */,
+				44D36A0B26963894002886D0 /* AboutInputText.swift in Sources */,
 				44A171FD2691059400C154A0 /* UITextView + Extension.swift in Sources */,
 				44E82E3926938F0B000E3D35 /* InterestCell.swift in Sources */,
+				44E82E432693ADAE000E3D35 /* ActiveChatCell.swift in Sources */,
 				44D44ADA268A632B00EFE76F /* ChatModel.swift in Sources */,
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
 				44A172012691183000C154A0 /* SignInVC.swift in Sources */,
@@ -584,6 +631,7 @@
 				4430DF66268EF4080016F2A7 /* UINavigationBar + Extension.swift in Sources */,
 				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
 				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
+				44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

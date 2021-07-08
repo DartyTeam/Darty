@@ -9,12 +9,14 @@ import Firebase
 import GoogleSignIn
 import FBSDKLoginKit
 
-class AuthService {
-    
-    let userDefaults = UserDefaults.standard
+final class AuthService {
     
     static let shared = AuthService()
+    
+    private let userDefaults = UserDefaults.standard
     private let auth = Auth.auth()
+    
+    var currentUser: UserModel?
     
     func login(email: String?, password: String?, completion: @escaping (Result<User, Error>) -> Void) {
         auth.signIn(withEmail: email!, password: password!) { (result, error) in

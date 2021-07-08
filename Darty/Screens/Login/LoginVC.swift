@@ -207,7 +207,7 @@ extension LoginVC {
         } else {
             
             let loginManager = LoginManager()
-            loginManager.logIn(permissions: [.publicProfile, .email], viewController: self, completion: { [weak self] loginResult in
+            loginManager.logIn(permissions: [.publicProfile, .userAboutMe, .userBirthday, .userGender], viewController: self, completion: { [weak self] loginResult in
                 switch loginResult {
                 case .failed(let error):
                     print("\(error)")
@@ -241,8 +241,8 @@ extension LoginVC {
                             let tabBarController = TabBarController(currentUser: user)
                             self?.navigationController?.pushViewController(tabBarController, animated: false)
                         })
-                    case .failure(_):
-                                        
+                    case .failure(let error):
+                        print("ERROR_LOG get user data: ", error.localizedDescription)
                         self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
                             sender.hideLoading()
                             self?.view.isUserInteractionEnabled = true
