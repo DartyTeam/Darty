@@ -207,7 +207,7 @@ extension LoginVC {
         } else {
             
             let loginManager = LoginManager()
-            loginManager.logIn(permissions: [.publicProfile, .userAboutMe, .userBirthday, .userGender], viewController: self, completion: { [weak self] loginResult in
+            loginManager.logIn(permissions: [.publicProfile, .userBirthday, .userGender], viewController: self, completion: { [weak self] loginResult in
                 switch loginResult {
                 case .failed(let error):
                     print("\(error)")

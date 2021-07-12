@@ -2,7 +2,17 @@ import UIKit
 
 class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
+    private enum Constants {
+        static let tabBarHeight: CGFloat = 70
+    }
+    
+//    private let bottomSafeInset: CGFloat = UIDevice.current.hasNotch ? 34 : 0
+    
     private let currentUser: UserModel
+    
+    private let floatingTabBar: UITabBar = {
+        return UITabBar()
+    }()
     
     init(currentUser: UserModel) {
         self.currentUser = currentUser
@@ -17,20 +27,30 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         addTabBar()
         setTabBarMenuControllers()
-        selectedIndex = 0
+        selectedIndex = 1
+        additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: GlobalConstants.tabBarHeight, right: 0)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
-        tabBar.frame.size.height = 70
-        tabBar.frame.size.width = view.frame.width - 24
-        tabBar.frame.origin.x = 12
-        tabBar.frame.origin.y = view.frame.height - 70 - view.safeAreaInsets.bottom
-
+        print("asduyiggaisudgiuasiuduashdas78t6a78std87tasd: ", view.safeAreaInsets.bottom)
+        var newFrame = tabBar.frame
+        newFrame.size.height = Constants.tabBarHeight
+        newFrame.size.width = view.frame.width - 24
+        newFrame.origin.x = 12
+        
+        print("asidjaiosdjasoid: ", UIDevice.current.hasNotch)
+        if UIDevice.current.hasNotch {
+//            newFrame.origin.y = view.frame.height - Constants.tabBarHeight - view.safeAreaInsets.bottom
+            newFrame.origin.y = view.frame.height - Constants.tabBarHeight - 34
+        } else {
+            newFrame.origin.y = view.frame.height - Constants.tabBarHeight - 10
+        }
+        
+        tabBar.frame = newFrame
+        
         tabBar.itemWidth = 28.0
         tabBar.itemPositioning = .centered
         tabBar.itemSpacing = 60
@@ -51,7 +71,9 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
         createVC.setNavigationBarHidden(true, animated: false)
         createVC.tabBarItem.image = TabItem.create.icon
         createVC.tabBarItem.selectedImage = TabItem.create.selectedIcon?.withRenderingMode(.alwaysOriginal).withTintColor(TabItem.create.color)
-        createVC.tabBarItem.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
+        createVC.tabBarItem.imageInsets = UIEdgeInsets(top: 12, left: 0, bottom: -12, right: 0)
+        createVC.tabBarItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor:UIColor.clear], for: .selected)
+        createVC.tabBarItem.setTitleTextAttributes([NSAttributedString.Key.foregroundColor:UIColor.clear], for: .normal)
         createVC.tabBarItem.tag = 1
         
         let messagesVC = UINavigationController(rootViewController: TabItem.messages.viewController)
@@ -73,7 +95,7 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
         viewControllers = tabBarList
     }
     
-    private func addTabBar(){
+    private func addTabBar() {
         self.delegate = self
     }
     

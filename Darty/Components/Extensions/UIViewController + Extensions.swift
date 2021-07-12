@@ -34,14 +34,16 @@ extension UIViewController {
 
         let tap = UITapGestureRecognizer(target: self, action:  #selector(backToMain))
         view.addGestureRecognizer(tap)
-        
-        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-        button.setImage(UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), for: .normal)
-        button.imageEdgeInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
-        view.addSubview(button)
+    
+        if navigationController?.navigationBar.backItem != nil {
+            let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
+            button.setImage(UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), for: .normal)
+            button.imageEdgeInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
+            view.addSubview(button)
 
-        let leftBarButtonItem = UIBarButtonItem(customView: view)
-        self.navigationItem.leftBarButtonItem = leftBarButtonItem
+            let leftBarButtonItem = UIBarButtonItem(customView: view)
+            self.navigationItem.leftBarButtonItem = leftBarButtonItem
+        }
         
         navigationController?.navigationBar.setup(withColor: color)
     }

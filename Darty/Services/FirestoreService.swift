@@ -295,41 +295,33 @@ class FirestoreService {
     }
     
     func savePartyWith(party: PartyModel,
-                       partyImage: UIImage?,
+                       partyImages: [UIImage],
                        completion: @escaping (Result<PartyModel, Error>) -> Void) {
         var party = party
         party.id = UUID().uuidString
-        
-        if partyImage != UIImage(systemName: "plus.viewfinder") {
-            
-            StorageService.shared.uploadPartyImage(photo: partyImage!, partyId: party.id) { (result) in
+                    
+        var partyImagesUrls = [String]()
+        let dg = DispatchGroup()
+        dg.enter()
+        for partyImage in partyImages {
+            StorageService.shared.uploadPartyImage(photo: partyImage, partyId: party.id) { (result) in
                 
                 switch result {
                 
                 case .success(let url):
-                    party.imageUrlString = url.absoluteString
-                    
-                    // Сохранение данных в Firestore
-                    self.partiesRef.document(party.id).setData(party.representation) { (error) in
-                        if let error = error {
-                            completion(.failure(error))
-                        }
-                        
-                        self.userRef.collection("myParties").document(party.id).setData( ["uid" : party.id]) { (error) in
-                            if let error = error {
-                                completion(.failure(error))
-                            }
-                            
-                            completion(.success(party))
-                        }
-                    }
-                    
+                    partyImagesUrls.append(url.absoluteString)
                 case .failure(let error):
                     completion(.failure(error))
                 }
+                
+                dg.leave()
             }
-        } else {
-            // Сохранение данных в firestore
+        }
+        
+        dg.notify(queue: .main) {
+            party.imageUrlStrings = partyImagesUrls
+            
+            // Сохранение данных в Firestore
             self.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))

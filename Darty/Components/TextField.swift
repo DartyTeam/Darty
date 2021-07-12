@@ -7,93 +7,114 @@
 
 import UIKit
 
-class FloatingLabelInput: UITextField {
-    var floatingLabel: UILabel!// = UILabel(frame: CGRect.zero)
-    var floatingLabelHeight: CGFloat = 14
-    var button = UIButton(type: .custom)
-    var imageView = UIImageView(frame: CGRect.zero)
+final class TextField: UITextField {
     
-    @IBInspectable
-    var _placeholder: String?
-    
-    @IBInspectable
-    var floatingLabelColor: UIColor = UIColor.black {
-        didSet {
-            self.floatingLabel.textColor = floatingLabelColor
-            self.setNeedsDisplay()
-        }
+    private enum Constants {
+        static let textFont: UIFont? = .sfProText(ofSize: 14, weight: .regular)
+        static let titleFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .medium)
+        static let unselectedBorderColor: CGColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5).cgColor
     }
+    private var activeBorderColor: UIColor = UIColor.blue
     
-    @IBInspectable
-    var activeBorderColor: UIColor = UIColor.blue
+    private var floatingLabel = UILabel(frame: CGRect.zero)
+    private var button = UIButton(type: .custom)
+    private var imageView = UIImageView(frame: CGRect.zero)
     
-    @IBInspectable
-    var floatingLabelBackground: UIColor = UIColor.white.withAlphaComponent(1) {
-        didSet {
-            self.floatingLabel.backgroundColor = self.floatingLabelBackground
-            self.setNeedsDisplay()
-        }
-    }
-    
-    @IBInspectable
-    var floatingLabelFont: UIFont = UIFont.systemFont(ofSize: 14) {
-        didSet {
-            self.floatingLabel.font = self.floatingLabelFont
-            self.font = self.floatingLabelFont
-            self.setNeedsDisplay()
-        }
-    }
-    
-    @IBInspectable
-    var _backgroundColor: UIColor = UIColor.white {
-        didSet {
-            self.layer.backgroundColor = self._backgroundColor.cgColor
-        }
-    }
-    
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        self._placeholder = (self._placeholder != nil) ? self._placeholder : placeholder
-        placeholder = self._placeholder // Make sure the placeholder is shown
-        self.floatingLabel = UILabel(frame: CGRect.zero)
-        self.addTarget(self, action: #selector(self.addFloatingLabel), for: .editingDidBegin)
+    private var errorMessage = ""
+
+    init(color: UIColor, placeholder: String) {
+        super.init(frame: CGRect.zero)
+        activeBorderColor = color
+        
+        self.placeholder = placeholder
+        self.tintColor = color
+   
+        self.font = Constants.textFont
+        
+        self.addTarget(self, action: #selector(self.addFloatingLabel), for: [.editingDidBegin])
         self.addTarget(self, action: #selector(self.removeFloatingLabel), for: .editingDidEnd)
+        
+        setupFloatingLabel()
+        setupViews()
+        setupShadow()
+        setupBorder()
     }
     
+    private func setupFloatingLabel() {
+        floatingLabel.textColor = activeBorderColor
+    }
+    
+    private func setupBorder() {
+        self.layer.borderWidth = 1
+        self.layer.borderColor = Constants.unselectedBorderColor
+        self.layer.cornerRadius = 8
+    }
+    
+    private func setupViews() {
+        self.backgroundColor = .systemBackground
+        self.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    private func setupShadow() {
+        self.layer.shadowColor =  UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
+        self.layer.shadowRadius = 5
+        self.layer.shadowOpacity = 1
+        self.layer.shadowOffset = CGSize(width: 0, height: 0)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // Add a floating label to the view on becoming first responder
-    @objc func addFloatingLabel() {
+    @objc private func addFloatingLabel() {
+
+        floatingLabel.textColor = activeBorderColor
         if self.text == "" {
-            self.floatingLabel.textColor = floatingLabelColor
-            self.floatingLabel.font = floatingLabelFont
-            self.floatingLabel.text = self._placeholder
-            self.floatingLabel.layer.backgroundColor = UIColor.white.cgColor
-            self.floatingLabel.translatesAutoresizingMaskIntoConstraints = false
-            self.floatingLabel.clipsToBounds = true
-            self.floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width+4, height: floatingLabel.frame.height+2)
-            self.floatingLabel.textAlignment = .center
-            self.addSubview(self.floatingLabel)
-            self.layer.borderColor = self.activeBorderColor.cgColor
+            self.layer.borderColor = activeBorderColor.cgColor
             
-            self.floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -10).isActive = true // Place our label 10 pts above the text field
-            self.placeholder = ""
+            floatingLabel.font = Constants.titleFont
+            floatingLabel.text = self.placeholder
+            floatingLabel.translatesAutoresizingMaskIntoConstraints = false
+            floatingLabel.clipsToBounds = true
+            floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width + 4, height: floatingLabel.frame.height + 2)
+            floatingLabel.textAlignment = .center
+            addSubview(self.floatingLabel)
+
+            NSLayoutConstraint.activate([
+                floatingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
+                floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -4)
+            ])
         }
         // Floating label may be stuck behind text input. we bring it forward as it was the last item added to the view heirachy
         self.bringSubviewToFront(subviews.last!)
-        self.setNeedsDisplay()
-    }
-    
-    @objc func removeFloatingLabel() {
-        if self.text == "" {
-            UIView.animate(withDuration: 0.13) {
-                self.subviews.forEach{ $0.removeFromSuperview() }
-                self.setNeedsDisplay()
-            }
-            self.placeholder = self._placeholder
+        
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsDisplay()
         }
-        self.layer.borderColor = UIColor.black.cgColor
     }
-    
+
+    @objc private func removeFloatingLabel() {
+     
+        if self.text == "" {
+            self.placeholder = self.placeholder
+            if !errorMessage.isEmpty {
+                return
+            } else {
+                UIView.animate(withDuration: 0.3) {
+                    self.subviews.forEach{ $0.removeFromSuperview() }
+                    self.setNeedsDisplay()
+                }
+            }
+        }
+        
+        floatingLabel.textColor = .black
+        self.layer.borderColor = Constants.unselectedBorderColor
+    }
+
     func addViewPasswordButton() {
         self.button.setImage(UIImage(named: "ic_reveal"), for: .normal)
         self.button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -103,28 +124,51 @@ class FloatingLabelInput: UITextField {
         self.rightViewMode = .always
         self.button.addTarget(self, action: #selector(self.enablePasswordVisibilityToggle), for: .touchUpInside)
     }
-    
-    func addImage(image: UIImage){
-        
+
+    func addImage(image: UIImage) {
+
         self.imageView.image = image
         self.imageView.frame = CGRect(x: 20, y: 0, width: 20, height: 20)
         self.imageView.translatesAutoresizingMaskIntoConstraints = true
         self.imageView.contentMode = .scaleAspectFit
         self.imageView.clipsToBounds = true
-        
+
         DispatchQueue.main.async {
             self.leftView = self.imageView
             self.leftViewMode = .always
         }
-        
     }
-    
-    @objc func enablePasswordVisibilityToggle() {
+
+    @objc private func enablePasswordVisibilityToggle() {
         isSecureTextEntry.toggle()
         if isSecureTextEntry {
             self.button.setImage(UIImage(named: "ic_show"), for: .normal)
         }else{
             self.button.setImage(UIImage(named: "ic_hide"), for: .normal)
+        }
+    }
+    
+    override func textRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 12 , dy: 12)
+     }
+
+     // text position
+    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 12 , dy: 12)
+     }
+
+    override func placeholderRect(forBounds bounds: CGRect) -> CGRect {
+        return bounds.insetBy(dx: 12, dy: 12)
+     }
+    
+    func setError(message: String) {
+        errorMessage = message
+        addFloatingLabel()
+        Vibration.warning.vibrate()
+        UIView.animate(withDuration: 0.3) {
+            self.floatingLabel.text = message
+            self.floatingLabel.textColor = .systemRed
+            self.layer.borderColor = UIColor.systemRed.cgColor
         }
     }
 }

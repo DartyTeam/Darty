@@ -49,6 +49,9 @@
 		44A172012691183000C154A0 /* SignInVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A172002691183000C154A0 /* SignInVC.swift */; };
 		44A1720326911A6300C154A0 /* SocialButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A1720226911A6300C154A0 /* SocialButton.swift */; };
 		44A1720526912AB200C154A0 /* UserDefaults + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */; };
+		44C639B4269BB0A600D5CFD5 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B3269BB0A600D5CFD5 /* GlobalConstants.swift */; };
+		44C639B6269BB23000D5CFD5 /* UIDevice + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B5269BB23000D5CFD5 /* UIDevice + Extension.swift */; };
+		44C639BA269CA6BF00D5CFD5 /* SecondCreateVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */; };
 		44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D369FF26963438002886D0 /* WaitingChatCell.swift */; };
 		44D36A02269635B0002886D0 /* ListenerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A01269635B0002886D0 /* ListenerService.swift */; };
 		44D36A042696366D002886D0 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A032696366D002886D0 /* SectionHeader.swift */; };
@@ -58,6 +61,7 @@
 		44D36A0D26963A78002886D0 /* ChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A0C26963A78002886D0 /* ChatVC.swift */; };
 		44D36A1126963F58002886D0 /* SelfConfigutingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */; };
 		44D36A132697A243002886D0 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A122697A243002886D0 /* TextField.swift */; };
+		44D36A172699A72F002886D0 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A162699A72E002886D0 /* TextView.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -126,6 +130,9 @@
 		44A172002691183000C154A0 /* SignInVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInVC.swift; sourceTree = "<group>"; };
 		44A1720226911A6300C154A0 /* SocialButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialButton.swift; sourceTree = "<group>"; };
 		44A1720426912AB200C154A0 /* UserDefaults + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults + Extension.swift"; sourceTree = "<group>"; };
+		44C639B3269BB0A600D5CFD5 /* GlobalConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
+		44C639B5269BB23000D5CFD5 /* UIDevice + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice + Extension.swift"; sourceTree = "<group>"; };
+		44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondCreateVC.swift; sourceTree = "<group>"; };
 		44D369FF26963438002886D0 /* WaitingChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingChatCell.swift; sourceTree = "<group>"; };
 		44D36A01269635B0002886D0 /* ListenerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenerService.swift; sourceTree = "<group>"; };
 		44D36A032696366D002886D0 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
@@ -135,6 +142,7 @@
 		44D36A0C26963A78002886D0 /* ChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatVC.swift; sourceTree = "<group>"; };
 		44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfConfigutingCell.swift; sourceTree = "<group>"; };
 		44D36A122697A243002886D0 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
+		44D36A162699A72E002886D0 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -293,6 +301,7 @@
 			isa = PBXGroup;
 			children = (
 				446A3493267E54AC00528501 /* CreateVC.swift */,
+				44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";
@@ -330,6 +339,8 @@
 				44D36A0A26963894002886D0 /* AboutInputText.swift */,
 				44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */,
 				44D36A122697A243002886D0 /* TextField.swift */,
+				44D36A162699A72E002886D0 /* TextView.swift */,
+				44C639B3269BB0A600D5CFD5 /* GlobalConstants.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -381,6 +392,7 @@
 				4430DF65268EF4080016F2A7 /* UINavigationBar + Extension.swift */,
 				4430DF69268F1E660016F2A7 /* UIFont + Extension.swift */,
 				44D36A0826963729002886D0 /* UIStackView + Extension.swift */,
+				44C639B5269BB23000D5CFD5 /* UIDevice + Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -578,6 +590,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				44E82E3B26938F63000E3D35 /* UICollectionViewCell + Extension.swift in Sources */,
+				44C639B6269BB23000D5CFD5 /* UIDevice + Extension.swift in Sources */,
 				4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */,
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
@@ -594,6 +607,7 @@
 				44D36A07269636F4002886D0 /* ChatRequestVC.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,
 				446A3478267E4E4600528501 /* AppDelegate.swift in Sources */,
+				44D36A172699A72F002886D0 /* TextView.swift in Sources */,
 				44D44AE9268A6A3D00EFE76F /* NameSetupProfileVC.swift in Sources */,
 				44D36A042696366D002886D0 /* SectionHeader.swift in Sources */,
 				44D36A1126963F58002886D0 /* SelfConfigutingCell.swift in Sources */,
@@ -601,6 +615,7 @@
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
 				4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */,
 				44D36A132697A243002886D0 /* TextField.swift in Sources */,
+				44C639B4269BB0A600D5CFD5 /* GlobalConstants.swift in Sources */,
 				44A1720526912AB200C154A0 /* UserDefaults + Extension.swift in Sources */,
 				44D44ACD268A586000EFE76F /* Errors.swift in Sources */,
 				44D44ACB268A580000EFE76F /* AuthService.swift in Sources */,
@@ -609,6 +624,7 @@
 				44D44AD6268A603600EFE76F /* UIApplication + Extension.swift in Sources */,
 				4430DF64268E0EDB0016F2A7 /* UITableViewCell + Extension.swift in Sources */,
 				446A349C267E578700528501 /* LoginVC.swift in Sources */,
+				44C639BA269CA6BF00D5CFD5 /* SecondCreateVC.swift in Sources */,
 				441BF7E6268FCFD300114BF4 /* SetImageView.swift in Sources */,
 				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
 				44A171F92690CC6E00C154A0 /* SexSetupProfileVC.swift in Sources */,
