@@ -35,7 +35,7 @@ extension UIViewController {
         let tap = UITapGestureRecognizer(target: self, action:  #selector(backToMain))
         view.addGestureRecognizer(tap)
     
-        if navigationController?.navigationBar.backItem != nil {
+        if let index = navigationController?.viewControllers.firstIndex(of: self), index > 0 {
             let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
             button.setImage(UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), for: .normal)
             button.imageEdgeInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)

@@ -12,7 +12,7 @@ final class TextField: UITextField {
     private enum Constants {
         static let textFont: UIFont? = .sfProText(ofSize: 14, weight: .regular)
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .medium)
-        static let unselectedBorderColor: CGColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5).cgColor
+        static let unselectedBorderColor: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
     }
     private var activeBorderColor: UIColor = UIColor.blue
     
@@ -32,7 +32,7 @@ final class TextField: UITextField {
         self.font = Constants.textFont
         
         self.addTarget(self, action: #selector(self.addFloatingLabel), for: [.editingDidBegin])
-        self.addTarget(self, action: #selector(self.removeFloatingLabel), for: .editingDidEnd)
+        self.addTarget(self, action: #selector(self.removeFloatingLabel), for: [.editingDidEnd, .editingDidEndOnExit, .touchCancel])
         
         setupFloatingLabel()
         setupViews()
@@ -46,7 +46,7 @@ final class TextField: UITextField {
     
     private func setupBorder() {
         self.layer.borderWidth = 1
-        self.layer.borderColor = Constants.unselectedBorderColor
+        self.layer.borderColor = Constants.unselectedBorderColor.cgColor
         self.layer.cornerRadius = 8
     }
     
@@ -72,9 +72,7 @@ final class TextField: UITextField {
     // Add a floating label to the view on becoming first responder
     @objc private func addFloatingLabel() {
 
-        floatingLabel.textColor = activeBorderColor
-        if self.text == "" {
-            self.layer.borderColor = activeBorderColor.cgColor
+        if !self.subviews.contains(floatingLabel) {
             
             floatingLabel.font = Constants.titleFont
             floatingLabel.text = self.placeholder
@@ -88,9 +86,24 @@ final class TextField: UITextField {
                 floatingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
                 floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -4)
             ])
+        
+            floatingLabel.alpha = 0
+            
+            floatingLabel.center.y += 25
+            UIView.animate(withDuration: 0.3) {
+                self.floatingLabel.center.y -= 25
+                self.floatingLabel.alpha = 1
+            }
         }
+        
         // Floating label may be stuck behind text input. we bring it forward as it was the last item added to the view heirachy
         self.bringSubviewToFront(subviews.last!)
+     
+        self.animateBorderColor(toColor: self.activeBorderColor, duration: 0.3)
+        
+        UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
+            self.floatingLabel.textColor = self.activeBorderColor
+        }
         
         UIView.animate(withDuration: 0.3) {
             self.setNeedsDisplay()
@@ -111,8 +124,11 @@ final class TextField: UITextField {
             }
         }
         
-        floatingLabel.textColor = .black
-        self.layer.borderColor = Constants.unselectedBorderColor
+        UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
+            self.floatingLabel.textColor = .black
+            self.floatingLabel.text = self.placeholder
+        }
+        self.animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)
     }
 
     func addViewPasswordButton() {
@@ -165,10 +181,10 @@ final class TextField: UITextField {
         errorMessage = message
         addFloatingLabel()
         Vibration.warning.vibrate()
-        UIView.animate(withDuration: 0.3) {
-            self.floatingLabel.text = message
+        self.animateBorderColor(toColor: UIColor.systemRed, duration: 0.3)
+        UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
             self.floatingLabel.textColor = .systemRed
-            self.layer.borderColor = UIColor.systemRed.cgColor
+            self.floatingLabel.text = message
         }
     }
 }

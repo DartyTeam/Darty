@@ -52,6 +52,10 @@
 		44C639B4269BB0A600D5CFD5 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B3269BB0A600D5CFD5 /* GlobalConstants.swift */; };
 		44C639B6269BB23000D5CFD5 /* UIDevice + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B5269BB23000D5CFD5 /* UIDevice + Extension.swift */; };
 		44C639BA269CA6BF00D5CFD5 /* SecondCreateVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */; };
+		44C639BE269CE44900D5CFD5 /* ThirdCreateVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639BD269CE44900D5CFD5 /* ThirdCreateVC.swift */; };
+		44C639C0269CED5400D5CFD5 /* FourthCreateVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639BF269CED5400D5CFD5 /* FourthCreateVC.swift */; };
+		44C639C2269E2DCA00D5CFD5 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639C1269E2DC900D5CFD5 /* TabBar.swift */; };
+		44C639C4269E3DB400D5CFD5 /* FloatingTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639C3269E3DB300D5CFD5 /* FloatingTabBar.swift */; };
 		44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D369FF26963438002886D0 /* WaitingChatCell.swift */; };
 		44D36A02269635B0002886D0 /* ListenerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A01269635B0002886D0 /* ListenerService.swift */; };
 		44D36A042696366D002886D0 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A032696366D002886D0 /* SectionHeader.swift */; };
@@ -133,6 +137,10 @@
 		44C639B3269BB0A600D5CFD5 /* GlobalConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
 		44C639B5269BB23000D5CFD5 /* UIDevice + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice + Extension.swift"; sourceTree = "<group>"; };
 		44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondCreateVC.swift; sourceTree = "<group>"; };
+		44C639BD269CE44900D5CFD5 /* ThirdCreateVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThirdCreateVC.swift; sourceTree = "<group>"; };
+		44C639BF269CED5400D5CFD5 /* FourthCreateVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FourthCreateVC.swift; sourceTree = "<group>"; };
+		44C639C1269E2DC900D5CFD5 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
+		44C639C3269E3DB300D5CFD5 /* FloatingTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingTabBar.swift; sourceTree = "<group>"; };
 		44D369FF26963438002886D0 /* WaitingChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingChatCell.swift; sourceTree = "<group>"; };
 		44D36A01269635B0002886D0 /* ListenerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenerService.swift; sourceTree = "<group>"; };
 		44D36A032696366D002886D0 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
@@ -302,6 +310,8 @@
 			children = (
 				446A3493267E54AC00528501 /* CreateVC.swift */,
 				44C639B9269CA6BF00D5CFD5 /* SecondCreateVC.swift */,
+				44C639BD269CE44900D5CFD5 /* ThirdCreateVC.swift */,
+				44C639BF269CED5400D5CFD5 /* FourthCreateVC.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";
@@ -323,6 +333,8 @@
 			children = (
 				446A348B267E53F500528501 /* TabBarController.swift */,
 				446A348D267E541C00528501 /* TabItem.swift */,
+				44C639C1269E2DC900D5CFD5 /* TabBar.swift */,
+				44C639C3269E3DB300D5CFD5 /* FloatingTabBar.swift */,
 			);
 			path = TabBar;
 			sourceTree = "<group>";
@@ -593,6 +605,7 @@
 				44C639B6269BB23000D5CFD5 /* UIDevice + Extension.swift in Sources */,
 				4430DF6A268F1E660016F2A7 /* UIFont + Extension.swift in Sources */,
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
+				44C639C0269CED5400D5CFD5 /* FourthCreateVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
 				446A34A9267E5B2100528501 /* BottomLineTextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
@@ -627,10 +640,12 @@
 				44C639BA269CA6BF00D5CFD5 /* SecondCreateVC.swift in Sources */,
 				441BF7E6268FCFD300114BF4 /* SetImageView.swift in Sources */,
 				44D44AD2268A5D5100EFE76F /* UserModel.swift in Sources */,
+				44C639C4269E3DB400D5CFD5 /* FloatingTabBar.swift in Sources */,
 				44A171F92690CC6E00C154A0 /* SexSetupProfileVC.swift in Sources */,
 				44D44AE0268A64C400EFE76F /* UIImage + Extension.swift in Sources */,
 				441BF7E8268FD84C00114BF4 /* UIView + Extension.swift in Sources */,
 				4487071E268F59F4006587D0 /* AboutSetupProfileVC.swift in Sources */,
+				44C639BE269CE44900D5CFD5 /* ThirdCreateVC.swift in Sources */,
 				44D44AF0268BB22B00EFE76F /* WelcomeVC.swift in Sources */,
 				44D36A0926963729002886D0 /* UIStackView + Extension.swift in Sources */,
 				446A348E267E541C00528501 /* TabItem.swift in Sources */,
@@ -648,6 +663,7 @@
 				446A3494267E54AC00528501 /* CreateVC.swift in Sources */,
 				446A34AB267E5B4B00528501 /* UIButton + Extension.swift in Sources */,
 				44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */,
+				44C639C2269E2DCA00D5CFD5 /* TabBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -54,7 +54,7 @@ final class SecondCreateVC: UIViewController {
         datePicker.datePickerMode = .date
         datePicker.minimumDate = Date()
         if #available(iOS 14.0, *) {
-            datePicker.preferredDatePickerStyle = .inline
+            datePicker.preferredDatePickerStyle = .wheels
         } else {
             // Fallback on earlier versions
         }
@@ -118,7 +118,19 @@ final class SecondCreateVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-
+        let startTime = startTimePicker.date
+        let endTime = endTimePicker.date
+        let date = datePicker.date
+        
+        setuppedParty.startTime = startTime
+        setuppedParty.endTime = endTime
+        setuppedParty.date = date
+        let thirdCreateVC = ThirdCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
+        navigationController?.pushViewController(thirdCreateVC, animated: true)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        print("asdijasodiadsiojaiodj: ", view.safeAreaInsets.bottom)
     }
 }
 
@@ -132,45 +144,40 @@ extension SecondCreateVC {
             make.centerX.equalToSuperview()
         }
         
-        startTimePicker.snp.makeConstraints { make in
-            make.top.equalTo(logoView.snp.bottom).offset(44)
-            make.centerX.equalToSuperview().offset(-44)
-        }
-        
-        startLabel.snp.makeConstraints { make in
-            make.centerX.equalTo(startTimePicker.snp.centerX)
-            make.bottom.equalTo(startTimePicker.snp.top).offset(-6)
-        }
-        
-        endTimePicker.snp.makeConstraints { make in
-            make.top.equalTo(logoView.snp.bottom).offset(44)
-            make.centerX.equalToSuperview().offset(44)
-        }
-        
-        endLabel.snp.makeConstraints { make in
-            make.centerX.equalTo(endTimePicker.snp.centerX)
-            make.bottom.equalTo(endTimePicker.snp.top).offset(-6)
-        }
-        
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         
-        let test = UIView()
-        view.addSubview(test)
-        test.backgroundColor = .red
-        test.snp.makeConstraints { make in
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(32)
-        }
-        
         datePicker.snp.makeConstraints { make in
-            make.top.equalTo(startTimePicker.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview().inset(20)
             make.bottom.equalTo(nextButton.snp.top).offset(-32)
+        }
+        
+        dateLabel.snp.makeConstraints { make in
+            make.centerX.equalTo(datePicker.snp.centerX)
+            make.bottom.equalTo(datePicker.snp.top).offset(16)
+        }
+        
+        startTimePicker.snp.makeConstraints { make in
+            make.bottom.equalTo(dateLabel.snp.top).offset(-32)
+            make.centerX.equalToSuperview().offset(-88)
+        }
+        
+        startLabel.snp.makeConstraints { make in
+            make.centerX.equalTo(startTimePicker.snp.centerX)
+            make.bottom.equalTo(startTimePicker.snp.top).offset(-4)
+        }
+        
+        endTimePicker.snp.makeConstraints { make in
+            make.centerY.equalTo(startTimePicker.snp.centerY)
+            make.centerX.equalToSuperview().offset(88)
+        }
+        
+        endLabel.snp.makeConstraints { make in
+            make.centerX.equalTo(endTimePicker.snp.centerX)
+            make.bottom.equalTo(endTimePicker.snp.top).offset(-4)
         }
     }
 }

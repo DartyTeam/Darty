@@ -151,6 +151,7 @@ final class CreateVC: UIViewController {
         
         let setuppedParty = SetuppedParty(name: name, description: about)
         let secondCreateVC = SecondCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
+        secondCreateVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(secondCreateVC, animated: true)
     }
 }
@@ -178,8 +179,10 @@ extension CreateVC {
         topSafeAreaHeight = safeFrame.minY
         bottomSafeAreaHeight = window.frame.maxY - safeFrame.maxY
         
+        print("asdiojasdioajsdioasjdi: ", topSafeAreaHeight, bottomSafeAreaHeight, GlobalConstants.tabBarHeight, navigationController!.navigationBar.frame.size.height)
+        
         nextButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - GlobalConstants.tabBarHeight - navigationController!.navigationBar.frame.size.height - (32 * 2))
+            make.top.equalToSuperview().offset(view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - GlobalConstants.tabBarHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16))
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
             make.bottom.equalToSuperview()

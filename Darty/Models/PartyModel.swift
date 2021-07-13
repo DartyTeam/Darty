@@ -8,7 +8,26 @@
 import Foundation
 import FirebaseFirestore
 
-enum PartyType: String {
+enum PriceType: String, CaseIterable {
+    case free = "Бесплатно 􀎸"
+    case money = "Деньги 􀭿"
+    case another = "Другое 􀻐"
+}
+
+extension PriceType: Codable {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        self = PriceType(rawValue: rawValue)!
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.rawValue)
+    }
+}
+
+enum PartyType: String, CaseIterable {
     case music = "Музыкальная 􀫀"
     case dance = "Танцевальная 􀳾􀝢􀝻"
     case hangout = "Вписка 􀆿"
@@ -49,11 +68,12 @@ struct PartyModel: Hashable, Decodable {
     var startTime: Date
     var endTime: Date
     var name: String
+    var priceType: PriceType
     var price: String
     var description: String
     var minAge: Int
     
-    init(city: String, location: String, userId: String, imageUrlStrings: [String], type: PartyType, maximumPeople: Int, currentPeople: Int, id: String, date: Date, startTime: Date, endTime: Date, name: String, price: String, description: String, minAge: Int) {
+    init(city: String, location: String, userId: String, imageUrlStrings: [String], type: PartyType, maximumPeople: Int, currentPeople: Int, id: String, date: Date, startTime: Date, endTime: Date, name: String, price: String, priceType: PriceType, description: String, minAge: Int) {
         self.city = city
         self.location = location
         self.userId = userId
@@ -69,6 +89,7 @@ struct PartyModel: Hashable, Decodable {
         self.price = price
         self.description = description
         self.minAge = minAge
+        self.priceType = priceType
     }
     
     init?(document: DocumentSnapshot) {
@@ -85,6 +106,7 @@ struct PartyModel: Hashable, Decodable {
         let endTime = data["endTime"] as? Date,
         let name = data["name"] as? String,
         let price = data["price"] as? String,
+        let priceType = data["priceType"] as? PriceType,
         let description = data["description"] as? String,
         let id = data["uid"] as? String,
         let minAge = data["minAge"] as? Int
@@ -106,6 +128,7 @@ struct PartyModel: Hashable, Decodable {
         self.description = description
         self.id = id
         self.minAge = minAge
+        self.priceType = priceType
     }
     
     var representation: [String: Any] {
@@ -122,6 +145,7 @@ struct PartyModel: Hashable, Decodable {
         rep["endTime"] = endTime
         rep["name"] = name
         rep["price"] = price
+        rep["priceType"] = priceType
         rep["description"] = description
         rep["uid"] = id
         rep["minAge"] = minAge
