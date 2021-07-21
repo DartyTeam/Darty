@@ -10,7 +10,7 @@ import SDWebImage
 
 final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
     
-    static var reuseId: String = "ActiveChatCell"
+    static var reuseId: String = reuseIdentifier
     
     private enum Constants {
         static let usernameFont: UIFont? = .sfProRounded(ofSize: 14, weight: .semibold)

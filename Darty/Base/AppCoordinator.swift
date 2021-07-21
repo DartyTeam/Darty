@@ -28,14 +28,15 @@ class AppCoordinator: NSObject {
                     tabBarController.modalPresentationStyle = .fullScreen
                     self?.window.rootViewController = tabBarController
                 case .failure(_):
-                    let navController = UINavigationController()
+                    let navController = UINavigationController(rootViewController: LoginVC())
                     navController.setNavigationBarHidden(true, animated: false)
-                    navController.pushViewController(LoginVC(), animated: false)
                     self?.window.rootViewController = navController
                 }
             }
         } else {
-            window.rootViewController = LoginVC()
+            let navController = UINavigationController(rootViewController: LoginVC())
+            navController.setNavigationBarHidden(true, animated: false)
+            window.rootViewController = navController
         }
         
         window.makeKeyAndVisible()

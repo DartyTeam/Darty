@@ -18,7 +18,7 @@ extension UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
-    func setNavigationBar(withColor color: UIColor, title: String) {
+    func setNavigationBar(withColor color: UIColor, title: String, withClear: Bool = true) {
 
         navigationController?.setNavigationBarHidden(false, animated: true)
         
@@ -26,26 +26,20 @@ extension UIViewController {
         
         self.navigationItem.setHidesBackButton(true, animated:false)
 
-        //your custom view for back image with custom size
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 66))
-        
-        let button = UIButton(frame: CGRect(x: 0, y: 20, width: 0, height: 50))
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        let tap = UITapGestureRecognizer(target: self, action:  #selector(backToMain))
-        view.addGestureRecognizer(tap)
-    
         if let index = navigationController?.viewControllers.firstIndex(of: self), index > 0 {
-            let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-            button.setImage(UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), for: .normal)
-            button.imageEdgeInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
-            view.addSubview(button)
+            let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
 
-            let leftBarButtonItem = UIBarButtonItem(customView: view)
+            let leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), style: .plain, target: self, action:  #selector(backToMain))
+//            leftBarButtonItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
+
             self.navigationItem.leftBarButtonItem = leftBarButtonItem
         }
         
-        navigationController?.navigationBar.setup(withColor: color)
+        navigationController?.navigationBar.setup(withColor: color, withClear: withClear)
+        
+        //            let leftBarButtonItem = UIBarButtonItem(customView: view)
+        //            leftBarButtonItem.setBackgroundVerticalPositionAdjustment(30, for: .default)
+        //            self.navigationItem.leftBarButtonItem?.setBackButtonBackgroundVerticalPositionAdjustment(16, for: .default)
     }
 
     @objc func backToMain() {

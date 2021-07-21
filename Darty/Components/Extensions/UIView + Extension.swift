@@ -122,12 +122,49 @@ extension UIView {
 }
 
 extension UIView {
-  func animateBorderColor(toColor: UIColor, duration: Double) {
-    let animation = CABasicAnimation(keyPath: "borderColor")
-    animation.fromValue = layer.borderColor
-    animation.toValue = toColor.cgColor
-    animation.duration = duration
-    layer.add(animation, forKey: "borderColor")
-    layer.borderColor = toColor.cgColor
-  }
+    func animateBorderColor(toColor: UIColor, duration: Double) {
+        let animation = CABasicAnimation(keyPath: "borderColor")
+        animation.fromValue = layer.borderColor
+        animation.toValue = toColor.cgColor
+        animation.duration = duration
+        layer.add(animation, forKey: "borderColor")
+        layer.borderColor = toColor.cgColor
+    }
+    
+    func viewSlideShow() -> Void {
+        let transition:CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.push
+        transition.subtype = CATransitionSubtype.fromLeft
+        transition.isRemovedOnCompletion = true
+        self.layer.add(transition, forKey: kCATransition)
+    }
+    
+    func viewSlideHide() -> Void {
+        let transition:CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.reveal
+        transition.subtype = CATransitionSubtype.fromLeft
+        transition.isRemovedOnCompletion = true
+        self.layer.add(transition, forKey: kCATransition)
+    }
+    
+    func slideFromBottom() {
+        let transition:CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.push
+        transition.subtype = CATransitionSubtype.fromTop
+        transition.isRemovedOnCompletion = true
+        self.layer.add(transition, forKey: kCATransition)
+    }
+}
+
+extension UIView {
+    func makeRoundCorners(byRadius rad: CGFloat) {
+       self.layer.cornerRadius = rad
+       self.clipsToBounds = true
+    }
 }

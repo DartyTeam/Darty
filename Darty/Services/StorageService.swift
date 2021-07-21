@@ -63,13 +63,15 @@ class StorageService {
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         
-        partiesImagesRef.child(currentUserId).putData(imageData, metadata: metadata) { (metadata, error) in
+        let imageName = [UUID().uuidString, partyId].joined()
+        
+        partiesImagesRef.child(currentUserId).child(imageName).putData(imageData, metadata: metadata) { (metadata, error) in
             guard let _ = metadata else {
                 completion(.failure(error!))
                 return
             }
             
-            self.avatarsRef.child(self.currentUserId).downloadURL { (url, error) in
+            self.partiesImagesRef.child(self.currentUserId).child(imageName).downloadURL { (url, error) in
                 guard let downloadURL = url else {
                     completion(.failure(error!))
                     return

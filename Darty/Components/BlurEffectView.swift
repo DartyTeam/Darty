@@ -8,27 +8,18 @@
 import UIKit
 
 class BlurEffectView: UIVisualEffectView {
+        
+    // MARK: Private
+    private var animator: UIViewPropertyAnimator!
     
-    var animator = UIViewPropertyAnimator(duration: 1, curve: .linear)
-    
-    override func didMoveToSuperview() {
-        guard let superview = superview else { return }
-        backgroundColor = .clear
-        frame = superview.bounds //Or setup constraints instead
-        setupBlur()
+    init(style: UIBlurEffect.Style = .systemThickMaterial) {
+        super.init(effect: nil)
+        let effect = UIBlurEffect(style: style)
+        animator = UIViewPropertyAnimator(duration: 1, curve: .linear) { [unowned self] in self.effect = effect}
+        animator.fractionComplete = 0.27
     }
     
-    private func setupBlur() {
-        animator.stopAnimation(true)
-        effect = nil
-
-        animator.addAnimations { [weak self] in
-            self?.effect = UIBlurEffect(style: .systemThickMaterial)
-        }
-        animator.fractionComplete = 0.27   //This is your blur intensity in range 0 - 1
-    }
-    
-    deinit {
-        animator.stopAnimation(true)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

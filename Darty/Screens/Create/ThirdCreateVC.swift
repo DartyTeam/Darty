@@ -55,22 +55,32 @@ final class ThirdCreateVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        setupNavBar()
         setupViews()
         setupConstraints()
     }
     
+    private func setupNavBar() {
+        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
+        navigationItem.rightBarButtonItem = cancelBarButtonItem
+    }
+    
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        
         view.addSubview(logoView)
         view.addSubview(nextButton)
         view.addSubview(typePicker)
     }
     
     // MARK: - Handlers
+    @objc private func cancleAction() {
+        navigationController?.popToRootViewController(animated: true)
+    }
+    
     @objc private func nextButtonTapped() {
-        setuppedParty.type = pickedType
+        setuppedParty.type = pickedType!
         let fourthCreateVC = FourthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
         navigationController?.pushViewController(fourthCreateVC, animated: true)
     }

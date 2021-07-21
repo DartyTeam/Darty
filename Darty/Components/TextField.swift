@@ -21,8 +21,24 @@ final class TextField: UITextField {
     private var imageView = UIImageView(frame: CGRect.zero)
     
     private var errorMessage = ""
+    private var savedPlaceholder: String
+    
+    override var text: String? {
+        didSet {
+            if text?.isEmpty ?? true {
+                if subviews.contains(floatingLabel) {
+                    removeFloatingLabel()
+                }
+            } else {
+                if !subviews.contains(floatingLabel) {
+                    addBlackFloating()
+                }
+            }
+        }
+    }
 
     init(color: UIColor, placeholder: String) {
+        savedPlaceholder = placeholder
         super.init(frame: CGRect.zero)
         activeBorderColor = color
         
@@ -32,7 +48,7 @@ final class TextField: UITextField {
         self.font = Constants.textFont
         
         self.addTarget(self, action: #selector(self.addFloatingLabel), for: [.editingDidBegin])
-        self.addTarget(self, action: #selector(self.removeFloatingLabel), for: [.editingDidEnd, .editingDidEndOnExit, .touchCancel])
+        self.addTarget(self, action: #selector(self.removeFloatingLabel), for: [.editingDidEnd, .editingDidEndOnExit, .touchUpOutside])
         
         setupFloatingLabel()
         setupViews()
@@ -73,9 +89,10 @@ final class TextField: UITextField {
     @objc private func addFloatingLabel() {
 
         if !self.subviews.contains(floatingLabel) {
+            self.placeholder = ""
             
             floatingLabel.font = Constants.titleFont
-            floatingLabel.text = self.placeholder
+            floatingLabel.text = savedPlaceholder
             floatingLabel.translatesAutoresizingMaskIntoConstraints = false
             floatingLabel.clipsToBounds = true
             floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width + 4, height: floatingLabel.frame.height + 2)
@@ -111,10 +128,14 @@ final class TextField: UITextField {
     }
 
     @objc private func removeFloatingLabel() {
-     
         if self.text == "" {
-            self.placeholder = self.placeholder
+            self.placeholder = savedPlaceholder
             if !errorMessage.isEmpty {
+                self.animateBorderColor(toColor: UIColor.systemRed, duration: 0.3)
+                UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
+                    self.floatingLabel.textColor = .systemRed
+                    self.floatingLabel.text = self.errorMessage
+                }
                 return
             } else {
                 UIView.animate(withDuration: 0.3) {
@@ -124,14 +145,51 @@ final class TextField: UITextField {
             }
         }
         
+        changeToBlack()
+    }
+    
+    private func changeToBlack() {
         UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
             self.floatingLabel.textColor = .black
-            self.floatingLabel.text = self.placeholder
+            self.floatingLabel.text = self.savedPlaceholder
         }
         self.animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)
     }
+    
+    private func addBlackFloating() {
+        if !self.subviews.contains(floatingLabel) {
+            
+            floatingLabel.font = Constants.titleFont
+            floatingLabel.text = savedPlaceholder
+            floatingLabel.translatesAutoresizingMaskIntoConstraints = false
+            floatingLabel.clipsToBounds = true
+            floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width + 4, height: floatingLabel.frame.height + 2)
+            floatingLabel.textAlignment = .center
+            addSubview(self.floatingLabel)
 
-    func addViewPasswordButton() {
+            NSLayoutConstraint.activate([
+                floatingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
+                floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -4)
+            ])
+        
+            floatingLabel.alpha = 0
+            
+            floatingLabel.center.y += 25
+            UIView.animate(withDuration: 0.3) {
+                self.floatingLabel.center.y -= 25
+                self.floatingLabel.alpha = 1
+            }
+        }
+        
+        // Floating label may be stuck behind text input. we bring it forward as it was the last item added to the view heirachy
+        self.bringSubviewToFront(subviews.last!)
+        
+        UIView.animate(withDuration: 0.3) {
+            self.setNeedsDisplay()
+        }
+    }
+
+    private func addViewPasswordButton() {
         self.button.setImage(UIImage(named: "ic_reveal"), for: .normal)
         self.button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         self.button.frame = CGRect(x: 0, y: 16, width: 22, height: 16)

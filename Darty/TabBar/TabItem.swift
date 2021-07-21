@@ -17,7 +17,7 @@ enum TabItem: String, CaseIterable {
     var viewController: UIViewController {
         switch self {
         case .parties:
-            return PartiesVC()
+            return PartiesVC(currentUser: AuthService.shared.currentUser!)
         case .create:
             return CreateVC(currentUser: AuthService.shared.currentUser!)
         case .messages:

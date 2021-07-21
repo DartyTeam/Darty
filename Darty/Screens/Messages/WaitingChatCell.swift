@@ -14,7 +14,7 @@ protocol WaitingChatsNavigation: class {
 
 final class WaitingChatCell: UICollectionViewCell, SelfConfiguringCell {
         
-    static var reuseId: String = "WaitingGuestCell"
+    static var reuseId: String = reuseIdentifier
     
     let friendImageView: UIImageView = {
         let imageView = UIImageView()

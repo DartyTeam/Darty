@@ -30,3 +30,29 @@ extension RangeReplaceableCollection where Self: StringProtocol {
         return filter(("0"..."9").contains)
     }
 }
+
+extension String {
+    func isEmptyOrWhitespaceOrNewLines() -> Bool {
+        
+        // Check empty string
+        if self.isEmpty {
+            return true
+        }
+        // Trim and check empty string
+        return (self.trimmingCharacters(in: .whitespacesAndNewlines) == "")
+    }
+}
+
+extension Optional where Wrapped == String {
+    func isEmptyOrWhitespaceOrNewLines() -> Bool {
+        // Check nil
+        guard let this = self else { return true }
+        
+        // Check empty string
+        if this.isEmpty {
+            return true
+        }
+        // Trim and check empty string
+        return (this.trimmingCharacters(in: .whitespacesAndNewlines) == "")
+    }
+}

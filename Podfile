@@ -21,6 +21,9 @@ target 'Darty' do
   
   pod 'SnapKit'
 
+  pod 'Lightbox'
+  pod 'ConcentricOnboarding'
+  
 #pod 'Hero'
 #pod 'SkeletonView'
 end

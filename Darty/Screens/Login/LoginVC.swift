@@ -76,10 +76,14 @@ final class LoginVC: UIViewController {
         super.viewDidAppear(animated)
         
         if !(UserDefaults.standard.isPrevLaunched ?? false) {
-            let welcomeVC = WelcomeVC()
-            welcomeVC.modalPresentationStyle = .popover
-            present(welcomeVC, animated: true, completion: nil)
+            let onboardVC = OnboardVC()
+            onboardVC.modalPresentationStyle = .overFullScreen
+            present(onboardVC, animated: true, completion: nil)
         }
+        
+//        let welcomeVC = WelcomeVC()
+//        welcomeVC.modalPresentationStyle = .popover
+//        present(welcomeVC, animated: true, completion: nil)
     }
     
     private func setupViews() {
@@ -171,7 +175,8 @@ extension LoginVC: GIDSignInDelegate {
                             self?.googleButton.hideLoading()
                             self?.view.isUserInteractionEnabled = true
                             let tabBarController = TabBarController(currentUser: user)
-                            self?.navigationController?.pushViewController(tabBarController, animated: false)
+                            tabBarController.modalPresentationStyle = .fullScreen
+                            self?.present(tabBarController, animated: true, completion: nil)
                         })
                     case .failure(_):
                         
@@ -239,7 +244,8 @@ extension LoginVC {
                             sender.hideLoading()
                             self?.view.isUserInteractionEnabled = true
                             let tabBarController = TabBarController(currentUser: user)
-                            self?.navigationController?.pushViewController(tabBarController, animated: false)
+                            tabBarController.modalPresentationStyle = .fullScreen
+                            self?.present(tabBarController, animated: true, completion: nil)
                         })
                     case .failure(let error):
                         print("ERROR_LOG get user data: ", error.localizedDescription)

@@ -90,7 +90,7 @@ final class AboutSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard let descriptionText = aboutTextView.text, !descriptionText.isEmpty else {
+        guard let descriptionText = aboutTextView.text, !descriptionText.isEmptyOrWhitespaceOrNewLines() else {
             showAlert(title: "Введите описание себя", message: "")
             return
         }

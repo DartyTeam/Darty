@@ -7,6 +7,8 @@
 
 import UIKit
 import FirebaseAuth
+import PhotosUI
+import Lightbox
 
 final class ImageSetupProfileVC: UIViewController {
         
@@ -19,8 +21,8 @@ final class ImageSetupProfileVC: UIViewController {
         return button
     }()
     
-    private lazy var setImageView: SetImageView = {
-        let setImageView = SetImageView(delegate: self)
+    private lazy var setImageView: MultiSetImagesView = {
+        let setImageView = MultiSetImagesView(delegate: self, maxPhotos: 1, shape: .round, color: .systemBlue)
         setImageView.translatesAutoresizingMaskIntoConstraints = false
         return setImageView
     }()
@@ -60,12 +62,8 @@ final class ImageSetupProfileVC: UIViewController {
     }
     
     // MARK: - Handlers
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
     @objc private func nextButtonTapped() {
-        guard let userimage = setImageView.image else {
+        guard let userimage = setImageView.images.first else {
             showAlert(title: "Выберите изображение", message: "")
             return
         }
@@ -102,17 +100,25 @@ extension ImageSetupProfileVC {
     }
 }
 
-extension ImageSetupProfileVC: SetImageDelegate {
-    func imageDidSet(_ image: UIImage?) {
-        
+extension ImageSetupProfileVC: MultiSetImagesViewDelegate {
+    func showFullscreen(_ lightboxController: LightboxController) {
+        present(lightboxController, animated: true, completion: nil)
+    }
+    
+    func showCamera(_ imagePicker: UIImagePickerController) {
+        present(imagePicker, animated: true, completion: nil)
+    }
+    
+    func showImagePicker(_ imagePicker: PHPickerViewController) {
+        present(imagePicker, animated: true)
+    }
+    
+    func showError(_ error: String) {
+        showAlert(title: "Ошибка", message: error)
     }
     
     func showActionSheet(_ actionSheet: UIAlertController) {
         present(actionSheet, animated: true)
-    }
-    
-    func showImagePicker(_ imagePicker: UIImagePickerController) {
-        present(imagePicker, animated: true)
     }
     
     func dismissImagePicker() {

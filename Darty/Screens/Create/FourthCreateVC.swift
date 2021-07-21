@@ -18,6 +18,16 @@ final class FourthCreateVC: UIViewController {
     }
     
     // MARK: - UI Elements
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        tapRecognizer.numberOfTapsRequired = 1
+        tapRecognizer.numberOfTouchesRequired = 1
+        scrollView.addGestureRecognizer(tapRecognizer)
+        return scrollView
+    }()
+    
     private let logoView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo"))
         return imageView
@@ -86,13 +96,26 @@ final class FourthCreateVC: UIViewController {
         return segmentedControl
     }()
     
-    private let priceTextField: TextField = {
-        let textField = TextField(color: .systemPurple, placeholder: "Стоимость")
+    private lazy var priceTextField: TextField = {
+        let textField = TextField(color: .systemPurple, placeholder: "Цена за вход")
         textField.isHidden = true
+        textField.returnKeyType = .done
+        textField.delegate = self
+        textField.autocorrectionType = .no
         return textField
     }()
     
+    private let priceLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.titleFont
+        label.text = "Цена за вход"
+        return label
+    }()
+    
     // MARK: - Properties
+    private var savedPrice = ""
+    private var savedOther = ""
+    
     private let currentUser: UserModel
     private var setuppedParty: SetuppedParty
     
@@ -109,56 +132,122 @@ final class FourthCreateVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        setupNavBar()
         setupViews()
         setupConstraints()
     }
     
+    private func setupNavBar() {
+        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
+        navigationItem.rightBarButtonItem = cancelBarButtonItem
+    }
+    
     private func setupViews() {
         view.backgroundColor = .systemBackground
+        view.addSubview(scrollView)
+        scrollView.addSubview(logoView)
+        scrollView.addSubview(nextButton)
+        scrollView.addSubview(maxGuestsLabel)
+        scrollView.addSubview(countMaxLabel)
+        scrollView.addSubview(maxGuestsStepper)
         
-        view.addSubview(logoView)
-        view.addSubview(nextButton)
-        view.addSubview(maxGuestsLabel)
-        view.addSubview(countMaxLabel)
-        view.addSubview(maxGuestsStepper)
+        scrollView.addSubview(ageCountLabel)
+        scrollView.addSubview(minAgeLabel)
+        scrollView.addSubview(minAgeStepper)
         
-        view.addSubview(ageCountLabel)
-        view.addSubview(minAgeLabel)
-        view.addSubview(minAgeStepper)
-        
-        view.addSubview(priceTypeSegment)
-        view.addSubview(priceTextField)
+        scrollView.addSubview(priceTypeSegment)
+        scrollView.addSubview(priceLabel)
+        scrollView.addSubview(priceTextField)
     }
     
     // MARK: - Handlers
-    @objc private func nextButtonTapped() {
+    @objc private func keyboardWillHide(notification: NSNotification) {
 
+        let contentInset:UIEdgeInsets = UIEdgeInsets.zero
+        scrollView.contentInset = contentInset
         
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.view.layoutIfNeeded()
+        })
+    }
+    
+    @objc private func keyboardWillAppear(notification: NSNotification) {
+        let userInfo = notification.userInfo!
+        let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+
+        var contentInset:UIEdgeInsets = self.scrollView.contentInset
+           contentInset.bottom = keyboardFrame.size.height + 20
+        scrollView.contentInset = contentInset
+        
+        scrollView.scrollRectToVisible(nextButton.frame, animated: true)
+
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.view.layoutIfNeeded()
+        })
+    }
+    
+    @objc private func nextButtonTapped() {
+        switch priceTypeSegment.selectedSegmentIndex {
+        case 0:
+            setuppedParty.priceType = .free
+            setuppedParty.price = ""
+        case 1:
+            guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
+                priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
+                return
+            }
+            setuppedParty.priceType = .money
+            setuppedParty.price = price
+        case 2:
+            guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
+                priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
+                return
+            }
+            setuppedParty.priceType = .another
+            setuppedParty.price = price
+        default:
+            break
+        }
+        
+        setuppedParty.minAge = Int(minAgeStepper.value)
+        setuppedParty.maximumPeople = Int(maxGuestsStepper.value)
+        
+        let fifthCreateVC = FifthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
+        navigationController?.pushViewController(fifthCreateVC, animated: true)
     }
     
     @objc private func typeChangedAction(_ sender: UISegmentedControl) {
+        priceTextField.resignFirstResponder()
         switch sender.selectedSegmentIndex {
         case 0:
-            viewSlideHide(view: priceTextField)
+            priceTextField.viewSlideHide()
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 self.priceTextField.isHidden = true
             }
         case 1:
+            priceTextField.keyboardType = .numberPad
+            priceTextField.text = savedPrice
             if priceTextField.isHidden {
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
                     self.priceTextField.isHidden = false
                 }
-        
-                viewSlideShow(view: priceTextField)
+                priceTextField.viewSlideShow()
             }
+            priceTextField.becomeFirstResponder()
         case 2:
+            priceTextField.text = savedOther
+            priceTextField.keyboardType = .default
             if priceTextField.isHidden {
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
                     self.priceTextField.isHidden = false
                 }
-                viewSlideShow(view: priceTextField)
+                priceTextField.viewSlideShow()
             }
+            priceTextField.becomeFirstResponder()
         default:
             break
         }
@@ -172,24 +261,12 @@ final class FourthCreateVC: UIViewController {
         ageCountLabel.text = String(Int(sender.value))
     }
     
-    func viewSlideShow(view: UIView) -> Void {
-        let transition:CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        transition.type = CATransitionType.push
-        transition.subtype = CATransitionSubtype.fromLeft
-        transition.isRemovedOnCompletion = true
-        view.layer.add(transition, forKey: kCATransition)
+    @objc private func tapAction() {
+        view.endEditing(true)
     }
     
-    func viewSlideHide(view: UIView) -> Void {
-        let transition:CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        transition.type = CATransitionType.reveal
-        transition.subtype = CATransitionSubtype.fromLeft
-        transition.isRemovedOnCompletion = true
-        view.layer.add(transition, forKey: kCATransition)
+    @objc private func cancleAction() {
+        navigationController?.popToRootViewController(animated: true)
     }
 }
 
@@ -197,16 +274,30 @@ final class FourthCreateVC: UIViewController {
 extension FourthCreateVC {
     
     private func setupConstraints() {
-                        
+                    
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+        }
+        
         logoView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(44)
+            make.top.equalToSuperview().offset(44)
             make.centerX.equalToSuperview()
         }
         
+        var topSafeAreaHeight: CGFloat = 0
+        var bottomSafeAreaHeight: CGFloat = 0
+        let window = UIApplication.shared.windows[0]
+        let safeFrame = window.safeAreaLayoutGuide.layoutFrame
+        topSafeAreaHeight = safeFrame.minY
+        bottomSafeAreaHeight = window.frame.maxY - safeFrame.maxY
+        
         nextButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16))
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+            make.bottom.equalToSuperview()
         }
         
         ageCountLabel.snp.makeConstraints { make in
@@ -251,6 +342,29 @@ extension FourthCreateVC {
         priceTextField.snp.makeConstraints { make in
             make.bottom.equalTo(priceTypeSegment.snp.top).offset(-16)
             make.leading.trailing.equalToSuperview().inset(20)
+            make.width.equalToSuperview().inset(20)
         }
+        
+        priceLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(priceTypeSegment.snp.top).offset(-20)
+            make.centerX.equalToSuperview()
+        }
+    }
+}
+
+extension FourthCreateVC: UITextFieldDelegate {
+        
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField.keyboardType == .numberPad {
+            savedPrice = textField.text ?? ""
+        } else {
+            savedOther = textField.text ?? ""
+        }
+        print("asiodjaoisdjasd: ", savedPrice, savedOther)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        priceTextField.resignFirstResponder()
+        return false
     }
 }

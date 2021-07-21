@@ -98,14 +98,20 @@ final class SecondCreateVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+       
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         setupViews()
         setupConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.setIsTabBarHidden(true)
+    }
+    
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        
         view.addSubview(logoView)
         view.addSubview(nextButton)
         view.addSubview(datePicker)
@@ -127,10 +133,6 @@ final class SecondCreateVC: UIViewController {
         setuppedParty.date = date
         let thirdCreateVC = ThirdCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
         navigationController?.pushViewController(thirdCreateVC, animated: true)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        print("asdijasodiadsiojaiodj: ", view.safeAreaInsets.bottom)
     }
 }
 

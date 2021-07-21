@@ -82,7 +82,7 @@ final class NameSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard let username = nameTextField.text, !username.isEmpty else {
+        guard let username = nameTextField.text, !username.isEmptyOrWhitespaceOrNewLines() else {
             showAlert(title: "Необходимо ввести имя", message: "")
             return
         }

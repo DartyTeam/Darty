@@ -43,4 +43,18 @@ extension UIButton {
         let area = self.bounds.insetBy(dx: -(addedTouchArea ?? 0), dy: -(addedTouchArea ?? 0))
         return area.contains(point)
     }
+    
+    func addBlurEffect() {
+        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+        blur.isUserInteractionEnabled = false
+        self.insertSubview(blur, at: 0)
+        blur.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        if let imageView = self.imageView {
+            self.bringSubviewToFront(imageView)
+        }
+        blur.clipsToBounds = true
+    }
 }
+

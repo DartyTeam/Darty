@@ -9,7 +9,7 @@ import UIKit
 import AudioToolbox
 
 enum GlobalConstants {
-    static let tabBarHeight: CGFloat = UIDevice.current.hasNotch ? 70 : 80
+    static let tabBarHeight: CGFloat = 65
 }
 
 enum Vibration {

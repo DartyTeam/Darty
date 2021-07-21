@@ -1,13 +1,12 @@
+
 import UIKit
 import SwiftUI
 
 class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     private enum Constants {
-        static let tabBarHeight: CGFloat = 70
+        static let tabBarHeight: CGFloat = UIDevice.current.hasNotch ? 70 : 80
     }
-    
-//    private let bottomSafeInset: CGFloat = UIDevice.current.hasNotch ? 34 : 0
     
     override var selectedIndex: Int {
         didSet {
@@ -18,22 +17,17 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     private let currentUser: UserModel
     
     private lazy var floatingTabBar: FloatingTabbar = {
-        let floatingTabBar = FloatingTabbar(selected: selectedIndex, expand: true, delegate: self)
+        let floatingTabBar = FloatingTabbar(selected: 0, expand: true, delegate: self)
         return floatingTabBar
     }()
     
-    fileprivate lazy var tabBarContainer: UIView = {
+    lazy var tabBarContainer: UIView = {
         let tabBarContainerView = UIView()
-        
         var newFrame = tabBar.frame
         newFrame.size.height = Constants.tabBarHeight
         newFrame.size.width = self.view.frame.width - 24
         newFrame.origin.x = 12
-        if UIDevice.current.hasNotch {
-            newFrame.origin.y = self.view.frame.height - Constants.tabBarHeight - 34
-        } else {
-            newFrame.origin.y = self.view.frame.height - Constants.tabBarHeight - 10
-        }
+        newFrame.origin.y = UIDevice.current.hasNotch ? (self.view.frame.height - Constants.tabBarHeight) : (self.view.frame.height - Constants.tabBarHeight + 34)
         tabBarContainerView.frame = newFrame
         tabBarContainerView.backgroundColor = .clear
         let childView = UIHostingController(rootView: floatingTabBar)
@@ -45,7 +39,6 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     }()
         
     init(currentUser: UserModel) {
-   
         self.currentUser = currentUser
         AuthService.shared.currentUser = currentUser
   
@@ -55,30 +48,35 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     }
     
     @available(*, unavailable)
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 21, right: 0)
-    
-        view.addSubview(tabBarContainer)
-        
+        additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: Constants.tabBarHeight - 5, right: 0)
+        tabBarContainer.isHidden = true
         tabBar.isHidden = true
         setTabBarMenuControllers()
         selectedIndex = 0
     }
     
-    private func setTabBarMenuControllers() {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.view.addSubview(self.tabBarContainer)
+        DispatchQueue.main.async {
+            self.tabBarContainer.isHidden = false
+        }
+        tabBarContainer.slideFromBottom()
+    }
     
+    private func setTabBarMenuControllers() {
         let partiesVC = UINavigationController(rootViewController: TabItem.parties.viewController)
-        partiesVC.setNavigationBarHidden(true, animated: false)
         partiesVC.tabBarItem.image = TabItem.parties.icon
         partiesVC.tabBarItem.selectedImage = TabItem.parties.selectedIcon?.withRenderingMode(.alwaysOriginal).withTintColor(TabItem.parties.color)
         partiesVC.tabBarItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
         partiesVC.tabBarItem.tag = 0
-        
+
         let createVC = UINavigationController(rootViewController: TabItem.create.viewController)
         createVC.setNavigationBarHidden(true, animated: false)
         createVC.tabBarItem.image = TabItem.create.icon
@@ -112,6 +110,10 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     }
     
     class TabBar: UITabBar {
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
         override func sizeThatFits(_ size: CGSize) -> CGSize {
             var sizeThatFits = super.sizeThatFits(size)
             sizeThatFits.height = Constants.tabBarHeight
@@ -124,20 +126,24 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
             }
             set {
                 super.isHidden = true
-                
             }
-        }
-        
-        func asdasd() {
-            self.tabBarContainer.isHidden = true
         }
     }
     
-    override var hidesBottomBarWhenPushed: Bool {
-        didSet {
-            print("asdijoasijodaoijsdjia")
-           
+    func setTabBarHidden(_ isHidden: Bool) {
+        tabBarContainer.isHidden = isHidden
+        if isHidden {
+            additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        } else {
+            additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: Constants.tabBarHeight - 5, right: 0)
         }
+    }
+}
+
+extension UIViewController {
+    func setIsTabBarHidden(_ hide: Bool) {
+        guard let tabBar = tabBarController as? TabBarController else { return }
+        tabBar.setTabBarHidden(hide)
     }
 }
 

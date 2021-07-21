@@ -10,21 +10,21 @@ import FirebaseAuth
 import SnapKit
 
 struct SetuppedParty {
-    var name: String?
-    var description: String?
-    var city: String?
-    var location: String?
-    var userId: String?
-    var maximumPeople: Int?
-    var currentPeople: Int?
-    var date: Date?
-    var startTime: Date?
-    var endTime: Date?
-    var priceType: String?
-    var price: Int?
-    var images: UIImage?
-    var minAge: Int?
-    var type: PartyType?
+    var name: String = ""
+    var description: String = ""
+    var city: String = ""
+    var location: String = ""
+    var userId: String
+    var maximumPeople: Int = 1
+    var currentPeople: Int = 0
+    var date: Date = Date()
+    var startTime: Date = Date()
+    var endTime: Date = Date()
+    var priceType: PriceType = .free
+    var price: String = ""
+    var images: [UIImage] = []
+    var minAge: Int = 10
+    var type: PartyType = .art
 }
 
 final class CreateVC: UIViewController {
@@ -93,6 +93,11 @@ final class CreateVC: UIViewController {
         setupConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.setIsTabBarHidden(false)
+    }
+    
     @objc private func keyboardWillHide(notification: NSNotification) {
 
         let contentInset:UIEdgeInsets = UIEdgeInsets.zero
@@ -133,10 +138,10 @@ final class CreateVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-        guard let name = nameTextField.text, !name.isEmpty else {
+        guard let name = nameTextField.text, !name.isEmptyOrWhitespaceOrNewLines() else {
             nameTextField.setError(message: "Название не может быть пустым")
             
-            if aboutTextView.text.isEmpty {
+            if aboutTextView.text.isEmptyOrWhitespaceOrNewLines() {
                 aboutTextView.setError(message: "Описание не может быть пустым")
             }
             
@@ -144,14 +149,14 @@ final class CreateVC: UIViewController {
         }
         
         let about = aboutTextView.text
-        guard !about.isEmpty else {
+        guard !about.isEmptyOrWhitespaceOrNewLines() else {
             aboutTextView.setError(message: "Описание не может быть пустым")
             return
         }
         
-        let setuppedParty = SetuppedParty(name: name, description: about)
+        let setuppedParty = SetuppedParty(name: name, description: about, userId: currentUser.id)
+        
         let secondCreateVC = SecondCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
-        secondCreateVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(secondCreateVC, animated: true)
     }
 }
@@ -178,8 +183,6 @@ extension CreateVC {
         let safeFrame = window.safeAreaLayoutGuide.layoutFrame
         topSafeAreaHeight = safeFrame.minY
         bottomSafeAreaHeight = window.frame.maxY - safeFrame.maxY
-        
-        print("asdiojasdioajsdioasjdi: ", topSafeAreaHeight, bottomSafeAreaHeight, GlobalConstants.tabBarHeight, navigationController!.navigationBar.frame.size.height)
         
         nextButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - GlobalConstants.tabBarHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16))

@@ -294,22 +294,20 @@ class FirestoreService {
         return db.collection("parties")
     }
     
-    func savePartyWith(party: PartyModel,
-                       partyImages: [UIImage],
+    func savePartyWith(party: SetuppedParty,
                        completion: @escaping (Result<PartyModel, Error>) -> Void) {
-        var party = party
-        party.id = UUID().uuidString
-                    
-        var partyImagesUrls = [String]()
+
+        let partyId = UUID().uuidString
+        
+        var imagesUrlStrings: [String] = []
         let dg = DispatchGroup()
-        dg.enter()
-        for partyImage in partyImages {
-            StorageService.shared.uploadPartyImage(photo: partyImage, partyId: party.id) { (result) in
+        for partyImage in party.images {
+            dg.enter()
+            StorageService.shared.uploadPartyImage(photo: partyImage, partyId: partyId) { (result) in
                 
                 switch result {
-                
                 case .success(let url):
-                    partyImagesUrls.append(url.absoluteString)
+                    imagesUrlStrings.append(url.absoluteString)
                 case .failure(let error):
                     completion(.failure(error))
                 }
@@ -318,10 +316,11 @@ class FirestoreService {
             }
         }
         
-        dg.notify(queue: .main) {
-            party.imageUrlStrings = partyImagesUrls
-            
+        let party = PartyModel(city: party.city, location: party.location, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maximumPeople: party.maximumPeople, currentPeople: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, price: party.price, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
+        
+        dg.notify(queue: .main) {            
             // Сохранение данных в Firestore
+            print("asdiojasijodjiasdjioasoijdoaijsdjiasjid")
             self.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))
@@ -362,6 +361,7 @@ class FirestoreService {
         if let type = type, type != "Любой" { query = query.whereField("type", isEqualTo : type) }
         if let date = date, date != "" { query = query.whereField("date", isEqualTo : date) }
 
+        print("saidojaisdjasidojasdiasjdaiosdj: ", Auth.auth().currentUser!.uid)
         query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
         
         query.getDocuments() { (querySnapshot, err) in
