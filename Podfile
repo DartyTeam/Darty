@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '13.0'
 
 target 'Darty' do
   # Comment the next line if you don't want to use dynamic frameworks
@@ -17,4 +17,13 @@ target 'Darty' do
   
   pod 'MessageKit'
   
+  pod 'SDWebImage', '~> 5.0'
+  
+  pod 'SnapKit'
+
+  pod 'Lightbox'
+  pod 'ConcentricOnboarding'
+  
+#pod 'Hero'
+#pod 'SkeletonView'
 end

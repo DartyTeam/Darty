@@ -5,7 +5,6 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-import UIKit
 import FirebaseFirestore
 
 struct ChatModel: Hashable, Decodable {

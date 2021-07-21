@@ -32,11 +32,11 @@ class FirestoreService {
         let docRef = usersRef.document(uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                guard let puser = UserModel(document: document) else {
+                guard let user = UserModel(document: document) else {
                     completion(.failure(UserError.cannotUnwrapToUserModel))
                     return
                 }
-                completion(.success(puser))
+                completion(.success(user))
             } else {
                 completion(.failure(UserError.cannotGetUserInfo))
             }
@@ -47,81 +47,71 @@ class FirestoreService {
         let docRef = usersRef.document(user.uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
-                guard let puser = UserModel(document: document) else {
+                guard let user = UserModel(document: document) else {
                     completion(.failure(UserError.cannotUnwrapToUserModel))
                     return
                 }
-                completion(.success(puser))
-                self.currentUser = puser
+                completion(.success(user))
+                self.currentUser = user
             } else {
                 completion(.failure(UserError.cannotGetUserInfo))
             }
         }
     }
     
-    func saveProfileWith(id: String, phone: Int, username: String?, avatarImage: UIImage?, description: String?, sex: Int?, birthday: Date?, interestsList: [String]?, completion: @escaping (Result<UserModel, Error>) -> Void) {
+    func saveProfileWith(id: String,
+                         phone: String,
+                         username: String,
+                         avatarImage: UIImage?,
+                         description: String,
+                         sex: Sex,
+                         birthday: Date,
+                         interestsList: [Int],
+                         completion: @escaping (Result<UserModel, Error>) -> Void) {
+
+        var user = UserModel(username: username,
+                              phone: phone,
+                              avatarStringURL: "",
+                              description: description,
+                              sex: sex.rawValue,
+                              birthday: birthday,
+                              interestsList: interestsList,
+                              personalColor: "",
+                              id: id)
         
-        guard Validators.isFilled(username: username, description: description, sex: sex, birthday: birthday) else {
-            completion(.failure(UserError.notFilled))
-            return
-        }
-        
-        var puser = UserModel(username: username!, phone: phone, avatarStringURL: "", description: description!, sex: sex!, birthday: birthday!, interestsList: interestsList!, personalColor: "", id: id)
-        
-        if avatarImage != UIImage(systemName: "plus.viewfinder") {
+        StorageService.shared.upload(photo: avatarImage!) { (result) in
+            switch result {
             
-            StorageService.shared.upload(photo: avatarImage!) { (result) in
-                switch result {
+            case .success(let url):
+                user.avatarStringURL = url.absoluteString
                 
-                case .success(let url):
-                    puser.avatarStringURL = url.absoluteString
-                    
-                    // Сохранение данных в firestore
-                    self.usersRef.document(puser.id).setData(puser.representation) { (error) in
-                        if let error = error {
-                            completion(.failure(error))
-                        } else {
-                            completion(.success(puser))
-                        }
+                // Сохранение данных в firestore
+                self.usersRef.document(user.id).setData(user.representation) { (error) in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(user))
                     }
-                    
-                case .failure(let error):
-                    completion(.failure(error))
                 }
-            } // StorageService
-        } else {
-            // Сохранение данных в firestore
-            self.usersRef.document(puser.id).setData(puser.representation) { (error) in
-                if let error = error {
-                    completion(.failure(error))
-                } else {
-                    completion(.success(puser))
-                }
+                
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
-    } // saveProfileWith
+    }
     
     private var userRef: DocumentReference {
         return usersRef.document(Auth.auth().currentUser!.uid)
     }
     
-    func changeUserEmail(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
-        userRef.updateData([
-            "email": email
-        ]) { err in
-            if let err = err {
-                completion(.failure(err))
-                print("Error updating document: \(err)")
-            } else {
-                completion(.success(Void()))
-                print("Document successfully updated")
-            }
-        }
-    }
-    
-    func updateUserInformation(username: String, birthday: String, avatarStringURL: String, sex: String, description: String, personalColor: String, interestsList: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
+    func updateUserInformation(username: String,
+                               birthday: String,
+                               avatarStringURL: String,
+                               sex: String,
+                               description: String,
+                               personalColor: String,
+                               interestsList: String,
+                               completion: @escaping (Result<Void, Error>) -> Void) {
         userRef.updateData([
             "description": description,
             "sex": sex,
@@ -304,41 +294,33 @@ class FirestoreService {
         return db.collection("parties")
     }
     
-    func savePartyWith(party: PartyModel, partyImage: UIImage?, completion: @escaping (Result<PartyModel, Error>) -> Void) {
+    func savePartyWith(party: SetuppedParty,
+                       completion: @escaping (Result<PartyModel, Error>) -> Void) {
+
+        let partyId = UUID().uuidString
         
-        var party = party
-        party.id = UUID().uuidString
-        
-        if partyImage != UIImage(systemName: "plus.viewfinder") {
-            
-            StorageService.shared.uploadPartyImage(photo: partyImage!, partyId: party.id) { (result) in
+        var imagesUrlStrings: [String] = []
+        let dg = DispatchGroup()
+        for partyImage in party.images {
+            dg.enter()
+            StorageService.shared.uploadPartyImage(photo: partyImage, partyId: partyId) { (result) in
                 
                 switch result {
-                
                 case .success(let url):
-                    party.imageUrlString = url.absoluteString
-                    
-                    // Сохранение данных в Firestore
-                    self.partiesRef.document(party.id).setData(party.representation) { (error) in
-                        if let error = error {
-                            completion(.failure(error))
-                        }
-                        
-                        self.userRef.collection("myParties").document(party.id).setData( ["uid" : party.id]) { (error) in
-                            if let error = error {
-                                completion(.failure(error))
-                            }
-                            
-                            completion(.success(party))
-                        }
-                    }
-                    
+                    imagesUrlStrings.append(url.absoluteString)
                 case .failure(let error):
                     completion(.failure(error))
                 }
+                
+                dg.leave()
             }
-        } else {
-            // Сохранение данных в firestore
+        }
+        
+        let party = PartyModel(city: party.city, location: party.location, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maximumPeople: party.maximumPeople, currentPeople: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, price: party.price, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
+        
+        dg.notify(queue: .main) {            
+            // Сохранение данных в Firestore
+            print("asdiojasijodjiasdjioasoijdoaijsdjiasjid")
             self.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))
@@ -356,10 +338,8 @@ class FirestoreService {
     }
     
     func getPartyBy(uid: String, completion: @escaping (Result<PartyModel, Error>) -> Void) {
-        
         let docRef = partiesRef.document(uid)
         docRef.getDocument { (document, error) in
-            print("asfiasifojafiojasfi: ", document?.exists)
             if let document = document, document.exists {
                 guard let party = PartyModel(document: document) else {
                     completion(.failure(PartyError.cannotUnwrapToParty))
@@ -381,6 +361,7 @@ class FirestoreService {
         if let type = type, type != "Любой" { query = query.whereField("type", isEqualTo : type) }
         if let date = date, date != "" { query = query.whereField("date", isEqualTo : date) }
 
+        print("saidojaisdjasidojasdiasjdaiosdj: ", Auth.auth().currentUser!.uid)
         query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
         
         query.getDocuments() { (querySnapshot, err) in
@@ -405,7 +386,6 @@ class FirestoreService {
     }
     
     func createWaitingGuest(receiver: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let waitingPartiesReference = userRef.collection("waitingParties")
         
         let waitingGuestsReference = db.collection(["parties", receiver, "waitingGuests"].joined(separator: "/"))
@@ -431,7 +411,6 @@ class FirestoreService {
     
     // ToDO - Костыльно сделано: провека на то что дата в документе не нил
     func checkWaitingGuest(receiver: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let reference = db.collection(["parties", receiver, "waitingGuests"].joined(separator: "/"))
         let guestRef = reference.document(self.currentUser.id)
         
@@ -451,7 +430,6 @@ class FirestoreService {
     }
     
     func getApprovedGuestsId(party: PartyModel, completion: @escaping (Result<[String], Error>) -> Void) {
-        
         let reference = db.collection(["parties", party.id, "approvedGuests"].joined(separator: "/"))
         
         reference.getDocuments() { (querySnapshot, err) in
@@ -480,7 +458,6 @@ class FirestoreService {
     }
     
     func getWaitingGuestsId(party: PartyModel, completion: @escaping (Result<[String], Error>) -> Void) {
-        
         let reference = db.collection(["parties", party.id, "waitingGuests"].joined(separator: "/"))
         
         reference.getDocuments() { (querySnapshot, err) in
@@ -509,7 +486,6 @@ class FirestoreService {
     }
     
     func deleteWaitingGuest(user: UserModel, party: PartyModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        
         let userId = user.id
         let partyId = party.id
         
@@ -580,6 +556,7 @@ class FirestoreService {
         }
     }
     
+    // MARK: - Will be need in future
     //    func getWaitingParties(completion: @escaping (Result<[Party], Error>) -> Void) {
     //
     //        var query: Query = db.collection("parties").document().collection("waitingGuests")

@@ -17,11 +17,11 @@ enum TabItem: String, CaseIterable {
     var viewController: UIViewController {
         switch self {
         case .parties:
-            return PartiesVC()
+            return PartiesVC(currentUser: AuthService.shared.currentUser!)
         case .create:
-            return CreateVC()
+            return CreateVC(currentUser: AuthService.shared.currentUser!)
         case .messages:
-            return MessagesVC()
+            return MessagesVC(currentUser: AuthService.shared.currentUser!)
         case .account:
             return AccountVC()
         }

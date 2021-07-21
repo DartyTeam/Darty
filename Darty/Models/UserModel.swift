@@ -11,16 +11,16 @@ import FirebaseFirestore
 struct UserModel: Hashable, Decodable {
     
     var username: String
-    var phone: Int
+    var phone: String
     var avatarStringURL: String
     var description: String
-    var sex: Int
+    var sex: Sex.RawValue
     var birthday: Date
-    var interestsList: [String]
+    var interestsList: [Int]
     var personalColor: String
     let id: String
     
-    init(username: String, phone: Int, avatarStringURL: String, description: String, sex: Int, birthday: Date, interestsList: [String], personalColor: String, id: String) {
+    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue, birthday: Date, interestsList: [Int], personalColor: String, id: String) {
         self.username = username
         self.phone = phone
         self.avatarStringURL = avatarStringURL
@@ -35,12 +35,12 @@ struct UserModel: Hashable, Decodable {
     init?(document: DocumentSnapshot) {
         guard let data = document.data() else { return nil }
         guard let username = data["username"] as? String,
-        let sex = data["sex"] as? Int,
-        let phone = data["phone"] as? Int,
+        let sex = data["sex"] as? Sex.RawValue,
+        let phone = data["phone"] as? String,
         let avatarStringURL = data["avatarStringURL"] as? String,
         let description = data["description"] as? String,
-        let birthday = data["birthday"] as? Date,
-        let interestsList = data["interestsList"] as? [String],
+        let birthday = (data["birthday"] as? Timestamp)?.dateValue(),
+        let interestsList = data["interestsList"] as? [Int],
         let personalColor = data["personalColor"] as? String,
         let id = data["uid"] as? String
         else { return nil }

@@ -5,7 +5,6 @@
 //  Created by Руслан Садыков on 28.06.2021.
 //
 
-import UIKit
 import FirebaseAuth
 import FirebaseStorage
 
@@ -24,7 +23,8 @@ class StorageService {
     }
     
     private var currentUserId: String {
-        return Auth.auth().currentUser!.uid
+        guard let currentUser = Auth.auth().currentUser else { return "error" }
+        return currentUser.uid
     }
     
     func upload(photo: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
@@ -63,13 +63,15 @@ class StorageService {
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         
-        partiesImagesRef.child(currentUserId).putData(imageData, metadata: metadata) { (metadata, error) in
+        let imageName = [UUID().uuidString, partyId].joined()
+        
+        partiesImagesRef.child(currentUserId).child(imageName).putData(imageData, metadata: metadata) { (metadata, error) in
             guard let _ = metadata else {
                 completion(.failure(error!))
                 return
             }
             
-            self.avatarsRef.child(self.currentUserId).downloadURL { (url, error) in
+            self.partiesImagesRef.child(self.currentUserId).child(imageName).downloadURL { (url, error) in
                 guard let downloadURL = url else {
                     completion(.failure(error!))
                     return
