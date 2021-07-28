@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import SnapKit
 import PhotosUI
-import Lightbox
+import Agrume
 
 final class FifthCreateVC: UIViewController {
     
@@ -109,8 +109,8 @@ extension FifthCreateVC {
 }
 
 extension FifthCreateVC: MultiSetImagesViewDelegate {
-    func showFullscreen(_ lightboxController: LightboxController) {
-        present(lightboxController, animated: true, completion: nil)
+    func showFullscreen(_ agrume: Agrume) {
+        agrume.show(from: self)
     }
     
     func showActionSheet(_ actionSheet: UIAlertController) {

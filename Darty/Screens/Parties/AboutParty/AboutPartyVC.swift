@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Lightbox
+import Agrume
 import SPAlert
 import FittedSheets
 
@@ -636,36 +636,29 @@ final class AboutPartyVC: UIViewController {
     }
     
     @objc private func showFullImageAction(_ sender: UITapGestureRecognizer) {
-        LightboxConfig.CloseButton.text = ""
-        LightboxConfig.CloseButton.image = UIImage(systemName: "xmark.circle")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        LightboxConfig.DeleteButton.image = UIImage(systemName: "trash.circle")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        LightboxConfig.DeleteButton.text = ""
-        LightboxConfig.PageIndicator.separatorColor = .clear
-        let attributes = [NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 18, weight: .regular), NSAttributedString.Key.foregroundColor: UIColor.systemBackground]
-        LightboxConfig.PageIndicator.textAttributes = attributes as [NSAttributedString.Key : Any]
         sender.view?.showAnimation { [weak self] in
             // Create an array of images.
-            var images: [LightboxImage] = []
+            var imageUrls: [URL] = []
             self?.party.imageUrlStrings.forEach { imageUrlString in
                 guard let imageUrl = URL(string: imageUrlString) else { return }
-                images.append(LightboxImage(imageURL: imageUrl))
+                imageUrls.append(imageUrl)
+            }
+
+            let button = UIBarButtonItem(barButtonSystemItem: .stop, target: nil, action: nil)
+    //            button.tintColor = .systemOra
+            
+            // In case of an array of [UIImage]:
+            #warning("Может нужно при получении изобрважений по ссылке в collection view записывать их в массив images и сюда пихать этот массив")
+            let agrume = Agrume(urls: imageUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            // Or an array of [URL]:
+            // let agrume = Agrume(urls: urls, startIndex: indexPath.item, background: .blurred(.light))
+
+            agrume.didScroll = { [unowned self] index in
+                self?.imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
             }
             
-            // Create an instance of LightboxController.
-            let controller = LightboxController(images: images)
-            
-            // Set delegates.
-            controller.dismissalDelegate = self
-            
-            // Use dynamic background.
-            controller.dynamicBackground = true
-            
-            controller.goTo(sender.view?.tag ?? 0)
-            
-            controller.view.backgroundColor = .systemBackground
-            
-            // Present your controller.
-            self?.present(controller, animated: true, completion: nil)
+            guard let self = self else { return }
+            agrume.show(from: self)
         }
     }
 }
@@ -673,12 +666,10 @@ final class AboutPartyVC: UIViewController {
 // MARK: UICollectionViewDataSource
 extension AboutPartyVC: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
         if collectionView == guestsCollectionView {
             return approvedUsers.count
         } else {
@@ -687,7 +678,6 @@ extension AboutPartyVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         if collectionView == guestsCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UserCell.reuseIdentifier, for: indexPath) as! UserCell
             
@@ -732,12 +722,6 @@ extension AboutPartyVC: UICollectionViewDelegate {
             //        present(aboutUserVC, animated: true, completion: nil)
         }
         
-    }
-}
-
-extension AboutPartyVC: LightboxControllerDismissalDelegate {
-    func lightboxControllerWillDismiss(_ controller: LightboxController) {
-        imagesCollectionView.scrollToItem(at: [0,controller.currentPage], at: .centeredHorizontally, animated: false)
     }
 }
 

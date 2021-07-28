@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 import PhotosUI
-import Lightbox
+import Agrume
 
 final class ImageSetupProfileVC: UIViewController {
         
@@ -93,8 +93,8 @@ extension ImageSetupProfileVC {
 }
 
 extension ImageSetupProfileVC: MultiSetImagesViewDelegate {
-    func showFullscreen(_ lightboxController: LightboxController) {
-        present(lightboxController, animated: true, completion: nil)
+    func showFullscreen(_ agrume: Agrume) {
+        agrume.show(from: self)
     }
     
     func showCamera(_ imagePicker: UIImagePickerController) {

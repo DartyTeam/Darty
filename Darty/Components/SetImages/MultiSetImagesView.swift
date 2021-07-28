@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Photos
 import PhotosUI
-import Lightbox
+import Agrume
 
 protocol MultiSetImagesViewDelegate {
     func showActionSheet(_ actionSheet: UIAlertController)
@@ -17,7 +17,7 @@ protocol MultiSetImagesViewDelegate {
     func showImagePicker(_ imagePicker: PHPickerViewController)
     func dismissImagePicker()
     func showError(_ error: String)
-    func showFullscreen(_ lightboxController: LightboxController)
+    func showFullscreen(_ agrume: Agrume)
 }
 
 enum ShapeImageView {
@@ -90,37 +90,26 @@ final class MultiSetImagesView: UIView {
     }
     
     @objc private func showFullscreenAction(_ sender: UITapGestureRecognizer) {
-        LightboxConfig.CloseButton.text = ""
-        LightboxConfig.CloseButton.image = UIImage(systemName: "xmark.circle")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        LightboxConfig.DeleteButton.image = UIImage(systemName: "trash.circle")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        LightboxConfig.DeleteButton.text = ""
-        LightboxConfig.PageIndicator.separatorColor = .clear
-        let attributes = [NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 18, weight: .regular), NSAttributedString.Key.foregroundColor: UIColor.systemBackground]
-        LightboxConfig.PageIndicator.textAttributes = attributes as [NSAttributedString.Key : Any]
         sender.view?.showAnimation { [weak self] in
             // Create an array of images.
-            var images: [LightboxImage] = []
+            var images: [UIImage] = []
             self?.images.forEach { image in
-                images.append(LightboxImage(image: image.withRoundedCorners(radius: 50) ?? image))
+                images.append(image)
             }
 
-            // Create an instance of LightboxController.
-            let controller = LightboxController(images: images)
-
-            // Set delegates.
-            controller.dismissalDelegate = self
-
-            // Use dynamic background.
-            controller.dynamicBackground = true
+            let button = UIBarButtonItem(barButtonSystemItem: .stop, target: nil, action: nil)
+//            button.tintColor = .systemOra
             
-            controller.goTo(sender.view?.tag ?? 0)
-            
-//            controller.transitioningDelegate = self
-            
-            controller.view.backgroundColor = .systemBackground
+            // In case of an array of [UIImage]:
+            let agrume = Agrume(images: images, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            // Or an array of [URL]:
+            // let agrume = Agrume(urls: urls, startIndex: indexPath.item, background: .blurred(.light))
 
-            // Present your controller.
-            self?.delegate.showFullscreen(controller)
+            agrume.didScroll = { [unowned self] index in
+              self?.collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+            }
+            
+            self?.delegate.showFullscreen(agrume)
         }
     }
 }
@@ -163,11 +152,11 @@ extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSour
     }
 }
 
-extension MultiSetImagesView: LightboxControllerDismissalDelegate {
-    func lightboxControllerWillDismiss(_ controller: LightboxController) {
-        collectionView.scrollToItem(at: [0,controller.currentPage], at: .centeredHorizontally, animated: false)
-    }
-}
+//extension MultiSetImagesView: LightboxControllerDismissalDelegate {
+//    func lightboxControllerWillDismiss(_ controller: LightboxController) {
+//        collectionView.scrollToItem(at: [0,controller.currentPage], at: .centeredHorizontally, animated: false)
+//    }
+//}
 
 extension MultiSetImagesView: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {

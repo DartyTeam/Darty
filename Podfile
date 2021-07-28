@@ -30,7 +30,7 @@ target 'Darty' do
   pod 'rubber-range-picker'
   pod 'OverlayContainer'
   pod 'ComplimentaryGradientView'
-  pod "Agrume"
+  pod 'Agrume'
   
 #pod 'Hero'
 #pod 'SkeletonView'
