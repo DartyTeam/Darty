@@ -14,10 +14,12 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
         }
     }
     
+    var observableFloatingExpand:ObservableFloatingExpand = ObservableFloatingExpand()
+    
     private let currentUser: UserModel
     
     private lazy var floatingTabBar: FloatingTabbar = {
-        let floatingTabBar = FloatingTabbar(selected: 0, expand: true, delegate: self)
+        let floatingTabBar = FloatingTabbar(selected: 0, observableFloatingExpand: observableFloatingExpand, delegate: self)
         return floatingTabBar
     }()
     
@@ -63,11 +65,13 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.view.addSubview(self.tabBarContainer)
-        DispatchQueue.main.async {
-            self.tabBarContainer.isHidden = false
+        if !view.subviews.contains(tabBarContainer) {
+            view.addSubview(tabBarContainer)
+            DispatchQueue.main.async {
+                self.tabBarContainer.isHidden = false
+            }
+            tabBarContainer.slideFromBottom()
         }
-        tabBarContainer.slideFromBottom()
     }
     
     private func setTabBarMenuControllers() {
@@ -138,12 +142,21 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
             additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: Constants.tabBarHeight - 5, right: 0)
         }
     }
+    
+    func expand(_ isExpand: Bool) {
+        observableFloatingExpand.expand = isExpand
+    }
 }
 
 extension UIViewController {
     func setIsTabBarHidden(_ hide: Bool) {
         guard let tabBar = tabBarController as? TabBarController else { return }
         tabBar.setTabBarHidden(hide)
+    }
+    
+    func expandTabBar(_ isExpand: Bool) {
+        guard let tabBar = tabBarController as? TabBarController else { return }
+        tabBar.expand(isExpand)
     }
 }
 

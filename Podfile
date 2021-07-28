@@ -16,13 +16,21 @@ target 'Darty' do
   pod 'FBSDKLoginKit'
   
   pod 'MessageKit'
+  pod 'YandexMapsMobile', '4.0.0-full'
   
   pod 'SDWebImage', '~> 5.0'
   
   pod 'SnapKit'
 
-  pod 'Lightbox'
   pod 'ConcentricOnboarding'
+  pod 'FittedSheets'
+  pod 'SPConfetti'
+  pod 'SPAlert'
+  pod 'SPIndicator'
+  pod 'rubber-range-picker'
+  pod 'OverlayContainer'
+  pod 'ComplimentaryGradientView'
+  pod "Agrume"
   
 #pod 'Hero'
 #pod 'SkeletonView'

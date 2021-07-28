@@ -39,16 +39,16 @@ final class SetAddImagesViewCell: UICollectionViewCell {
         setImageView.color = color
         self.color = color
 
-        if shape == .round {
+        if shape == .rect {
             setImageView.snp.remakeConstraints { remake in
                 remake.leading.trailing.equalToSuperview().inset(20)
-                remake.height.equalTo(setImageView.frame.size.width - 40)
-                remake.centerY.equalToSuperview()
+                remake.top.bottom.equalToSuperview()
             }
-
-            setImageView.layoutIfNeeded()
-            setImageView.layer.cornerRadius = setImageView.frame.size.width / 2
+            
+            setImageView.layer.cornerRadius = 20
         }
+        
+        setImageView.layer.borderColor = color.withAlphaComponent(0.5).cgColor
     }
     
     private func setupViews() {
@@ -58,14 +58,14 @@ final class SetAddImagesViewCell: UICollectionViewCell {
     private func setupConstraints() {
         setImageView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.top.bottom.equalToSuperview()
+            make.height.equalTo(self.frame.size.width - 40)
+            make.centerY.equalToSuperview()
         }
 
         setImageView.layoutIfNeeded()
-        setImageView.layer.cornerRadius = 20
-        
+        setImageView.layer.cornerRadius = setImageView.frame.size.width / 2
         setImageView.clipsToBounds = true
         setImageView.layer.borderWidth = 3.5
-        setImageView.layer.borderColor = color.withAlphaComponent(0.5).cgColor
+        setImageView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
     }
 }

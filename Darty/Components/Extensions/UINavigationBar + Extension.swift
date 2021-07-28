@@ -14,22 +14,21 @@ extension UINavigationBar {
             NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 28, weight: .semibold)
         ]
         let appearance = UINavigationBarAppearance()
+     
         if withClear {
-            setBackgroundImage(UIImage(), for: .default)
-            shadowImage = UIImage()
-            isTranslucent = true
-            backgroundColor = .clear
+            appearance.configureWithTransparentBackground()
+            appearance.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: 2)
+            appearance.titleTextAttributes = attrs
+            standardAppearance = appearance
+            compactAppearance = appearance
+            scrollEdgeAppearance = appearance
         } else {
             appearance.configureWithDefaultBackground()
+            appearance.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: 2)
             appearance.titleTextAttributes = attrs
             standardAppearance = appearance
             compactAppearance = appearance
             scrollEdgeAppearance = appearance
         }
-
-      
-        
-        titleTextAttributes = attrs as [NSAttributedString.Key : Any]
-        setTitleVerticalPositionAdjustment(2, for: .default)
     }
 }

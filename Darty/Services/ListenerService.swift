@@ -122,6 +122,52 @@ class ListenerService {
         return messagesListener
     }
     
+    func rejectedPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
+        
+        var parties = parties
+        let partiesRef = db.collection(["users", Auth.auth().currentUser!.uid, "rejectedParties"].joined(separator: "/"))
+        
+        let partiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
+            guard let snapshot = querySnapshot else {
+                completion(.failure(error!))
+                return
+            }
+            
+            let dg = DispatchGroup()
+       
+            snapshot.documentChanges.forEach { (diff) in
+                dg.enter()
+                FirestoreService.shared.getPartyBy(uid: diff.document.documentID) { (result) in
+                    switch result {
+                    case .success(let party):
+                        switch diff.type {
+                        case .added:
+                            guard !parties.contains(party) else { return }
+                            parties.append(party)
+                            dg.leave()
+                        case .modified:
+                            guard let index = parties.firstIndex(of: party) else { return }
+                            parties[index] = party
+                            dg.leave()
+                        case .removed:
+                            guard let index = parties.firstIndex(of: party) else { return }
+                            parties.remove(at: index)
+                            dg.leave()
+                        }
+                    case .failure(let error):
+                        completion(.failure(error))
+                    } // switch result
+                } // FirestoreService.shared.getPartyBy
+            } //snapshot.documentChanges.forEach
+            
+            dg.notify(queue: .main) {
+                completion(.success(parties))
+            }
+        } //let partiesListener = partiesRef.addSnapshotListener
+        
+        return partiesListener
+    }
+    
     func waitingPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
         
         var parties = parties
@@ -134,9 +180,9 @@ class ListenerService {
             }
             
             let dg = DispatchGroup()
-            dg.enter()
+       
             snapshot.documentChanges.forEach { (diff) in
-                
+                dg.enter()
                 FirestoreService.shared.getPartyBy(uid: diff.document.documentID) { (result) in
                     switch result {
                     case .success(let party):
@@ -181,9 +227,9 @@ class ListenerService {
             }
             
             let dg = DispatchGroup()
-            dg.enter()
+           
             snapshot.documentChanges.forEach { (diff) in
-                
+                dg.enter()
                 FirestoreService.shared.getPartyBy(uid: diff.document.documentID) { (result) in
                     switch result {
                     case .success(let party):

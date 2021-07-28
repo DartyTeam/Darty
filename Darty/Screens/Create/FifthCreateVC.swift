@@ -59,7 +59,8 @@ final class FifthCreateVC: UIViewController {
     
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
         let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
         navigationItem.rightBarButtonItem = cancelBarButtonItem
     }

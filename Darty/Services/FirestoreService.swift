@@ -304,7 +304,6 @@ class FirestoreService {
         for partyImage in party.images {
             dg.enter()
             StorageService.shared.uploadPartyImage(photo: partyImage, partyId: partyId) { (result) in
-                
                 switch result {
                 case .success(let url):
                     imagesUrlStrings.append(url.absoluteString)
@@ -315,12 +314,11 @@ class FirestoreService {
                 dg.leave()
             }
         }
-        
-        let party = PartyModel(city: party.city, location: party.location, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maximumPeople: party.maximumPeople, currentPeople: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, price: party.price, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
-        
-        dg.notify(queue: .main) {            
+
+        dg.notify(queue: .main) {
             // Сохранение данных в Firestore
-            print("asdiojasijodjiasdjioasoijdoaijsdjiasjid")
+            let party = PartyModel(city: party.city, location: party.location, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maxGuests: party.maxGuests, curGuests: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, moneyPrice: party.moneyPrice, anotherPrice: party.anotherPrice, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
+            
             self.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))
@@ -345,24 +343,54 @@ class FirestoreService {
                     completion(.failure(PartyError.cannotUnwrapToParty))
                     return
                 }
-                
+                print("v8v87vvy7vuiybgiibybyu: ", uid)
                 completion(.success(party))
             } else {
+                print("asdjasdoiasjd: ", uid)
                 completion(.failure(PartyError.cannotGetPartyInfo))
             }
         }
     }
     
-    func searchPartiesWith(city: String? = nil, type: String? = nil, date: String? = nil, countPeoples: String? = nil, price: String? = nil, charCountPeoples: String? = nil, charPrice: String? = nil, completion: @escaping (Result<[PartyModel], Error>) -> Void) {
+    func searchPartiesWith(city: String? = nil, type: PartyType? = nil, date: Date? = nil, dateSign: QuerySign? = nil, maxGuestsLower: Int? = nil, maxGuestsUpper: Int? = nil, priceType: PriceType? = nil, priceLower: Int? = nil, priceUpper: Int? = nil, completion: @escaping (Result<[PartyModel], Error>) -> Void) {
         
         var query: Query = db.collection("parties")
         
         if let city = city, city != "Любой" { query = query.whereField("city", isEqualTo : city) }
-        if let type = type, type != "Любой" { query = query.whereField("type", isEqualTo : type) }
-        if let date = date, date != "" { query = query.whereField("date", isEqualTo : date) }
-
+        if let type = type { query = query.whereField("type", isEqualTo : type.rawValue) } // WORKING 
+        if let dateSign = dateSign {
+            switch dateSign {
+                
+            case .isGreaterThanOrEqualTo:
+                if let date = date { query = query.whereField("date", isGreaterThanOrEqualTo: date) }
+            case .isLessThanOrEqualTo:
+                if let date = date { query = query.whereField("date", isLessThanOrEqualTo: date) }
+            case .isEqual:
+                if let date = date { query = query.whereField("date", isEqualTo : date) }
+            }
+            // WORKING
+        }
+        if let maxGuestsLower = maxGuestsLower, let maxGuestsUpper = maxGuestsUpper {
+            print("asdasjdajsjdasjidasoijajisdas")
+            query = query.whereField("maxGuests", isLessThanOrEqualTo: maxGuestsUpper)
+            query = query.whereField("maxGuests", isGreaterThanOrEqualTo: maxGuestsLower)
+        }
+        if let priceType = priceType {
+            query = query.whereField("priceType", isEqualTo: priceType.rawValue)
+            if priceType == .money {
+                if let priceLower = priceLower, let priceUpper = priceUpper {
+                    query = query.whereField("moneyPrice", isGreaterThanOrEqualTo: priceLower)
+                    query = query.whereField("moneyPrice", isLessThanOrEqualTo: priceUpper)
+                }
+            }
+        }
+        
         print("saidojaisdjasidojasdiasjdaiosdj: ", Auth.auth().currentUser!.uid)
-        query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
+//        query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
+        
+        print("sdjoasiodjaiosoidjas: ", query)
+        
+//        query = query.order(by: <#T##String#>, descending: <#T##Bool#>)
         
         query.getDocuments() { (querySnapshot, err) in
             
@@ -385,7 +413,7 @@ class FirestoreService {
         }
     }
     
-    func createWaitingGuest(receiver: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    func createWaitingGuest(receiver: String, message: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let waitingPartiesReference = userRef.collection("waitingParties")
         
         let waitingGuestsReference = db.collection(["parties", receiver, "waitingGuests"].joined(separator: "/"))
@@ -398,12 +426,13 @@ class FirestoreService {
                 return
             }
             
-            waitingPartiesReference.document(receiver).setData(["uid": receiver]) { (error) in
+            waitingPartiesReference.document(receiver).setData(["uid": receiver, "message": message]) { (error) in
                 if let error = error {
                     completion(.failure(error))
                     return
                 }
             }
+            
             
             completion(.success(Void()))
         }
@@ -551,6 +580,49 @@ class FirestoreService {
                     }
                     completion(.success(Void()))
                     print("Guest will be change to approved!")
+                }
+            })
+        }
+    }
+    
+    func changeToRejected(user: UserModel, party: PartyModel, completion: @escaping (Result<Void, Error>) -> Void) {
+        let userId = user.id
+        let partyId = party.id
+        
+        let approvedPartiesReference = usersRef.document(userId).collection("rejectedParties")
+        let approvedGuestsReference = db.collection(["parties", partyId, "rejectedParties"].joined(separator: "/"))
+        
+        let waitingPartiesReference = usersRef.document(userId).collection("waitingParties")
+        let waitingGuestsReference = db.collection(["parties", partyId, "waitingGuests"].joined(separator: "/"))
+        
+        let waitingGuestRef = waitingGuestsReference.document(userId)
+        
+        waitingGuestRef.delete() { err in
+            if let err = err {
+                completion(.failure(err))
+                print("Error removing document: \(err)")
+            }
+            
+            waitingPartiesReference.document(partyId).delete() { (error) in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+            }
+            
+            approvedGuestsReference.addDocument(data: ["uid": userId], completion: { (error) in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                approvedPartiesReference.addDocument(data: ["uid": partyId]) { (error) in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+                    completion(.success(Void()))
+                    print("Guest will be change to rejected!")
                 }
             })
         }

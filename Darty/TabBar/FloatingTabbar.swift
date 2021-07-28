@@ -11,10 +11,16 @@ protocol FloatingTabbarDelegate {
     func selectedChanged(_ index: Int)
 }
 
+class ObservableFloatingExpand: ObservableObject {
+    @Published public var expand: Bool = true
+}
+
 struct FloatingTabbar : View {
     
     @State var selected : Int
-    @State var expand = false
+
+    @ObservedObject var observableFloatingExpand: ObservableFloatingExpand = ObservableFloatingExpand()
+    
     var delegate: FloatingTabbarDelegate?
     
     var body : some View{
@@ -25,11 +31,11 @@ struct FloatingTabbar : View {
             
             HStack{
                 
-                if !self.expand{
+                if !self.observableFloatingExpand.expand {
                     
                     Button(action: {
                         
-                        self.expand.toggle()
+                        self.observableFloatingExpand.expand.toggle()
                         
                     }) {
                         
@@ -84,13 +90,13 @@ struct FloatingTabbar : View {
                 }
                 
                 
-            }.padding(.vertical,self.expand ? 20 : 8)
-            .padding(.horizontal,self.expand ? 35 : 8)
-            .background(Blur(style: .systemThinMaterial))
+            }.padding(.vertical,self.observableFloatingExpand.expand ? 20 : 8)
+            .padding(.horizontal,self.observableFloatingExpand.expand ? 35 : 8)
+            .background(Blur(style: .systemUltraThinMaterial))
             .clipShape(Capsule())
             .padding(22)
             .onLongPressGesture {
-                self.expand.toggle()
+                self.observableFloatingExpand.expand.toggle()
             }
             .animation(.interactiveSpring(response: 0.6, dampingFraction: 0.6, blendDuration: 0.6))
         }

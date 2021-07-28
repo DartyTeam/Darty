@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import SPAlert
 
 struct SetuppedUser {
     var image: UIImage?
@@ -83,7 +84,7 @@ final class NameSetupProfileVC: UIViewController {
     
     @objc private func nextButtonTapped() {
         guard let username = nameTextField.text, !username.isEmptyOrWhitespaceOrNewLines() else {
-            showAlert(title: "Необходимо ввести имя", message: "")
+            SPAlert.present(title: "Необходимо ввести имя", preset: .error)
             return
         }
         

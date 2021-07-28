@@ -10,6 +10,20 @@ import AudioToolbox
 
 enum GlobalConstants {
     static let tabBarHeight: CGFloat = 65
+    
+    static let maximumGuests = 100
+    static let maximumPrice = 9999
+    
+    static let interestsArray = [InterestModel(id: 0, title: "Игры", emoji: "🎮"),
+                                     InterestModel(id: 1, title: "Бег", emoji: "🏈"),
+                                     InterestModel(id: 2, title: "Музыка", emoji: "🧩"),
+                                     InterestModel(id: 3, title: "Пение", emoji: "♦️"),
+                                     InterestModel(id: 4, title: "Пианино", emoji: "⛳️"),
+                                     InterestModel(id: 5, title: "Скейтбординг", emoji: "⛳️"),
+                                     InterestModel(id: 6, title: "Спорт", emoji: "⛳️"),
+                                     InterestModel(id: 7, title: "Программирование", emoji: "⛳️"),
+                                     InterestModel(id: 8, title: "Путешествия", emoji: "⛳️"),
+                                     InterestModel(id: 9, title: "Танцы", emoji: "⛳️")]
 }
 
 enum Vibration {

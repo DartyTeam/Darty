@@ -84,19 +84,11 @@ extension ImageSetupProfileVC {
             nextButton.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        NSLayoutConstraint.activate([
-            setImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            setImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            setImageView.heightAnchor.constraint(equalToConstant: setImageView.frame.size.width - 40),
-            setImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-
-        #warning("Хотелось бы это всунуть в сам класс SetImageView")
-        setImageView.layoutIfNeeded()
-        setImageView.layer.cornerRadius = setImageView.frame.size.width / 2
-        setImageView.clipsToBounds = true
-        setImageView.layer.borderWidth = 3.5
-        setImageView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
+        setImageView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(nextButton.snp.top).offset(-32)
+        }
     }
 }
 

@@ -58,17 +58,6 @@ final class InterestsSetupProfileVC: UIViewController {
     private let currentUser: User
     private let setupedUser: SetuppedUser
     
-    private let interestsArray = [InterestModel(id: 0, title: "Игры", emoji: "🎮"),
-                                  InterestModel(id: 1, title: "Бег", emoji: "🏈"),
-                                  InterestModel(id: 2, title: "Музыка", emoji: "🧩"),
-                                  InterestModel(id: 3, title: "Пение", emoji: "♦️"),
-                                  InterestModel(id: 4, title: "Пианино", emoji: "⛳️"),
-                                  InterestModel(id: 5, title: "Скейтбординг", emoji: "⛳️"),
-                                  InterestModel(id: 6, title: "Спорт", emoji: "⛳️"),
-                                  InterestModel(id: 7, title: "Программирование", emoji: "⛳️"),
-                                  InterestModel(id: 8, title: "Путешествия", emoji: "⛳️"),
-                                  InterestModel(id: 9, title: "Танцы", emoji: "⛳️")]
-    
     private var filteredInterests: [InterestModel] = []
     
     private var selectedInterests = [Int]()
@@ -87,22 +76,15 @@ final class InterestsSetupProfileVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
-        setNavigationBar(withColor: .systemBlue, title: "Изображение")
+        setNavigationBar(withColor: .systemBlue, title: "Интересы")
         setupViews()
         setupConstraints()
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "image.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
-            addBackground(image)
-        }
-        
         view.backgroundColor = .systemBackground
-        
         view.addSubview(searchBar)
         view.addSubview(nextButton)
         view.addSubview(interestsCollectionView)
@@ -199,7 +181,7 @@ extension InterestsSetupProfileVC: UISearchBarDelegate {
     }
     
     private func filterContentForSearchText(_ searchText: String) {
-        filteredInterests = interestsArray.filter({ interest in
+        filteredInterests = GlobalConstants.interestsArray.filter({ interest in
             interest.title.contains(searchText) ||  interest.emoji.contains(searchText)
         })
         
@@ -217,7 +199,7 @@ extension InterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDat
         if isFiltering {
             return filteredInterests.count
         }
-        return interestsArray.count
+        return GlobalConstants.interestsArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -232,8 +214,8 @@ extension InterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDat
             return cell
         }
         
-        cell.setupCell(title: interestsArray[indexPath.row].title, emoji: interestsArray[indexPath.row].emoji)
-        if selectedInterests.contains(interestsArray[indexPath.row].id) {
+        cell.setupCell(title: GlobalConstants.interestsArray[indexPath.row].title, emoji: GlobalConstants.interestsArray[indexPath.row].emoji)
+        if selectedInterests.contains(GlobalConstants.interestsArray[indexPath.row].id) {
             cell.isSelected = true
         }
         return cell
@@ -243,7 +225,7 @@ extension InterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDat
         if isFiltering {
             selectedInterests.append(filteredInterests[indexPath.row].id)
         } else {
-            selectedInterests.append(interestsArray[indexPath.row].id)
+            selectedInterests.append(GlobalConstants.interestsArray[indexPath.row].id)
         }
     }
     
@@ -251,7 +233,7 @@ extension InterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDat
         if isFiltering {
             selectedInterests.removeAll { $0 == filteredInterests[indexPath.row].id }
         } else {
-            selectedInterests.removeAll { $0 == interestsArray[indexPath.row].id }
+            selectedInterests.removeAll { $0 == GlobalConstants.interestsArray[indexPath.row].id }
         }
     }
 }

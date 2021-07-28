@@ -9,6 +9,7 @@ import UIKit
 
 final class SetImageViewCell: UICollectionViewCell {
         
+    // MARK: - UI Elements
     let deleteButton: UIButton = {
         let button = UIButton(type: .system)
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 16, weight: .medium))
@@ -25,10 +26,15 @@ final class SetImageViewCell: UICollectionViewCell {
         return imageView
     }()
     
+    // MARK - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func setupCell(image: UIImage, shape: ShapeImageView, color: UIColor) {
@@ -67,11 +73,7 @@ final class SetImageViewCell: UICollectionViewCell {
         deleteButton.snp.makeConstraints { make in
             make.size.equalTo(44)
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-32)
+            make.bottom.equalTo(imageView.snp.bottom).offset(-32)
         }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }

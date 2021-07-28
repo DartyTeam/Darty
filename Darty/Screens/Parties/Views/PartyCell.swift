@@ -45,12 +45,11 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         return label
     }()
     
-    private let userImage: BFImageView = {
-        let imageView = BFImageView()
+    private let userImageView: UIImageView = {
+        let imageView = UIImageView()
         imageView.layer.cornerRadius = Constants.userImageSize / 2
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
-        imageView.needsBetterFace = true
         return imageView
     }()
     
@@ -106,29 +105,6 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         return view
     }()
-    
-    // MARK: - Formatters
-    private let dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateFormat = "dd-MM-yyyy"
-        return dateFormatter
-    }()
-    
-    private let secondDateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateFormat = "dd MMMM"
-        return dateFormatter
-    }()
-    
-    private let timeFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateFormat = "HH:mm"
-        return dateFormatter
-    }()
-    
 
     // MARK: - Lifecycle
     override init(frame: CGRect) {
@@ -151,7 +127,9 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
             
             case .success(let user):
                 if user.avatarStringURL != "" {
-                    self?.userImage.sd_setImage(with: URL(string: user.avatarStringURL), completed: nil)
+                    self?.userImageView.sd_setImage(with: URL(string: user.avatarStringURL), completed: { image, error, cacheType, url in
+                        self?.userImageView.focusOnFaces = true
+                    })
                 }
                
                 self?.userNameLabel.text = user.username
@@ -161,21 +139,41 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
             }
         }
         
-        dateLabel.text = secondDateFormatter.string(from: party.date)
+        dateLabel.text = DateFormatter.ddMMMM.string(from: party.date)
         typeLabel.text = party.type
         titleLabel.text = party.name
-        timeLabel.text = timeFormatter.string(from: party.startTime)
+        timeLabel.text = DateFormatter.HHmm.string(from: party.startTime)
         if let endTime = party.endTime {
-            timeLabel.text?.append(" 􀄫 \(timeFormatter.string(from: endTime))")
+            timeLabel.text?.append(" 􀄫 \(DateFormatter.HHmm.string(from: endTime))")
         }
       
         if party.priceType == PriceType.free.rawValue {
             priceLabel.text = PriceType.free.rawValue
-        } else {
-            priceLabel.text = party.price
+        } else if party.priceType == PriceType.money.rawValue {
+            priceLabel.text = party.priceType + " р."
+        } else if party.priceType == PriceType.another.rawValue {
+            priceLabel.text = party.anotherPrice
         }
         
         minAgeLabel.text = "\(party.minAge)+"
+    }
+    
+    func setRejected() {
+        let redView = UIView()
+        redView.backgroundColor = .systemRed.withAlphaComponent(0.5)
+        addSubview(redView)
+        redView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        let rejectedLabel = UILabel()
+        rejectedLabel.font = Constants.titleFont
+        rejectedLabel.text = "Отклонено"
+        
+        addSubview(rejectedLabel)
+        rejectedLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
     }
     
     private func setupShadows() {
@@ -192,7 +190,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         addSubview(timeLabel)
         addSubview(userNameLabel)
         addSubview(userRatingLabel)
-        addSubview(userImage)
+        addSubview(userImageView)
         addSubview(titleLabel)
         addSubview(priceView)
         priceView.addSubview(priceLabel)
@@ -218,7 +216,7 @@ extension PartyCell {
             make.bottom.equalTo(timeLabel.snp.top).offset(-6)
         }
         
-        userImage.snp.makeConstraints { make in
+        userImageView.snp.makeConstraints { make in
             make.size.equalTo(Constants.userImageSize)
             make.bottom.equalToSuperview().offset(-8)
             make.left.equalToSuperview().offset(8)
@@ -226,7 +224,7 @@ extension PartyCell {
         
         userNameLabel.snp.makeConstraints { make in
             make.centerY.equalTo(dateLabel.snp.centerY)
-            make.left.equalTo(userImage.snp.right).offset(8)
+            make.left.equalTo(userImageView.snp.right).offset(8)
         }
         
         userRatingLabel.snp.makeConstraints { make in

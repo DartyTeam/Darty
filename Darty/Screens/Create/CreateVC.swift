@@ -15,13 +15,14 @@ struct SetuppedParty {
     var city: String = ""
     var location: String = ""
     var userId: String
-    var maximumPeople: Int = 1
-    var currentPeople: Int = 0
+    var maxGuests: Int = 1
+    var curGuests: Int = 0
     var date: Date = Date()
     var startTime: Date = Date()
     var endTime: Date = Date()
     var priceType: PriceType = .free
-    var price: String = ""
+    var moneyPrice: Int? = 0
+    var anotherPrice: String? = ""
     var images: [UIImage] = []
     var minAge: Int = 10
     var type: PartyType = .art
@@ -74,6 +75,9 @@ final class CreateVC: UIViewController {
     init(currentUser: UserModel) {
         self.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
+        DispatchQueue.main.async {
+            self.setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -88,7 +92,6 @@ final class CreateVC: UIViewController {
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.numberOfTouchesRequired = 1
         scrollView.addGestureRecognizer(tapRecognizer)
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         setupViews()
         setupConstraints()
     }
@@ -165,7 +168,6 @@ final class CreateVC: UIViewController {
 extension CreateVC {
     
     private func setupConstraints() {
-                
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
@@ -206,7 +208,6 @@ extension CreateVC {
 }
 
 extension CreateVC: UITextFieldDelegate {
-        
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         aboutTextView.becomeFirstResponder()
         return false

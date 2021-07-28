@@ -46,7 +46,9 @@ final class AccountVC: UIViewController {
         ac.addAction(UIAlertAction(title: "Да", style: .destructive, handler: { (_) in
             do {
                 try Auth.auth().signOut()
-                UIApplication.shared.keyWindow?.rootViewController = LoginVC()
+                let navController = UINavigationController(rootViewController: LoginVC())
+                navController.setNavigationBarHidden(true, animated: false)
+                UIApplication.shared.keyWindow?.rootViewController = navController
             } catch {
                 print("Error sogning out: \(error.localizedDescription)")
             }

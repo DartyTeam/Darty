@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FittedSheets
 
 final class PartiesVC: UIViewController {
 
@@ -35,6 +36,8 @@ final class PartiesVC: UIViewController {
     private var parties = [PartyModel]()
     private var searchedParties = [PartyModel]()
     
+    private var rejectedPartiesListener: ListenerRegistration?
+    private var rejectedParties = [PartyModel]()
     private var waitingPartiesListener: ListenerRegistration?
     private var waitingParties = [PartyModel]()
     private var approvedPartiesListener: ListenerRegistration?
@@ -43,7 +46,7 @@ final class PartiesVC: UIViewController {
     private var myParties = [PartyModel]()
     
     private let currentUser: UserModel
-    private var target = ""
+    private var type = AboutPartyVCType.search
     
     init(currentUser: UserModel) {
         self.currentUser = currentUser
@@ -53,8 +56,6 @@ final class PartiesVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        setupNavigationBar()
         setupCollectionView()
         createDataSource()
         reloadData(with: nil)
@@ -62,7 +63,23 @@ final class PartiesVC: UIViewController {
         setupListeners()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setupNavigationBar()
+    }
+    
     private func setupListeners() {
+        rejectedPartiesListener = ListenerService.shared.rejectedPartiesObserve(parties: waitingParties, completion: { (result) in
+            switch result {
+        
+            case .success(let parties):
+                self.rejectedParties = parties
+                self.reloadPartiesType()
+            case .failure(let error):
+                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+            }
+        })
+        
         waitingPartiesListener = ListenerService.shared.waitingPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
         
@@ -100,10 +117,11 @@ final class PartiesVC: UIViewController {
     private func setupNavigationBar() {
         setNavigationBar(withColor: .systemPurple, title: "Поиск вечеринки", withClear: false)
         
-        let archiveBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "archivebox")?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(archiveAction))
-        let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "list.bullet")?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
+        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .semibold))
+        let archiveBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "archivebox", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(archiveAction))
+        let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "list.bullet", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
         let spaceItem = UIBarButtonItem()
-        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem, spaceItem]
+        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem]
     }
     
     private func setupCollectionView() {
@@ -164,19 +182,17 @@ final class PartiesVC: UIViewController {
         let index = searchController.searchBar.selectedScopeButtonIndex
         switch searchController.searchBar.scopeButtonTitles![index] {
         case scopeTitles[0]:
-            print("asdouasuhdihiuasduhiasuhiduahisd")
             searchParties(filter: [String : String]())
-            target = "searched"
+            type = .search
         case scopeTitles[1]:
             parties = approvedParties
-            target = "approved"
+            type = .approved
         case scopeTitles[2]:
-            parties = waitingParties
-            target = "waiting"
+            parties = waitingParties + rejectedParties
+            type = .waiting
         case scopeTitles[3]:
-            print("asdioaksdioasdioajsd")
             parties = myParties
-            target = "my"
+            type = .my
         default:
             break
         }
@@ -192,11 +208,47 @@ final class PartiesVC: UIViewController {
     }
     
     @objc private func filterAction() {
+        let options = SheetOptions(
+            // The full height of the pull bar. The presented view controller will treat this area as a safearea inset on the top
+            pullBarHeight: 0,
+            
+            // The corner radius of the shrunken presenting view controller
+            presentingViewCornerRadius: 30,
+            
+            // Extends the background behind the pull bar or not
+            shouldExtendBackground: false,
+            
+            // Attempts to use intrinsic heights on navigation controllers. This does not work well in combination with keyboards without your code handling it.
+            setIntrinsicHeightOnNavigationControllers: false,
+            
+            // Pulls the view controller behind the safe area top, especially useful when embedding navigation controllers
+            useFullScreenMode: false,
+            
+            // Shrinks the presenting view controller, similar to the native modal
+            shrinkPresentingViewController: false,
+            
+            // Determines if using inline mode or not
+            useInlineMode: false,
+            
+            // Adds a padding on the left and right of the sheet with this amount. Defaults to zero (no padding)
+            horizontalPadding: 0,
+            
+            // Sets the maximum width allowed for the sheet. This defaults to nil and doesn't limit the width.
+            maxWidth: nil
+        )
         
+        print("asdkojasdiojasdoiajsda")
+        let filterVC = FilterVC(delegate: self)
+        let sheetController = SheetViewController(controller: filterVC, sizes: [], options: options)
+        sheetController.contentBackgroundColor = .clear
+        sheetController.cornerRadius = 30
+        sheetController.shouldRecognizePanGestureWithUIControls = false
+        present(sheetController, animated: true, completion: nil)
     }
     
     deinit {
         print("deinit", PartiesVC.self)
+        rejectedPartiesListener?.remove()
         waitingPartiesListener?.remove()
         approvedPartiesListener?.remove()
         myPartiesListener?.remove()
@@ -209,7 +261,6 @@ final class PartiesVC: UIViewController {
 
 // MARK: - UISearchBarDelegate
 extension PartiesVC: UISearchBarDelegate {
-    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         reloadData(with: searchText)
     }
@@ -238,7 +289,12 @@ extension PartiesVC {
             switch section {
             
             case .parties:
-                return self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
+                let cell = self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
+                if let party = self?.dataSource.itemIdentifier(for: indexPath), self?.rejectedParties.contains(party) ?? false {
+                    cell?.setRejected()
+                }
+                
+                return cell
             }
         })
         
@@ -286,7 +342,7 @@ extension PartiesVC {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(224))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(180))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -313,16 +369,15 @@ extension PartiesVC {
 extension PartiesVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let party = self.dataSource.itemIdentifier(for: indexPath) else { return }
-        
-//        let showPartyVC = ShowPartyViewController(party: party, target: target)
-//        present(showPartyVC, animated: true, completion: nil)
+        let aboutPartyVC = AboutPartyVC(party: party, type: type)
+        navigationController?.pushViewController(aboutPartyVC, animated: true)
     }
 }
 
 // MARK: - Search parties
 extension PartiesVC {
-    @objc private func searchParties(filter: [String: String]) {
-        FirestoreService.shared.searchPartiesWith(city: filter["city"], type: filter["type"], date: filter["date"], countPeoples: filter["countPeoples"], price: filter["price"], charCountPeoples: filter["charCountPeoples"], charPrice: filter["charPrice"]) { [weak self] (result) in
+    @objc private func searchParties(filter: [String: Any]) {
+        FirestoreService.shared.searchPartiesWith(city: filter["city"] as? String, type: filter["type"] as? PartyType, date: filter["date"] as? Date, dateSign: filter["dateSign"] as? QuerySign, maxGuestsLower: filter["maxGuestsLower"] as? Int, maxGuestsUpper: filter["maxGuestsUpper"] as? Int, priceLower: filter["priceLower"] as? Int, priceUpper: filter["priceUpper"] as? Int) { [weak self] (result) in
             
             switch result {
             
@@ -338,18 +393,18 @@ extension PartiesVC {
 //                } else if filter["charCountPeoples"] == "=" {
 //                    if let countPeoples = filter["countPeoples"], countPeoples != "" { self?.searchedParties.removeAll(where: { $0.maximumPeople != countPeoples }) }
 //                }
-//
-                if filter["charPrice"] == ">" {
-                    if let price = filter["price"], price != "" {  self?.searchedParties.removeAll(where: { $0.price < price }) }
-                } else if filter["charPrice"] == "<" {
-                    if let price = filter["price"], price != "" { self?.searchedParties.removeAll(where: { $0.price > price }) }
-                } else if filter["charPrice"] == "=" {
-                    if let price = filter["price"], price != "" { self?.searchedParties.removeAll(where: { $0.price != price }) }
-                }
+////
+//                if filter["charPrice"] as? String == ">" {
+//                    if let price = filter["price"] as? String, price != "" {  self?.searchedParties.removeAll(where: { $0.price < price }) }
+//                } else if filter["charPrice"] as? String == "<" {
+//                    if let price = filter["price"] as? String, price != "" { self?.searchedParties.removeAll(where: { $0.price > price }) }
+//                } else if filter["charPrice"] as? String == "=" {
+//                    if let price = filter["price"] as? String, price != "" { self?.searchedParties.removeAll(where: { $0.price != price }) }
+//                }
                 
                 self?.parties = self?.searchedParties ?? [PartyModel]()
                 
-                print("asdmasoidjasdioajsdiosj: ", self?.parties)
+                print("asdmasoidjasdioajsdiosj: ", self?.parties, self?.parties.count)
                 self?.reloadData(with: nil)
                 
                 // Костыльно наверное. Нужно чтобы число вечеринок обновлялось
@@ -364,8 +419,8 @@ extension PartiesVC {
     }
 }
 
-//extension PartiesVC: SearchPartyFilterDelegate {
-//    func didChangeFilter(filter: [String : String]) {
-//        searchParties(filter: filter)
-//    }
-//}
+extension PartiesVC: FilterVCDelegate {
+    func didChangeFilter(_ filter: [String : Any]) {
+        searchParties(filter: filter)
+    }
+}

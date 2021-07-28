@@ -57,7 +57,7 @@ final class FourthCreateVC: UIViewController {
     private lazy var maxGuestsStepper: UIStepper = {
         let stepper = UIStepper()
         stepper.minimumValue = 1
-        stepper.maximumValue = 100
+        stepper.maximumValue = Double(GlobalConstants.maximumGuests)
         stepper.tintColor = .systemPurple
         stepper.addTarget(self, action: #selector(maxGuestsChangedAction(_:)), for: .valueChanged)
         return stepper
@@ -141,7 +141,8 @@ final class FourthCreateVC: UIViewController {
     
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
         let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
         navigationItem.rightBarButtonItem = cancelBarButtonItem
     }
@@ -194,27 +195,30 @@ final class FourthCreateVC: UIViewController {
         switch priceTypeSegment.selectedSegmentIndex {
         case 0:
             setuppedParty.priceType = .free
-            setuppedParty.price = ""
+            setuppedParty.moneyPrice = nil
+            setuppedParty.anotherPrice = nil
         case 1:
             guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
                 priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
                 return
             }
             setuppedParty.priceType = .money
-            setuppedParty.price = price
+            setuppedParty.moneyPrice = Int(price)
+            setuppedParty.anotherPrice = nil
         case 2:
             guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
                 priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
                 return
             }
             setuppedParty.priceType = .another
-            setuppedParty.price = price
+            setuppedParty.anotherPrice = price
+            setuppedParty.moneyPrice = nil
         default:
             break
         }
         
         setuppedParty.minAge = Int(minAgeStepper.value)
-        setuppedParty.maximumPeople = Int(maxGuestsStepper.value)
+        setuppedParty.maxGuests = Int(maxGuestsStepper.value)
         
         let fifthCreateVC = FifthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
         navigationController?.pushViewController(fifthCreateVC, animated: true)
@@ -364,7 +368,31 @@ extension FourthCreateVC: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        priceTextField.resignFirstResponder()
+        textField.resignFirstResponder()
+        return false
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField.keyboardType == .numberPad {
+            if !CharacterSet(charactersIn: "0123456789").isSuperset(of: CharacterSet(charactersIn: string)) {
+
+                // Present alert so the user knows what went wrong
+                   print("This field accepts only numeric entries.")
+
+                // Invalid characters detected, disallow text change
+                return false
+            }
+            
+            if let text = textField.text,
+               let textRange = Range(range, in: text) {
+                let updatedText = text.replacingCharacters(in: textRange,
+                                                           with: string)
+                if let number = Int(updatedText) {
+                    return number <= GlobalConstants.maximumPrice
+                }
+            }
+        }
+        
         return false
     }
 }

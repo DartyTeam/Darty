@@ -133,14 +133,20 @@ extension MultiSetImagesView: UICollectionViewDelegateFlowLayout {
 
 extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return (images.count + 1)
+        if maxPhotos == 1 {
+            return 1
+        } else if images.count == maxPhotos {
+            return maxPhotos
+        } else {
+            return (images.count + 1)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
    
         if indexPath.row == images.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetAddImagesViewCell.reuseIdentifier, for: indexPath) as! SetAddImagesViewCell
-            cell.setupCell(delegate: self, maxPhotos: maxPhotos, shape: shape, color: color)
+            cell.setupCell(delegate: self, maxPhotos: (maxPhotos - images.count), shape: shape, color: color)
             cellFrame = cell.frame
             return cell
         } else {

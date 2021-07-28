@@ -12,6 +12,7 @@ private enum Constants {
 
 import UIKit
 import FirebaseAuth
+import SPAlert
 
 final class AboutSetupProfileVC: UIViewController {
     
@@ -91,7 +92,7 @@ final class AboutSetupProfileVC: UIViewController {
     
     @objc private func nextButtonTapped() {
         guard let descriptionText = aboutTextView.text, !descriptionText.isEmptyOrWhitespaceOrNewLines() else {
-            showAlert(title: "Введите описание себя", message: "")
+            SPAlert.present(title: "Расскажите о себе", preset: .error)
             return
         }
         setuppedUser.description = descriptionText

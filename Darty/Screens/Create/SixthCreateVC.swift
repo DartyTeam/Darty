@@ -7,7 +7,7 @@
 
 import UIKit
 import FirebaseAuth
-import SnapKit
+import YandexMapsMobile
 
 final class SixthCreateVC: UIViewController {
     
@@ -45,14 +45,41 @@ final class SixthCreateVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupMap()
         setupNavBar()
         setupViews()
         setupConstraints()
     }
     
+    var collection: YMKClusterizedPlacemarkCollection?
+    private func setupMap() {
+        let mapView = YMKMapView()
+        mapView.mapWindow.map.move(
+             with: YMKCameraPosition.init(target: YMKPoint(latitude: 55.751574, longitude: 37.573856), zoom: 15, azimuth: 0, tilt: 0),
+             animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 5),
+             cameraCallback: nil)
+        view = mapView
+        mapView.mapWindow.map.move(with:
+            YMKCameraPosition(target: YMKPoint(latitude: 0, longitude: 0), zoom: 14, azimuth: 0, tilt: 0))
+        
+        let scale = UIScreen.main.scale
+        let mapKit = YMKMapKit.sharedInstance()
+        let userLocationLayer = mapKit.createUserLocationLayer(with: mapView.mapWindow)
+
+        userLocationLayer.setVisibleWithOn(true)
+        userLocationLayer.isHeadingEnabled = true
+        userLocationLayer.setAnchorWithAnchorNormal(
+            CGPoint(x: 0.5 * mapView.frame.size.width * scale, y: 0.5 * mapView.frame.size.height * scale),
+            anchorCourse: CGPoint(x: 0.5 * mapView.frame.size.width * scale, y: 0.83 * mapView.frame.size.height * scale))
+        userLocationLayer.setObjectListenerWith(self)
+        
+        collection?.addTapListener(with: self)
+    }
+    
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
         let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
         navigationItem.rightBarButtonItem = cancelBarButtonItem
     }
@@ -111,5 +138,54 @@ extension SixthCreateVC {
             make.height.equalTo(50)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
+    }
+}
+
+extension SixthCreateVC: YMKUserLocationObjectListener {
+    
+    func onObjectAdded(with view: YMKUserLocationView) {
+        view.arrow.setIconWith(UIImage(named:"UserArrow")!)
+        
+        let pinPlacemark = view.pin.useCompositeIcon()
+        
+        pinPlacemark.setIconWithName("icon",
+            image: UIImage(named:"Icon")!,
+            style:YMKIconStyle(
+                anchor: CGPoint(x: 0, y: 0) as NSValue,
+                rotationType:YMKRotationType.rotate.rawValue as NSNumber,
+                zIndex: 0,
+                flat: true,
+                visible: true,
+                scale: 1.5,
+                tappableArea: nil))
+        
+        pinPlacemark.setIconWithName(
+            "pin",
+            image: UIImage(named:"SearchResult")!,
+            style:YMKIconStyle(
+                anchor: CGPoint(x: 0.5, y: 0.5) as NSValue,
+                rotationType:YMKRotationType.rotate.rawValue as NSNumber,
+                zIndex: 1,
+                flat: true,
+                visible: true,
+                scale: 1,
+                tappableArea: nil))
+
+        view.accuracyCircle.fillColor = UIColor.blue
+    }
+
+    func onObjectRemoved(with view: YMKUserLocationView) {}
+
+    func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
+}
+
+extension SixthCreateVC: YMKMapObjectTapListener {
+    func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+        guard let userPoint = mapObject as? YMKPlacemarkMapObject else {
+            return true
+        }
+
+        print(userPoint.userData)
+        return false
     }
 }
