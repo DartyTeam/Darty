@@ -105,6 +105,12 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         return view
     }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.paramFont
+        return label
+    }()
 
     // MARK: - Lifecycle
     override init(frame: CGRect) {
@@ -176,6 +182,10 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         }
     }
     
+    func setRequests(count: Int) {
+        infoLabel.text = count.requests()
+    }
+    
     private func setupShadows() {
         layer.shadowColor = UIColor(.black).cgColor
         layer.shadowRadius = 20
@@ -198,14 +208,13 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         typeView.addSubview(typeLabel)
         addSubview(minAgeView)
         minAgeView.addSubview(minAgeLabel)
+        addSubview(infoLabel)
     }
 }
 
 // MARK: - Setup constraints
 extension PartyCell {
-    
     private func setupConstraints() {
-    
         timeLabel.snp.makeConstraints { make in
             make.bottom.equalToSuperview().offset(-16)
             make.right.equalToSuperview().offset(-8)
@@ -270,6 +279,11 @@ extension PartyCell {
         typeLabel.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(8)
             make.top.bottom.equalToSuperview().inset(5)
+        }
+        
+        infoLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(mapView.snp.bottom).offset(-12)
+            make.left.equalToSuperview().offset(8)
         }
         
         layoutIfNeeded()

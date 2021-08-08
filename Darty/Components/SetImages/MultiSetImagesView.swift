@@ -97,7 +97,7 @@ final class MultiSetImagesView: UIView {
                 images.append(image)
             }
 
-            let button = UIBarButtonItem(barButtonSystemItem: .stop, target: nil, action: nil)
+            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
 //            button.tintColor = .systemOra
             
             // In case of an array of [UIImage]:

@@ -84,6 +84,7 @@ extension UIImageView: Attachable {
     private func setImageAndFocusOnFaces(image: UIImage?) {
         DispatchQueue.global(qos: .default).async {
             guard let image = image else {
+                #warning("Почему то изображение nil, хотя присваиваю я его в кложере")
                 return
             }
 

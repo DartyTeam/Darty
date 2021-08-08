@@ -22,10 +22,11 @@ class SectionHeader: UICollectionReusableView {
         setupConstraints()
     }
     
-    func configure(text: String, font: UIFont?, textColor: UIColor) {
+    func configure(text: String, font: UIFont?, textColor: UIColor, alignment: NSTextAlignment) {
         title.textColor = textColor
         title.font = font
         title.text = text
+        title.textAlignment = alignment
     }
     
     required init?(coder: NSCoder) {

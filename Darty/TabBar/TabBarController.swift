@@ -16,8 +16,6 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     
     var observableFloatingExpand:ObservableFloatingExpand = ObservableFloatingExpand()
     
-    private let currentUser: UserModel
-    
     private lazy var floatingTabBar: FloatingTabbar = {
         let floatingTabBar = FloatingTabbar(selected: 0, observableFloatingExpand: observableFloatingExpand, delegate: self)
         return floatingTabBar
@@ -26,26 +24,21 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     lazy var tabBarContainer: UIView = {
         let tabBarContainerView = UIView()
         var newFrame = tabBar.frame
-        newFrame.size.height = Constants.tabBarHeight
+        newFrame.size.height = Constants.tabBarHeight + 90
         newFrame.size.width = self.view.frame.width - 24
         newFrame.origin.x = 12
-        newFrame.origin.y = UIDevice.current.hasNotch ? (self.view.frame.height - Constants.tabBarHeight) : (self.view.frame.height - Constants.tabBarHeight + 34)
+        newFrame.origin.y = UIDevice.current.hasNotch ? (self.view.frame.height - Constants.tabBarHeight - 30) : (self.view.frame.height - Constants.tabBarHeight + 34)
         tabBarContainerView.frame = newFrame
         tabBarContainerView.backgroundColor = .clear
         let childView = UIHostingController(rootView: floatingTabBar)
         childView.view.backgroundColor = .clear
         childView.view.frame = tabBarContainerView.bounds
         tabBarContainerView.addSubview(childView.view)
-        
         return tabBarContainerView
     }()
-        
-    init(currentUser: UserModel) {
-        self.currentUser = currentUser
-        AuthService.shared.currentUser = currentUser
-  
+
+    init() {
         super.init(nibName: nil, bundle: nil)
- 
         object_setClass(self.tabBar, TabBar.self)
     }
     
@@ -91,7 +84,6 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
         createVC.tabBarItem.tag = 1
         
         let messagesVC = UINavigationController(rootViewController: TabItem.messages.viewController)
-        messagesVC.setNavigationBarHidden(true, animated: false)
         messagesVC.tabBarItem.image = TabItem.messages.icon
         messagesVC.tabBarItem.selectedImage = TabItem.messages.selectedIcon?.withRenderingMode(.alwaysOriginal).withTintColor(TabItem.messages.color)
         messagesVC.tabBarItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)

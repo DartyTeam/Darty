@@ -28,4 +28,11 @@ extension DateFormatter {
         dateFormatter.locale = .current
         return dateFormatter
     }()
+    
+    static let ddMMyy: DateFormatter = {
+        var dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yy"
+        dateFormatter.locale = .current
+        return dateFormatter
+    }()
 }

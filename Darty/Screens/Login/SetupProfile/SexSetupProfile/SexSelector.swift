@@ -28,7 +28,7 @@ class SexSelector: UIView {
     private lazy var backView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = size / 2
+        view.layer.cornerRadius = elementSize / 2
         return view
     }()
     
@@ -49,7 +49,7 @@ class SexSelector: UIView {
     private lazy var selectedView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = size / 2
+        view.layer.cornerRadius = elementSize / 2
         view.backgroundColor = color.withAlphaComponent(0.5)
         
         let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 28, weight: .bold))
@@ -68,7 +68,7 @@ class SexSelector: UIView {
     }()
     
     // MARK: - Properties
-    private let size: CGFloat!
+    private let elementSize: CGFloat!
     private let color: UIColor!
     private let delegate: SexSelectorDelegate!
     let sex: Sex!
@@ -89,8 +89,8 @@ class SexSelector: UIView {
     }
     
     // MARK: - Lifecycle
-    init(title: String, iconImage: UIImage?, backgroundColor: UIColor, size: CGFloat, delegate: SexSelectorDelegate, sex: Sex) {
-        self.size = size
+    init(title: String, iconImage: UIImage?, backgroundColor: UIColor, elementSize: CGFloat, delegate: SexSelectorDelegate, sex: Sex) {
+        self.elementSize = elementSize
         self.color = backgroundColor
         self.delegate = delegate
         self.sex = sex
@@ -121,8 +121,8 @@ class SexSelector: UIView {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            backView.heightAnchor.constraint(equalToConstant: size),
-            backView.widthAnchor.constraint(equalToConstant: size),
+            backView.heightAnchor.constraint(equalToConstant: elementSize),
+            backView.widthAnchor.constraint(equalToConstant: elementSize),
             backView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             backView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             backView.topAnchor.constraint(equalTo: self.topAnchor),

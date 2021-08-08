@@ -11,7 +11,7 @@ import FittedSheets
 
 final class PartiesVC: UIViewController {
 
-    let searchController = UISearchController(searchResultsController: nil)
+    private let searchController = UISearchController(searchResultsController: nil)
     
     // MARK: - Collection view
     private var collectionView: UICollectionView!
@@ -44,6 +44,10 @@ final class PartiesVC: UIViewController {
     private var approvedParties = [PartyModel]()
     private var myPartiesListener: ListenerRegistration?
     private var myParties = [PartyModel]()
+    
+    private var myPartyRequestsListeners: [ListenerRegistration]?
+    private var myPartyRequests = [String: [PartyRequestModel]]()
+    private var partiesRequestsListenerDelegate: PartiesRequestsListenerProtocol?
     
     private let currentUser: UserModel
     private var type = AboutPartyVCType.search
@@ -108,6 +112,30 @@ final class PartiesVC: UIViewController {
             case .success(let parties):
                 self.myParties = parties
                 self.reloadPartiesType()
+                self.myPartyRequestsListeners?.forEach({ myPartyRequestListener in
+                    myPartyRequestListener.remove()
+                })
+                self.myPartyRequestsListeners?.removeAll()
+                
+                parties.forEach { party in
+                    var partyRequests = [PartyRequestModel]()
+                    if let partyRequestsForParty = self.myPartyRequests[party.id] {
+                        partyRequests = partyRequestsForParty
+                    }
+                    let myPartyRequestsListener = ListenerService.shared.waitingGuestsRequestsObserve(waitingGuestsRequests: partyRequests, partyId: party.id, completion: { (result) in
+                        switch result {
+                        case .success(let partyRequests):
+                            self.myPartyRequests[party.id] = partyRequests
+                            self.partiesRequestsListenerDelegate?.partyRequestsDidChange(self.myPartyRequests[party.id]!)
+                            self.reloadPartiesType()
+                        case .failure(let error):
+                            self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                        }
+                    })
+                    if let myPartyRequestsListener = myPartyRequestsListener {
+                        self.myPartyRequestsListeners?.append(myPartyRequestsListener)
+                    }
+                }
             case .failure(let error):
                 self.showAlert(title: "Ошибка!", message: error.localizedDescription)
             }
@@ -252,6 +280,9 @@ final class PartiesVC: UIViewController {
         waitingPartiesListener?.remove()
         approvedPartiesListener?.remove()
         myPartiesListener?.remove()
+        myPartyRequestsListeners?.forEach({ listener in
+            listener.remove()
+        })
     }
     
     required init?(coder: NSCoder) {
@@ -290,10 +321,17 @@ extension PartiesVC {
             
             case .parties:
                 let cell = self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
-                if let party = self?.dataSource.itemIdentifier(for: indexPath), self?.rejectedParties.contains(party) ?? false {
-                    cell?.setRejected()
+                    
+                if let party = self?.dataSource.itemIdentifier(for: indexPath) {
+                    if self?.rejectedParties.contains(party) ?? false {
+                        cell?.setRejected()
+                    } else if self?.myParties.contains(party) ?? false {
+                        if let countRequests = self?.myPartyRequests[party.id]?.count {
+                            cell?.setRequests(count: countRequests)
+                        }
+                    }
                 }
-                
+              
                 return cell
             }
         })
@@ -308,7 +346,7 @@ extension PartiesVC {
             // Достучались до всех объектов в секции parties
             let items = self.dataSource.snapshot().itemIdentifiers(inSection: .parties)
             
-            sectionHeader.configure(text: section.description(partiesCount: items.count), font: .sfProRounded(ofSize: 26, weight: .medium), textColor: .label)
+            sectionHeader.configure(text: section.description(partiesCount: items.count), font: .sfProRounded(ofSize: 26, weight: .medium), textColor: .label, alignment: .natural)
             
             return sectionHeader
         }
@@ -370,6 +408,12 @@ extension PartiesVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let party = self.dataSource.itemIdentifier(for: indexPath) else { return }
         let aboutPartyVC = AboutPartyVC(party: party, type: type)
+        if type == .my {
+            if let partyRequests = myPartyRequests[party.id] {
+                aboutPartyVC.partyRequestsDidChange(partyRequests)
+            }
+            partiesRequestsListenerDelegate = aboutPartyVC
+        }
         navigationController?.pushViewController(aboutPartyVC, animated: true)
     }
 }

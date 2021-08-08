@@ -33,18 +33,28 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
     private let usernameLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.nameFont
-        return label
-    }()
-    
-    private let userRatingLabel: UILabel = {
-        let label = UILabel()
-        label.font = Constants.ratingFont
+        label.text = "Имя"
         return label
     }()
     
     private let ageLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.ageFont
+        label.text = "00"
+        return label
+    }()
+    
+    private lazy var nameAgeStackView: UIStackView = {
+        let spacingView = UIView()
+        let stackView = UIStackView(arrangedSubviews: [usernameLabel, ageLabel, spacingView], axis: .horizontal, spacing: 4)
+        stackView.alignment = .leading
+        stackView.distribution = .fill
+        return stackView
+    }()
+    
+    private let userRatingLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.ratingFont
         return label
     }()
     
@@ -63,6 +73,7 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
     private let messageLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.messageFont
+        label.numberOfLines = 0
         return label
     }()
     
@@ -93,6 +104,10 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
         setupCustomizations()
         setupConstraints()
     }
+    
+    func addMessageFromUser(_ message: String) {
+        messageLabel.text = message
+    }
 
     private func setupCustomizations() {
         backgroundColor = .systemBackground
@@ -113,11 +128,8 @@ extension WaitingGuestCell {
         let buttonStackView = UIStackView(arrangedSubviews: [denyButton, acceptButton], axis: .horizontal, spacing: 20)
         buttonStackView.distribution = .fillEqually
         
-        let nameAgeStackView = UIStackView(arrangedSubviews: [usernameLabel, ageLabel], axis: .horizontal, spacing: 4)
-        nameAgeStackView.alignment = .leading
-        let nameAgeRatingStackView = UIStackView(arrangedSubviews: [nameAgeStackView, userRatingLabel], axis: .horizontal, spacing: 8)
-        
-        addSubview(nameAgeRatingStackView)
+        addSubview(nameAgeStackView)
+        addSubview(userRatingLabel)
         addSubview(buttonStackView)
         
         addSubview(userImageView)
@@ -127,22 +139,26 @@ extension WaitingGuestCell {
             make.top.left.equalToSuperview().inset(12)
             make.size.equalTo(Constants.userImageSize)
         }
-        
-        nameAgeRatingStackView.snp.makeConstraints { make in
-            make.centerY.equalTo(userImageView.snp.centerY).offset(-10)
+                
+        nameAgeStackView.snp.makeConstraints { make in
+            make.centerY.equalTo(userImageView.snp.centerY).offset(-14)
             make.left.equalTo(userImageView.snp.right).offset(8)
+            make.right.equalToSuperview().offset(-44)
+            // Без width не будет отображаться возраст при очень длинном, не вмещающимся, имени
+            make.width.equalTo(500)
+            make.height.equalTo(10)
+        }
+        
+        userRatingLabel.snp.makeConstraints { make in
+            make.centerY.equalTo(nameAgeStackView.snp.centerY)
             make.right.equalToSuperview().inset(12)
         }
         
-//        ageLabel.snp.makeConstraints { (make) in
-//            make.trailing.equalToSuperview().offset(-64)
-//        }
-        
         messageLabel.snp.makeConstraints { make in
-            make.left.equalTo(nameAgeRatingStackView.snp.left)
-            make.top.equalTo(nameAgeRatingStackView.snp.bottom).offset(8)
+            make.left.equalTo(nameAgeStackView.snp.left)
+            make.top.equalTo(nameAgeStackView.snp.bottom).offset(2)
             make.right.equalToSuperview().inset(12)
-            make.bottom.equalTo(userImageView.snp.bottom)
+            make.bottom.lessThanOrEqualTo(userImageView.snp.bottom)
         }
         
         buttonStackView.snp.makeConstraints { (make) in

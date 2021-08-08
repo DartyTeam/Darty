@@ -93,7 +93,7 @@ final class SexSetupProfileVC: UIViewController {
     
     private func setupSexes() {
         for item in sexArray {
-            let sexSelector = SexSelector(title: item.title, iconImage: item.iconImage, backgroundColor: item.backgroundColor, size: Constants.sizeSexButton, delegate: self, sex: item.sex)
+            let sexSelector = SexSelector(title: item.title, iconImage: item.iconImage, backgroundColor: item.backgroundColor, elementSize: Constants.sizeSexButton, delegate: self, sex: item.sex)
             sexStackView.addArrangedSubview(sexSelector)
         }
     }

@@ -8,39 +8,23 @@
 import UIKit
 import SPAlert
 
-class WaitingGuestsVC: UIViewController {
-    
+class WaitingGuestsVC: UIViewController, PartiesRequestsListenerProtocol {
+
     // enum по умолчанию hashable
     enum Section: Int, CaseIterable {
         case users
-        
-        func description(usersCount: Int) -> String {
-            switch self {
-            
-            case .users:
-                if usersCount < 1 || usersCount > 5 {
-                    return "\(usersCount) заявок"
-                } else if usersCount == 1 {
-                    return "\(usersCount) заявка"
-                } else if usersCount > 1 && usersCount < 5 {
-                    return "\(usersCount) заявки"
-                } else {
-                    return "\(usersCount) заявок"
-                }
-            }
-        }
     }
     
-    private var users = [UserModel]()
+    private var waitingGuestsRequests = [PartyRequestModel]()
+    private var users: [UserModel] = []
     private var party: PartyModel
     
     var collectionView: UICollectionView!
     var dataSource: UICollectionViewDiffableDataSource<Section, UserModel>!
     
-    init(users: [UserModel], party: PartyModel) {
-        self.users = users
+    init(waitingGuestsRequests: [PartyRequestModel], party: PartyModel) {
+        self.waitingGuestsRequests = waitingGuestsRequests
         self.party = party
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -50,8 +34,8 @@ class WaitingGuestsVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .systemGroupedBackground
+        getFirstUser()
         setupCollectionView()
         createDataSource()
         reloadData()
@@ -59,11 +43,41 @@ class WaitingGuestsVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: true)
+        setupNavBar()
+    }
+    
+    private func setupNavBar() {
+        setNavigationBar(withColor: .systemOrange, title: waitingGuestsRequests.count.parties(), withClear: false)
+    }
+    
+    private func getFirstUser() {
+        if let firstUserId = waitingGuestsRequests.first?.userId {
+            getUser(by: firstUserId)
+        }
+    }
+    
+    func partyRequestsDidChange(_ partyRequests: [PartyRequestModel]) {
+        waitingGuestsRequests = partyRequests
+        users.removeAll()
+        getFirstUser()
+        reloadData()
+    }
+    
+    private func getUser(by id: String) {
+        FirestoreService.shared.getUser(by: id) { [weak self] result in
+            
+            switch result {
+            
+            case .success(let user):
+                self?.users.append(user)
+                self?.reloadData()
+            case .failure(let error):
+                SPAlert.present(title: error.localizedDescription, preset: .error)
+            }
+        }
     }
     
     private func setupCollectionView() {
-        
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         collectionView.backgroundColor = .systemGroupedBackground
@@ -79,11 +93,11 @@ class WaitingGuestsVC: UIViewController {
     
     // Отвечает за заполнение реальными данными. Создает snapshot, добавляет нужные айтемы в нужные секции и регистрируется на dataSource
     private func reloadData() {
-        
         var snapshot = NSDiffableDataSourceSnapshot<Section, UserModel>()
         snapshot.appendSections([.users])
         snapshot.appendItems(users, toSection: .users)
         dataSource?.apply(snapshot, animatingDifferences: true)
+        title = waitingGuestsRequests.count.parties()
     }
     
     deinit {
@@ -93,14 +107,18 @@ class WaitingGuestsVC: UIViewController {
     // MARK: - Handlers
     @objc private func changeToRejected(_ sender: UIButton) {
         let user = users[sender.tag]
-        FirestoreService.shared.changeToRejected(user: user, party: party) { (result) in
+        changeToRejected(user: user)
+    }
+    
+    private func changeToRejected(user: UserModel) {
+        FirestoreService.shared.changeToRejected(user: user, party: party) { [weak self] (result) in
             switch result {
             case .success():
                 SPAlert.present(title: "Заявка пользователя \(user.username) была отклонена", preset: .done)
-                self.users.removeAll { $0.id == user.id }
-                #warning("Тут краш")
-                self.collectionView.deleteItems(at: [[0, sender.tag]])
-                self.collectionView.reloadData()
+                self?.users.removeAll { $0.id == user.id }
+                self?.waitingGuestsRequests.removeAll() { $0.userId == user.id }
+                self?.reloadData()
+             
             case .failure(let error):
                 SPAlert.present(title: "Не удалось отправить заявку: \(error.localizedDescription)", preset: .error)
             }
@@ -109,14 +127,17 @@ class WaitingGuestsVC: UIViewController {
     
     @objc private func changeToApproved(_ sender: UIButton) {
         let user = users[sender.tag]
-        FirestoreService.shared.changeToApproved(user: user, party: party) { (result) in
+        changeToApproved(user: user)
+    }
+    
+    private func changeToApproved(user: UserModel) {
+        FirestoreService.shared.changeToApproved(user: user, party: party) { [weak self] (result) in
             switch result {
             case .success():
                 SPAlert.present(title: "Приятно проведите время с \(user.username)", preset: .done)
-                self.users.removeAll { $0.id == user.id }
-                #warning("Тут краш")
-                self.collectionView.deleteItems(at: [[0, sender.tag]])
-                self.collectionView.reloadData()
+                self?.users.removeAll { $0.id == user.id }
+                self?.waitingGuestsRequests.removeAll() { $0.userId == user.id }
+                self?.reloadData()
             case .failure(let error):
                 SPAlert.present(title: "Не удалось отправить заявку: \(error.localizedDescription)", preset: .error)
             }
@@ -126,10 +147,8 @@ class WaitingGuestsVC: UIViewController {
 
 // MARK: - Data Source
 extension WaitingGuestsVC {
-    
     // Отвечает за то, в каких секциях буду те или иные ячейки
     private func createDataSource() {
-        
         dataSource = UICollectionViewDiffableDataSource<Section, UserModel>(collectionView: collectionView, cellProvider: { [weak self] (collectionView, indexPath, user) -> UICollectionViewCell? in
             
             guard let section = Section(rawValue: indexPath.section) else {
@@ -139,36 +158,22 @@ extension WaitingGuestsVC {
             switch section {
             
             case .users:
-                
                 let cell = self?.configure(collectionView: collectionView, cellType: WaitingGuestCell.self, with: user, for: indexPath)
                 cell?.acceptButton.tag = indexPath.row
                 cell?.acceptButton.addTarget(self, action: #selector(self?.changeToApproved(_:)), for: .touchDown)
                 cell?.denyButton.tag = indexPath.row
                 cell?.denyButton.addTarget(self, action: #selector(self?.changeToRejected(_:)), for: .touchDown)
+                if let message = self?.waitingGuestsRequests[indexPath.row].message {
+                    cell?.addMessageFromUser(message)
+                }
                 return cell
             }
         })
-        
-        dataSource?.supplementaryViewProvider = {
-            collectionView, kind, indexPath in
-            
-            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SectionHeader.reuseId, for: indexPath) as? SectionHeader else { fatalError("Cannot create new section header") }
-            
-            guard let section = Section(rawValue: indexPath.section) else { fatalError("Unknown section kind") }
-            
-            // Достучались до всех объектов в секции parties
-            let items = self.dataSource.snapshot().itemIdentifiers(inSection: .users)
-            
-            sectionHeader.configure(text: section.description(usersCount: items.count), font: .sfProRounded(ofSize: 26, weight: .medium), textColor: .label)
-            
-            return sectionHeader
-        }
     }
 }
 
 // MARK: - Setup layout
 extension WaitingGuestsVC {
-    
     private func createCompositionalLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
             
@@ -191,7 +196,6 @@ extension WaitingGuestsVC {
     }
     
     private func createPartiesSection() -> NSCollectionLayoutSection {
-        
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
@@ -202,20 +206,7 @@ extension WaitingGuestsVC {
         section.interGroupSpacing = 16
         section.contentInsets = NSDirectionalEdgeInsets.init(top: 16, leading: 16, bottom: 0, trailing: 16)
         
-        let sectionHeader = createSectionHeader()
-        section.boundarySupplementaryItems = [sectionHeader]
-        
         return section
-    }
-    
-    private func createSectionHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
-        
-        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .estimated(1))
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize,
-                                                                        elementKind: UICollectionView.elementKindSectionHeader,
-                                                                        alignment: .top)
-        return sectionHeader
     }
 }
 
@@ -226,10 +217,26 @@ extension WaitingGuestsVC: UICollectionViewDelegate {
             print("asdijasdiojasdioajsdiojs")
             return }
         print("asidojasoidjasoidjaoisdjasdias9da9sdj")
-        let aboutUserVC = AboutUserVC(userData: user, type: .partyRequest)
+        let message = waitingGuestsRequests[indexPath.row].message
+        let aboutUserVC = AboutUserVC(userData: user, message: message)
+        aboutUserVC.partyRequestDelegate = self
         navigationController?.pushViewController(aboutUserVC, animated: true)
-//        let partyRequestVC = PartyRequestViewController(user: user)
-//        partyRequestVC.delegate = self
-//        present(partyRequestVC, animated: true, completion: nil)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if indexPath.row == users.count - 1 && waitingGuestsRequests.count > users.count {
+            let userId = waitingGuestsRequests[indexPath.row + 1].userId
+            getUser(by: userId)
+        }
+    }
+}
+
+extension WaitingGuestsVC: AboutUserPartyRequestDelegate {
+    func userDidDecline(_ user: UserModel) {
+        changeToRejected(user: user)
+    }
+    
+    func userDidAccept(_ user: UserModel) {
+        changeToApproved(user: user)
     }
 }

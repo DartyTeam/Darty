@@ -10,6 +10,7 @@ import FirebaseAuth
 import SnapKit
 import PhotosUI
 import Agrume
+import SPAlert
 
 final class FifthCreateVC: UIViewController {
     
@@ -80,8 +81,9 @@ final class FifthCreateVC: UIViewController {
         }
         
         setuppedParty.images = images
+        print("asdiojasdoijasd: ", setuppedParty.images)
         
-        let sixthCreateVC = SixthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
+        let sixthCreateVC = SelectLocationVC(setuppedParty: setuppedParty)
         navigationController?.pushViewController(sixthCreateVC, animated: true)
     }
     
@@ -92,7 +94,6 @@ final class FifthCreateVC: UIViewController {
 
 // MARK: - Setup constraints
 extension FifthCreateVC {
-    
     private func setupConstraints() {
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
@@ -130,8 +131,6 @@ extension FifthCreateVC: MultiSetImagesViewDelegate {
     }
     
     func showError(_ error: String) {
-        showError(error)
+        SPAlert.present(title: error, preset: .error)
     }
 }
-
-

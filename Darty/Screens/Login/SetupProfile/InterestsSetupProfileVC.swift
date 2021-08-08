@@ -129,14 +129,15 @@ final class InterestsSetupProfileVC: UIViewController {
                                                 username: setupedUser.name,
                                                 avatarImage: setupedUser.image,
                                                 description: setupedUser.description,
-                                                sex: setupedUser.sex!,
+                                                sex: setupedUser.sex,
                                                 birthday: setupedUser.birthday!,
                                                 interestsList: selectedInterests) { [weak self] (result) in
             switch result {
             
             case .success(let user):
                 self?.showAlert(title: "Успешно", message: "Веселитесь!") {
-                    let tabBarController = TabBarController(currentUser: user)
+                    AuthService.shared.currentUser = user
+                    let tabBarController = TabBarController()
                     tabBarController.modalPresentationStyle = .fullScreen
                     self?.present(tabBarController, animated: true, completion: nil)
                 }

@@ -145,7 +145,8 @@ struct PartyModel: Hashable, Decodable {
     
     var id: String
     var city: String
-    var location: String
+    var location: GeoPoint
+    var address: String
     var userId: String
     var imageUrlStrings: [String]
     var type: PartyType.RawValue
@@ -161,9 +162,10 @@ struct PartyModel: Hashable, Decodable {
     var description: String
     var minAge: Int
     
-    init(city: String, location: String, userId: String, imageUrlStrings: [String], type: PartyType.RawValue, maxGuests: Int, curGuests: Int, id: String, date: Date, startTime: Date, endTime: Date?, name: String, moneyPrice: Int?, anotherPrice: String?, priceType: PriceType.RawValue, description: String, minAge: Int) {
+    init(city: String, location: GeoPoint, address: String, userId: String, imageUrlStrings: [String], type: PartyType.RawValue, maxGuests: Int, curGuests: Int, id: String, date: Date, startTime: Date, endTime: Date?, name: String, moneyPrice: Int?, anotherPrice: String?, priceType: PriceType.RawValue, description: String, minAge: Int) {
         self.city = city
         self.location = location
+        self.address = address
         self.userId = userId
         self.imageUrlStrings = imageUrlStrings
         self.type = type
@@ -185,7 +187,8 @@ struct PartyModel: Hashable, Decodable {
         // Non optional values
         guard let data = document.data() else { return nil }
         guard let city = data["city"] as? String,
-              let location = data["location"] as? String,
+              let location = data["location"] as? GeoPoint,
+              let address = data["address"] as? String,
               let userId = data["userId"] as? String,
               let imageUrlStrings = data["imageUrlStrings"] as? [String],
               let type = data["type"] as? PartyType.RawValue,
@@ -208,6 +211,7 @@ struct PartyModel: Hashable, Decodable {
             
         self.city = city
         self.location = location
+        self.address = address
         self.userId = userId
         self.imageUrlStrings = imageUrlStrings
         self.type = type
@@ -229,6 +233,7 @@ struct PartyModel: Hashable, Decodable {
         var rep = [String: Any]()
         rep = ["location": location]
         rep["city"] = city
+        rep["address"] = address
         rep["userId"] = userId
         rep["imageUrlStrings"] = imageUrlStrings
         rep["type"] = type

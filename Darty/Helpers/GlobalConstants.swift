@@ -9,7 +9,7 @@ import UIKit
 import AudioToolbox
 
 enum GlobalConstants {
-    static let tabBarHeight: CGFloat = 65
+    static let tabBarHeight: CGFloat = 60
     
     static let maximumGuests = 100
     static let maximumPrice = 9999
@@ -24,6 +24,21 @@ enum GlobalConstants {
                                      InterestModel(id: 7, title: "Программирование", emoji: "⛳️"),
                                      InterestModel(id: 8, title: "Путешествия", emoji: "⛳️"),
                                      InterestModel(id: 9, title: "Танцы", emoji: "⛳️")]
+    
+    // MARK: - keys
+    static let kCHATROOMID = "chatRoomId"
+    static let kSENDERID = "senderId"
+    
+    static let kSENT = "sent"
+    static let kREAD = "read"
+    
+    static let kTEXT = "text"
+    static let kPHOTO = "photo"
+    static let kVIDEO = "video"
+    static let kAUDIO = "audio"
+    static let kLOCATION = "location"
+    
+    static let kDATE = "date"
 }
 
 enum Vibration {

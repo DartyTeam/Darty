@@ -72,3 +72,30 @@ extension PartyError: LocalizedError {
         }
     }
 }
+
+enum StorageErrors {
+    case couldntConvertLocalImage
+}
+
+extension StorageErrors: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .couldntConvertLocalImage:
+            return NSLocalizedString("Невозможно конвертировать локальное изображение", comment: "")
+        }
+    }
+}
+
+
+enum ChatErrors {
+    case noDocForRecent
+}
+
+extension ChatErrors: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .noDocForRecent:
+            return NSLocalizedString("Не документов для чата в базе данных", comment: "")
+        }
+    }
+}

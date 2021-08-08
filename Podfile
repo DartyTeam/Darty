@@ -31,6 +31,9 @@ target 'Darty' do
   pod 'OverlayContainer'
   pod 'ComplimentaryGradientView'
   pod 'Agrume'
+  pod 'lottie-ios'
+  pod 'RealmSwift'
+
   
 #pod 'Hero'
 #pod 'SkeletonView'

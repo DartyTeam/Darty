@@ -16,4 +16,13 @@ extension Int {
          if 11...14 ~= self % 100                   {partyString = "вечеринок"}
     return "\(self) " + partyString
     }
+    
+    func requests() -> String {
+        var requestString: String!
+        if "1".contains("\(self % 10)")      {requestString = "заявка"}
+        if "234".contains("\(self % 10)")    {requestString = "заявки" }
+        if "567890".contains("\(self % 10)") {requestString = "заявок"}
+        if 11...14 ~= self % 100                   {requestString = "заявок"}
+   return "\(self) " + requestString
+   }
 }

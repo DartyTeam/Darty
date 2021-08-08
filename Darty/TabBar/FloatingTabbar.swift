@@ -39,7 +39,10 @@ struct FloatingTabbar : View {
                         
                     }) {
                         
-                        Image(systemName: "arrow.left").foregroundColor(.black).padding()
+                        Image(systemName: "arrow.left")
+                            .foregroundColor(.black)
+                            .padding()
+//                            .frame(width: 44, height: 44)
                     }
                 }
                 else{
@@ -51,7 +54,10 @@ struct FloatingTabbar : View {
                         
                     }) {
                         
-                        Image(systemName: (self.selected == 0) ? "flame.fill" : "flame").foregroundColor(self.selected == 0 ? .orange : .gray).padding(.horizontal)
+                        Image(systemName: (self.selected == 0) ? "flame.fill" : "flame")
+                            .foregroundColor(self.selected == 0 ? .orange : .gray)
+                            .padding(.horizontal)
+//                            .frame(width: 44, height: 44)
                     }
                     
                     Spacer(minLength: 15)
@@ -63,7 +69,10 @@ struct FloatingTabbar : View {
                         
                     }) {
                         
-                        Image(systemName: (self.selected == 1) ? "plus" : "plus").foregroundColor(self.selected == 1 ? .purple : .gray).padding(.horizontal)
+                        Image(systemName: (self.selected == 1) ? "plus" : "plus")
+                            .foregroundColor(self.selected == 1 ? .purple : .gray)
+                            .padding(.horizontal)
+//                            .frame(width: 44, height: 44)
                     }
                     
                     Spacer(minLength: 15)
@@ -74,7 +83,10 @@ struct FloatingTabbar : View {
                         delegate?.selectedChanged(2)
                         
                     }) {
-                        Image(systemName: (self.selected == 2) ? "message.fill" : "message").foregroundColor(self.selected == 2 ? Color(UIColor.systemTeal) : .gray).padding(.horizontal)
+                        Image(systemName: (self.selected == 2) ? "message.fill" : "message")
+                            .foregroundColor(self.selected == 2 ? Color(UIColor.systemTeal) : .gray)
+                            .padding(.horizontal)
+//                            .frame(width: 44, height: 44)
                     }
                     
                     Spacer(minLength: 15)
@@ -85,7 +97,10 @@ struct FloatingTabbar : View {
                         delegate?.selectedChanged(3)
                         
                     }) {
-                        Image(systemName: (self.selected == 3) ? "person.fill" : "person").foregroundColor(self.selected == 3 ? Color(UIColor.systemIndigo) : .gray).padding(.horizontal)
+                        Image(systemName: (self.selected == 3) ? "person.fill" : "person")
+                            .foregroundColor(self.selected == 3 ? Color(UIColor.systemIndigo) : .gray)
+                            .padding(.horizontal)
+//                            .frame(width: 44, height: 44, alignment: .center)
                     }
                 }
                 

@@ -16,14 +16,15 @@ class ChatVC: MessagesViewController {
     private var messageListener: ListenerRegistration?
     
     private let user: UserModel
-    private let chat: ChatModel
+    private let chat: RecentChatModel
+    private let friendData: UserModel
+    private let friendImageView = UIImageView()
     
-    init(user: UserModel, chat: ChatModel) {
+    init(user: UserModel, friendData: UserModel, chat: RecentChatModel) {
         self.user = user
         self.chat = chat
+        self.friendData = friendData
         super.init(nibName: nil, bundle: nil)
-        
-        title = chat.friendUsername
     }
     
     deinit {
@@ -38,15 +39,22 @@ class ChatVC: MessagesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if let imageUrl = URL(string: friendData.avatarStringURL) {
+            friendImageView.sd_setImage(with: imageUrl) { image, error, cache, url in
+                self.friendImageView.focusOnFaces = true
+            }
+        }
+       
+        setNavBar()
         messagesCollectionView.backgroundColor = .systemBackground
         
         configureMessageInputBar()
         
         if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
             layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.textMessageSizeCalculator.incomingAvatarSize = .zero
+//            layout.textMessageSizeCalculator.incomingAvatarSize = .zero
             layout.photoMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.photoMessageSizeCalculator.incomingAvatarSize = .zero
+//            layout.photoMessageSizeCalculator.incomingAvatarSize = .zero
         }
         
         messageInputBar.delegate = self
@@ -54,30 +62,54 @@ class ChatVC: MessagesViewController {
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         
-        messageListener = ListenerService.shared.messagesObserve(chat: chat, completion: { (result) in
-            switch result {
-            
-            case .success(var message):
-                if let url = message.downloadURL {
-                    StorageService.shared.downloadImage(url: url) { [weak self] (result) in
-                        guard let self = self else { return }
-                        switch result {
-                        
-                        case .success(let image):
-                            message.image = image
-                            self.insertNewMessage(message: message)
-                        case .failure(let error):
-                            self.showAlert(title: "Ошибка", message: error.localizedDescription)
-                        }
-                    }
-                } else {
-                    self.insertNewMessage(message: message)
-                }
+        setupListener()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setIsTabBarHidden(true)
+    }
+    
+    private func setupListener() {
+//        messageListener = ListenerService.shared.messagesObserve(chat: chat, completion: { (result) in
+//            switch result {
+//
+//            case .success(var message):
+//                if let url = message.downloadURL {
+//                    StorageService.shared.downloadImage(url: url) { [weak self] (result) in
+//                        guard let self = self else { return }
+//                        switch result {
+//
+//                        case .success(let image):
+//                            message.image = image
+//                            self.insertNewMessage(message: message)
+//                        case .failure(let error):
+//                            self.showAlert(title: "Ошибка", message: error.localizedDescription)
+//                        }
+//                    }
+//                } else {
+//                    self.insertNewMessage(message: message)
+//                }
+//
+//            case .failure(let error):
+//                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+//            }
+//        })
+    }
+    
+    private func setNavBar() {
+        setNavigationBar(withColor:.systemTeal, title: chat.receiverName)
+        let attrs = [
+            NSAttributedString.Key.font: UIFont.sfProRounded(ofSize: 16, weight: .bold)
+        ]
+        navigationController?.navigationBar.standardAppearance.titleTextAttributes = attrs as [NSAttributedString.Key : Any]
+        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 16, weight: .medium))
+
+        let callBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "phone", withConfiguration: boldConfig)?.withTintColor(.systemTeal, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(callAction))
         
-            case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
-            }
-        })
+        let facetimeBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "video", withConfiguration: boldConfig)?.withTintColor(.systemTeal, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(facetimeAction))
+        
+        navigationItem.rightBarButtonItems = [facetimeBarButtonItem, callBarButtonItem]
     }
     
     private func insertNewMessage(message: MessageModel) {
@@ -97,6 +129,15 @@ class ChatVC: MessagesViewController {
         }
     }
     
+    // MARK: - Handlers
+    @objc private func callAction() {
+        
+    }
+    
+    @objc private func facetimeAction() {
+        
+    }
+    
     @objc private func cameraButtonPressed() {
         let picker = UIImagePickerController()
         picker.delegate = self
@@ -111,25 +152,25 @@ class ChatVC: MessagesViewController {
     }
     
     private func sendImage(image: UIImage) {
-        StorageService.shared.uploadImageMessage(photo: image, to: chat) { (result) in
-            switch result {
-            
-            case .success(let url):
-                var message = MessageModel(user: self.user, image: image)
-                message.downloadURL = url
-                
-                FirestoreService.shared.sendMessage(chat: self.chat, message: message) { (result) in
-                    switch result {
-                    case .success():
-                        self.messagesCollectionView.scrollToBottom()
-                    case .failure(_):
-                        self.showAlert(title: "Ошибка!", message: "Сообщение не доставлено")
-                    }
-                }
-            case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
-            }
-        }
+//        StorageService.shared.uploadImageMessage(photo: image, to: chat) { (result) in
+//            switch result {
+//
+//            case .success(let url):
+//                var message = MessageModel(user: self.user, image: image)
+//                message.downloadURL = url
+//
+//                FirestoreService.shared.sendMessage(chat: self.chat, message: message) { (result) in
+//                    switch result {
+//                    case .success():
+//                        self.messagesCollectionView.scrollToBottom()
+//                    case .failure(_):
+//                        self.showAlert(title: "Ошибка!", message: "Сообщение не доставлено")
+//                    }
+//                }
+//            case .failure(let error):
+//                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+//            }
+//        }
     }
 }
 
@@ -160,7 +201,7 @@ extension ChatVC {
     }
     
     func configureSendButton() {
-        messageInputBar.sendButton.setImage(UIImage(named: "send-message-icon"), for: .normal)
+        messageInputBar.sendButton.setImage(UIImage(named: "sendBlueIcon"), for: .normal)
         messageInputBar.setRightStackViewWidthConstant(to: 56, animated: false)
         messageInputBar.sendButton.contentEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 6, right: 30)
         messageInputBar.sendButton.setSize(CGSize(width: 48, height: 48), animated: false)
@@ -168,20 +209,82 @@ extension ChatVC {
         messageInputBar.sendButton.title = nil
     }
     
-    func configureCameraIcon() {
-        let cameraItem = InputBarButtonItem(type: .system)
-        cameraItem.tintColor = #colorLiteral(red: 0.05098039216, green: 0.5647058824, blue: 0.9137254902, alpha: 1)
-        let cameraImage = UIImage(systemName: "camera")!
-        cameraItem.image = cameraImage
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func isTimeLabelVisible(at indexPath: IndexPath) -> Bool {
+        return indexPath.section % 3 == 0 && !isPreviousMessageSameSender(at: indexPath)
+    }
+
+    func isPreviousMessageSameSender(at indexPath: IndexPath) -> Bool {
+        guard indexPath.section - 1 >= 0 else { return false }
+        return messages[indexPath.section].sender.senderId == messages[indexPath.section - 1].sender.senderId
+    }
+
+    func isNextMessageSameSender(at indexPath: IndexPath) -> Bool {
+        guard indexPath.section + 1 < messages.count else { return false }
+        return messages[indexPath.section].sender.senderId == messages[indexPath.section + 1].sender.senderId
+    }
+
+    func setTypingIndicatorViewHidden(_ isHidden: Bool, performUpdates updates: (() -> Void)? = nil) {
+        setTypingIndicatorViewHidden(isHidden, animated: true, whilePerforming: updates) { [weak self] success in
+            if success, self?.isLastSectionVisible() == true {
+                self?.messagesCollectionView.scrollToLastItem(animated: true)
+            }
+        }
+    }
+    
+    func isLastSectionVisible() -> Bool {
         
-        cameraItem.addTarget(self, action: #selector(cameraButtonPressed),
+        guard !messages.isEmpty else { return false }
+        
+        let lastIndexPath = IndexPath(item: 0, section: messages.count - 1)
+        
+        return messagesCollectionView.indexPathsForVisibleItems.contains(lastIndexPath)
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    func configureCameraIcon() {
+        let paperclipItem = InputBarButtonItem(type: .system)
+        paperclipItem.tintColor = .systemTeal
+        let paperclipItemImage = UIImage(systemName: "paperclip")!
+        paperclipItem.image = paperclipItemImage
+        
+        paperclipItem.addTarget(self, action: #selector(showPaperclipAlert),
                              for: .primaryActionTriggered)
         
-        cameraItem.setSize(CGSize(width: 60, height: 30), animated: false)
+        paperclipItem.setSize(CGSize(width: 60, height: 30), animated: false)
         messageInputBar.leftStackView.alignment = .center
         messageInputBar.setLeftStackViewWidthConstant(to: 50, animated: false)
         
-        messageInputBar.setStackViewItems([cameraItem], forStack: .left, animated: false)
+        messageInputBar.setStackViewItems([paperclipItem], forStack: .left, animated: false)
+    }
+    
+    @objc private func showPaperclipAlert() {
+        let alert = UIAlertController(style: .actionSheet)
+        alert.addAction(image: UIImage(systemName: "camera"), title: "Камера", color: .systemTeal, style: .default, isEnabled: true) { _ in
+            self.cameraButtonPressed()
+        }
+        alert.show()
     }
 }
 
@@ -205,15 +308,25 @@ extension ChatVC: MessagesDataSource {
     }
     
     func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if indexPath.item % 4 == 0 {
-            return NSAttributedString(string: MessageKitDateFormatter.shared.string(from: message.sentDate),
-                                      attributes: [
+  
+        if isTimeLabelVisible(at: indexPath) {
+            return NSAttributedString(string: MessageKitDateFormatter.shared.string(from: message.sentDate), attributes:  [
                                         NSAttributedString.Key.font: UIFont.sfProDisplay(ofSize: 10, weight: .regular)!,
                                         NSAttributedString.Key.foregroundColor: UIColor.darkGray])
-        } else {
-            return nil
         }
+        return nil
     }
+
+    func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
+                #warning("Тут надо писать прочитано и проверять isRead в firestore")
+                if !isNextMessageSameSender(at: indexPath) && isFromCurrentSender(message: message) {
+                    return NSAttributedString(string: "Delivered", attributes: [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption1)])
+                }
+                return nil
+    }
+    
+    
+    
 }
 
 // MARK: - MessagesLayoutDelegate
@@ -223,36 +336,68 @@ extension ChatVC: MessagesLayoutDelegate {
     }
     
     func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        
-        if (indexPath.item) % 4 == 0 {
+        if isTimeLabelVisible(at: indexPath) {
             return 30
-        } else {
-            return 0
         }
+        return 0
+    }
+    
+    func messageTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        if isFromCurrentSender(message: message) {
+            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
+        } else {
+            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
+        }
+    }
+
+    func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
+        return (!isNextMessageSameSender(at: indexPath) && isFromCurrentSender(message: message)) ? 16 : 0
     }
 }
 
 // MARK: - MessagesDisplayDelegate
 extension ChatVC: MessagesDisplayDelegate {
-    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
-        return isFromCurrentSender(message: message) ? .white : #colorLiteral(red: 0.7882352941, green: 0.631372549, blue: 0.9411764706, alpha: 1)
-    }
+  
     
+    // MARK: - Text Messages
     func textColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
         return isFromCurrentSender(message: message) ? .black : .white
     }
     
+    func detectorAttributes(for detector: DetectorType, and message: MessageType, at indexPath: IndexPath) -> [NSAttributedString.Key: Any] {
+        switch detector {
+        case .hashtag, .mention:
+            if isFromCurrentSender(message: message) {
+                return [.foregroundColor: UIColor.white]
+            } else {
+                return [.foregroundColor: UIColor.systemTeal]
+            }
+        default: return MessageLabel.defaultAttributes
+        }
+    }
+
+    func enabledDetectors(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [DetectorType] {
+        return [.url, .address, .phoneNumber, .date, .transitInformation, .mention, .hashtag]
+    }
+    
+    // MARK: - All Messages
+    
+    func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
+        return isFromCurrentSender(message: message) ? #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 1).withAlphaComponent(0.25) : .systemTeal.withAlphaComponent(0.25)
+    }
+    
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-        
-        avatarView.isHidden = true
+        let avatar = Avatar(image: friendImageView.image, initials: "\(friendData.username.first)")
+        avatarView.set(avatar: avatar)
+        avatarView.isHidden = isNextMessageSameSender(at: indexPath)
     }
     
     func avatarSize(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGSize {
-        return .zero
+        return CGSize(width: 44, height: 44)
     }
     
     func messageStyle(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageStyle {
-        return .bubble
+        return isFromCurrentSender(message: message) ? .bubbleTail(.bottomRight, .pointedEdge) :  .bubbleTail(.bottomLeft, .pointedEdge)
     }
 }
 
@@ -262,15 +407,15 @@ extension ChatVC: InputBarAccessoryViewDelegate {
         
         let message = MessageModel(user: user, content: text)
   
-        FirestoreService.shared.sendMessage(chat: chat, message: message) { (result) in
-            switch result {
-            
-            case .success():
-                self.messagesCollectionView.scrollToBottom()
-            case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
-            }
-        }
+//        FirestoreService.shared.sendMessage(chat: chat, message: message) { (result) in
+//            switch result {
+//            
+//            case .success():
+//                self.messagesCollectionView.scrollToLastItem()
+//            case .failure(let error):
+//                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+//            }
+//        }
         inputBar.inputTextView.text = ""
     }
 }

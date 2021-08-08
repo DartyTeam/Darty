@@ -14,13 +14,14 @@ struct UserModel: Hashable, Decodable {
     var phone: String
     var avatarStringURL: String
     var description: String
-    var sex: Sex.RawValue
+    var sex: Sex.RawValue?
     var birthday: Date
     var interestsList: [Int]
     var personalColor: String
     let id: String
+    let pushId: String
     
-    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue, birthday: Date, interestsList: [Int], personalColor: String, id: String) {
+    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String) {
         self.username = username
         self.phone = phone
         self.avatarStringURL = avatarStringURL
@@ -30,20 +31,26 @@ struct UserModel: Hashable, Decodable {
         self.interestsList = interestsList
         self.personalColor = personalColor
         self.id = id
+        self.pushId = pushId
     }
     
     init?(document: DocumentSnapshot) {
         guard let data = document.data() else { return nil }
+        
+        // Non optional values
         guard let username = data["username"] as? String,
-        let sex = data["sex"] as? Sex.RawValue,
         let phone = data["phone"] as? String,
         let avatarStringURL = data["avatarStringURL"] as? String,
         let description = data["description"] as? String,
         let birthday = (data["birthday"] as? Timestamp)?.dateValue(),
         let interestsList = data["interestsList"] as? [Int],
         let personalColor = data["personalColor"] as? String,
-        let id = data["uid"] as? String
+        let id = data["uid"] as? String,
+        let pushId = data["pushId"] as? String
         else { return nil }
+        
+        // Optional value
+        let sex = data["sex"] as? Sex.RawValue
         
         self.username = username
         self.phone = phone
@@ -54,6 +61,7 @@ struct UserModel: Hashable, Decodable {
         self.interestsList = interestsList
         self.personalColor = personalColor
         self.id = id
+        self.pushId = pushId
     }
     
     var representation: [String: Any] {
@@ -67,6 +75,7 @@ struct UserModel: Hashable, Decodable {
         rep["interestsList"] = interestsList
         rep["personalColor"] = personalColor
         rep["uid"] = id
+        rep["pushId"] = pushId
         return rep
     }
     

@@ -18,7 +18,6 @@ final class WaitingChatCell: UICollectionViewCell, SelfConfiguringCell {
     
     let friendImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -39,7 +38,7 @@ final class WaitingChatCell: UICollectionViewCell, SelfConfiguringCell {
     
     private func setupViews() {
         backgroundColor = .yellow
-        layer.cornerRadius = 10
+        layer.cornerRadius = self.frame.size.height / 2
         clipsToBounds = true
     }
 }
@@ -50,11 +49,8 @@ extension WaitingChatCell {
     private func setupConstraints() {
         addSubview(friendImageView)
         
-        NSLayoutConstraint.activate([
-            friendImageView.topAnchor.constraint(equalTo: self.topAnchor),
-            friendImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            friendImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            friendImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        ])
+        friendImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 }

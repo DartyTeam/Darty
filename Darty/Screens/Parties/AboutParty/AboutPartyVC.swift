@@ -18,8 +18,12 @@ enum AboutPartyVCType {
     case archive
 }
 
-final class AboutPartyVC: UIViewController {
-    
+protocol PartiesRequestsListenerProtocol {
+    func partyRequestsDidChange(_ partyRequests: [PartyRequestModel])
+}
+
+final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
+
     private enum Constants {
         static let titleElementsFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
         static let titleLabelsFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
@@ -74,6 +78,21 @@ final class AboutPartyVC: UIViewController {
         return label
     }()
     
+    private lazy var themeView: UIView = {
+        let view = UIView()
+        view.addSubview(themeTitleLabel)
+        view.addSubview(themeLabel)
+        themeTitleLabel.snp.makeConstraints { make in
+            make.left.centerY.equalToSuperview()
+        }
+        themeLabel.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.left.equalTo(themeTitleLabel.snp.right).offset(8)
+            make.right.equalToSuperview()
+        }
+        return view
+    }()
+    
     private let locationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.titleLabelsFont
@@ -100,6 +119,7 @@ final class AboutPartyVC: UIViewController {
         button.tintColor = .systemOrange
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        button.addTarget(self, action: #selector(showOnMapAction), for: .touchUpInside)
         return button
     }()
     
@@ -188,7 +208,9 @@ final class AboutPartyVC: UIViewController {
     }()
     
     // MARK: - Properties
-    private var waitingUsers: [UserModel] = []
+    private var waitingGuestsRequests: [PartyRequestModel] = []
+    private var partiesRequestsListenerDelegate: PartiesRequestsListenerProtocol?
+    
     private var approvedUsers: [UserModel] = [] {
         didSet {
             DispatchQueue.main.async {
@@ -216,7 +238,7 @@ final class AboutPartyVC: UIViewController {
         setupNavigationBar()
         expandTabBar(false)
      
-        getGuests()
+        getApprovedGuests()
         
         setupParty()
         setupViews()
@@ -233,7 +255,22 @@ final class AboutPartyVC: UIViewController {
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
-    private func getGuests() {
+    func partyRequestsDidChange(_ partyRequests: [PartyRequestModel]) {
+        partiesRequestsListenerDelegate?.partyRequestsDidChange(partyRequests)
+        waitingGuestsRequests = partyRequests
+        let count = waitingGuestsRequests.count
+        if count > 0 {
+            actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
+            actionButton.backgroundColor = .systemOrange
+            actionButton.isEnabled = true
+        } else {
+            actionButton.setTitle("Новых заявок нет", for: .normal)
+            actionButton.backgroundColor = .systemYellow
+            actionButton.isEnabled = false
+        }
+    }
+    
+    private func getApprovedGuests() {
         FirestoreService.shared.getApprovedGuestsId(party: self.party) { [weak self] result in
             
             switch result {
@@ -263,51 +300,6 @@ final class AboutPartyVC: UIViewController {
                 }
             }
         }
-        
-        let dg = DispatchGroup()
-        dg.enter()
-        FirestoreService.shared.getWaitingGuestsId(party: self.party) { [weak self] result in
-            
-            switch result {
-            
-            case .success(let usersId):
-                
-                for userId in usersId {
-                    
-                    FirestoreService.shared.getUser(by: userId) { result in
-                        
-                        switch result {
-                        
-                        case .success(let user):
-                            self?.waitingUsers.append(user)
-                        case .failure(let error):
-                            self?.showAlert(title: "Ошибка!", message: error.localizedDescription)
-                        }
-                        dg.leave()
-                    }
-                }
-                    
-            case .failure(let error):
-                if error as? PartyError == PartyError.noWaitingGuests {
-                    print(error.localizedDescription)
-                } else {
-                    self?.showAlert(title: "Ошибка!", message: error.localizedDescription)
-                    print(error.localizedDescription)
-                }
-                dg.leave()
-            }
-        }
-
-    dg.notify(queue: .main) { [weak self] in
-        if self?.type == .my {
-            if let count = self?.waitingUsers.count {
-                if count > 0 {
-                    self?.actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
-                    self?.actionButton.isEnabled = true
-                }
-            }
-        }
-    }
     }
     
     private func setupParty() {
@@ -317,7 +309,7 @@ final class AboutPartyVC: UIViewController {
         if let endTime = party.endTime {
             timeLabel.text?.append(" 􀄫 \(DateFormatter.HHmm.string(from: endTime))")
         }
-        locationLabel.text = party.location
+        locationLabel.text = party.address
         themeLabel.text = party.type
         imagesTitleLabel.text = "Изображения " + String(party.imageUrlStrings.count)
         partyDescriptionLabel.text = party.description
@@ -365,8 +357,7 @@ final class AboutPartyVC: UIViewController {
         scrollView.addSubview(dateLabel)
         scrollView.addSubview(minAgeLabel)
         scrollView.addSubview(timeLabel)
-        scrollView.addSubview(themeTitleLabel)
-        scrollView.addSubview(themeLabel)
+        scrollView.addSubview(themeView)
         scrollView.addSubview(locationTitleLabel)
         scrollView.addSubview(locationLabel)
         scrollView.addSubview(locationButton)
@@ -402,14 +393,9 @@ final class AboutPartyVC: UIViewController {
             make.centerY.equalTo(minAgeLabel.snp.centerY)
         }
         
-        themeTitleLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
+        themeView.snp.makeConstraints { make in
             make.top.equalTo(dateLabel.snp.top).offset(32)
-        }
-        
-        themeLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalTo(themeTitleLabel.snp.bottom).offset(12)
         }
         
         locationTitleLabel.snp.makeConstraints { make in
@@ -479,20 +465,20 @@ final class AboutPartyVC: UIViewController {
         switch type {
         case .search:
             actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32 + GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
                 make.left.right.equalToSuperview().inset(20)
                 make.height.equalTo(50)
             }
         case .approved:
             actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32 + GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
                 make.left.right.equalToSuperview().inset(20)
                 make.height.equalTo(50)
             }
             changeToApprovedButton()
         case .waiting:
             cancelPartyButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32 + GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
                 make.left.right.equalToSuperview().inset(20)
                 make.height.equalTo(50)
             }
@@ -520,7 +506,7 @@ final class AboutPartyVC: UIViewController {
                 make.height.equalTo(50)
             }
             
-            let count = waitingUsers.count
+            let count = waitingGuestsRequests.count
             if count > 0 {
                 actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
             } else {
@@ -536,14 +522,13 @@ final class AboutPartyVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func showAboutOwner() {
-        print("asdijasoidajsdioaj")
         guard let ownerData = ownerData else { return }
-        let aboutUserVC = AboutUserVC(userData: ownerData, type: .info)
+        let aboutUserVC = AboutUserVC(userData: ownerData)
         navigationController?.pushViewController(aboutUserVC, animated: true)
     }
     
     private func changeToSendButton() {
-        actionButton.setTitle("Заявка отправлена 􀕺", for: .normal)
+        actionButton.setTitle("Заявка отправлена 􀈟", for: .normal)
         actionButton.backgroundColor = .systemYellow
         actionButton.isEnabled = false
     }
@@ -602,7 +587,8 @@ final class AboutPartyVC: UIViewController {
         case .approved, .waiting, .archive:
             break
         case .my:
-            let waitingGuestsVC = WaitingGuestsVC(users: waitingUsers, party: party)
+            let waitingGuestsVC = WaitingGuestsVC(waitingGuestsRequests: waitingGuestsRequests, party: party)
+            partiesRequestsListenerDelegate = waitingGuestsVC
             navigationController?.pushViewController(waitingGuestsVC, animated: true)
         }
     }
@@ -644,22 +630,28 @@ final class AboutPartyVC: UIViewController {
                 imageUrls.append(imageUrl)
             }
 
-            let button = UIBarButtonItem(barButtonSystemItem: .stop, target: nil, action: nil)
+            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
     //            button.tintColor = .systemOra
             
-            // In case of an array of [UIImage]:
+            // In case of an array of [URLs]:
             #warning("Может нужно при получении изобрважений по ссылке в collection view записывать их в массив images и сюда пихать этот массив")
             let agrume = Agrume(urls: imageUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
-            // Or an array of [URL]:
-            // let agrume = Agrume(urls: urls, startIndex: indexPath.item, background: .blurred(.light))
 
             agrume.didScroll = { [unowned self] index in
                 self?.imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
             }
             
+            let helper = AgrumeHelper.shared.makeHelper()
+            agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
+            
             guard let self = self else { return }
             agrume.show(from: self)
         }
+    }
+    
+    @objc private func showOnMapAction() {
+        let mapVC = MapVC(party: party)
+        navigationController?.pushViewController(mapVC, animated: true)
     }
 }
 
@@ -690,6 +682,8 @@ extension AboutPartyVC: UICollectionViewDataSource {
             if let imageURL = URL(string: party.imageUrlStrings[indexPath.row]) {
                 cell.configure(with: imageURL)
             }
+            
+            cell.tag = indexPath.row
             let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullImageAction(_:)))
             cell.addGestureRecognizer(tapGestureRecognizer)
             
@@ -717,11 +711,9 @@ extension AboutPartyVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == guestsCollectionView {
             let user = approvedUsers[indexPath.item]
-            
-            //        let aboutUserVC = AboutUserViewContoller(user: user)
-            //        present(aboutUserVC, animated: true, completion: nil)
+            let aboutUserVC = AboutUserVC(userData: user)
+            navigationController?.pushViewController(aboutUserVC, animated: true)
         }
-        
     }
 }
 
@@ -734,7 +726,6 @@ extension AboutPartyVC: MessageForRequestsDelegate {
                 self?.checkWaitingGuest()
             case .failure(let error):
                 SPAlert.present(title: "Ошибка отправки заявки: \(error.localizedDescription)", preset: .error)
-                self?.showAlert(title: "Ошибка!", message: error.localizedDescription)
             }
         }
     }

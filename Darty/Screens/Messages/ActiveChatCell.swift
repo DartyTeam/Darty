@@ -13,16 +13,19 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
     static var reuseId: String = reuseIdentifier
     
     private enum Constants {
+        static let countLabelFont: UIFont? = .sfProRounded(ofSize: 10, weight: .medium)
         static let usernameFont: UIFont? = .sfProRounded(ofSize: 14, weight: .semibold)
         static let lastMessageFont: UIFont? = .sfCompactDisplay(ofSize: 10, weight: .medium)
+        static let timeFont: UIFont? = .sfCompactDisplay(ofSize: 10, weight: .medium)
         static let lastMessageColor: UIColor = #colorLiteral(red: 0.5921568627, green: 0.5921568627, blue: 0.5921568627, alpha: 1)
+        static let userImageSize: CGFloat = 44
+        static let cellHeight: CGFloat = 64
     }
     
     // MARK: - UI Elements
     private lazy var userImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = self.layer.cornerRadius
+        imageView.layer.cornerRadius = Constants.userImageSize / 2
         imageView.clipsToBounds = true
         return imageView
     }()
@@ -46,7 +49,23 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemTeal
+        view.isHidden = true
+        view.layer.cornerRadius = 8
         return view
+    }()
+    
+    private let countLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.countLabelFont
+        label.textColor = .systemBackground
+        return label
+    }()
+    
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.timeFont
+        label.textColor = Constants.lastMessageColor
+        return label
     }()
     
     override init(frame: CGRect) {
@@ -56,10 +75,39 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
     }
     
     func configure<U>(with value: U) where U : Hashable {
-        guard let chat: ChatModel = value as? ChatModel else { return }
-        userImageView.sd_setImage(with: URL(string: chat.friendAvatarStringUrl), completed: nil)
-        usernameLabel.text = chat.friendUsername
+        guard let chat: RecentChatModel = value as? RecentChatModel else { return }
+        
+        print("asdkasdljasd: ", chat)
+        
+        if let imageUrl = URL(string: chat.avatarLink) {
+            StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
+                switch result {
+
+                case .success(let image):
+                    self?.userImageView.image = image
+                    self?.userImageView.focusOnFaces = true
+                case .failure(let error):
+                    print("ERROR_LOG Error get chat image for url: ", chat.avatarLink, error)
+                }
+            }
+        }
+    
+        usernameLabel.text = chat.receiverName
+            
         lastMessageLabel.text = chat.lastMessageContent
+        
+        if chat.unreadCounter != 0 {
+            let unreadCount = String(chat.unreadCounter)
+            countLabel.text = unreadCount
+            countMessagesView.isHidden = false
+            layer.borderWidth = 1
+            layer.borderColor = UIColor.systemTeal.cgColor
+        } else {
+//            countLabel.isHidden = true
+//            countMessagesView.isHidden = true
+        }
+        
+        timeLabel.text = timeElapsed(chat.date)
     }
     
     required init?(coder: NSCoder) {
@@ -67,9 +115,18 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
     }
     
     private func setupViews() {
-        backgroundColor = .secondarySystemBackground
-        layer.cornerRadius = 10
+        backgroundColor = .systemBackground
+        layer.cornerRadius = Constants.cellHeight / 2
         clipsToBounds = true
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+                layer.shadowRadius = 10
+                layer.shadowOpacity = 1
+                layer.shadowOffset = CGSize(width: 0, height: 4)
+
+//           layer.shadowPath = UIBezierPath(rect: bounds).cgPath
+//           layer.shouldRasterize = true
+//           layer.rasterizationScale = UIScreen.main.scale
     }
 }
 
@@ -81,33 +138,43 @@ extension ActiveChatCell {
         addSubview(usernameLabel)
         addSubview(lastMessageLabel)
         addSubview(countMessagesView)
+        countMessagesView.addSubview(countLabel)
+        addSubview(timeLabel)
         
-        NSLayoutConstraint.activate([
-            userImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
-            userImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 10),
-            userImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10),
-            userImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            userImageView.heightAnchor.constraint(equalToConstant: 44),
-            userImageView.widthAnchor.constraint(equalToConstant: 44)
-        ])
+        userImageView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.left.equalToSuperview().offset(12)
+            make.size.equalTo(Constants.userImageSize)
+            make.top.bottom.equalToSuperview().inset(10)
+        }
         
-        NSLayoutConstraint.activate([
-            countMessagesView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -12),
-            countMessagesView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            countMessagesView.heightAnchor.constraint(equalToConstant: 20),
-            countMessagesView.widthAnchor.constraint(equalToConstant: 20),
-        ])
+        countMessagesView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.right.equalToSuperview().inset(12)
+//            make.size.equalTo(20)
+        }
         
-        NSLayoutConstraint.activate([
-            usernameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 12),
-            usernameLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 8),
-            usernameLabel.trailingAnchor.constraint(equalTo: countMessagesView.leadingAnchor, constant: -8)
-        ])
+        countLabel.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(2)
+            make.left.right.equalToSuperview().inset(5)
+        }
         
-        NSLayoutConstraint.activate([
-            lastMessageLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-            lastMessageLabel.leadingAnchor.constraint(equalTo: userImageView.trailingAnchor, constant: 8),
-            lastMessageLabel.trailingAnchor.constraint(equalTo: countMessagesView.leadingAnchor, constant: -8)
-        ])
+        usernameLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.left.equalTo(userImageView.snp.right).offset(8)
+            make.right.equalToSuperview().inset(64)
+        }
+        
+        lastMessageLabel.snp.makeConstraints { make in
+            make.top.equalTo(usernameLabel.snp.bottom).offset(2)
+            make.left.equalTo(userImageView.snp.right).offset(8)
+            make.right.equalTo(countMessagesView.snp.left).offset(-8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-10)
+        }
+        
+        timeLabel.snp.makeConstraints { make in
+            make.centerY.equalTo(usernameLabel.snp.centerY)
+            make.right.equalTo(countMessagesView.snp.left).inset(-6)
+        }
     }
 }

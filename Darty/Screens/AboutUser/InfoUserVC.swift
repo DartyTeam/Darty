@@ -8,6 +8,16 @@
 import UIKit
 import SPAlert
 
+protocol AboutUserPartyRequestDelegate {
+    func userDidDecline(_ user: UserModel)
+    func userDidAccept(_ user: UserModel)
+}
+
+protocol AboutUserChatRequestDelegate {
+    func userDidDecline(_ chat: RecentChatModel)
+    func userDidAccept(_ chat: RecentChatModel, user: UserModel)
+}
+
 final class InfoUserVC: UIViewController {
     
     private enum Constants {
@@ -22,8 +32,12 @@ final class InfoUserVC: UIViewController {
         static let interestsTitleText = "Интересы"
         
         static let sectionInsets = UIEdgeInsets(top: 0, left: 22, bottom: 0, right: 0)
+        static let spacingInterest: CGFloat = 12
         
         static let arrowSize: CGFloat = 30
+        
+        static let messageTitleText = "Сообщение"
+        static let messageTextFont: UIFont? = .sfProText(ofSize: 12, weight: .regular)
     }
     
     // MARK: - UI Elements
@@ -121,14 +135,68 @@ final class InfoUserVC: UIViewController {
     private let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
     private lazy var blurEffectView = UIVisualEffectView(effect: blurEffect)
     
+    private let messageTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.titleFont
+        label.textColor = Constants.textColor
+        label.text = Constants.messageTitleText
+        return label
+    }()
+    
+    private let messageTextLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.messageTextFont
+        label.textColor = Constants.textColor
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private lazy var acceptButton: UIButton = {
+        let button = UIButton(title: "Принять")
+        button.backgroundColor = accentColor
+        button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var declineButton: UIButton = {
+        let button = UIButton(title: "Отклонить")
+        button.backgroundColor = .systemRed
+        button.addTarget(self, action: #selector(declineAction), for: .touchUpInside)
+        return button
+    }()
+    
+    // MARK: - Delegate
+    var partyRequestDelegate: AboutUserPartyRequestDelegate?
+    var chatRequestDelegate: AboutUserChatRequestDelegate?
+    
     // MARK: - Properties
     private var userData: UserModel
     private var type: AboutUserVCType
+    private var accentColor: UIColor
+    private var message: String? = nil
+    private var chatData: RecentChatModel?
     
     // MARK: - Lifecycle
-    init(userData: UserModel, type: AboutUserVCType) {
+    init(userData: UserModel, accentColor: UIColor, message: String) {
         self.userData = userData
-        self.type = type
+        self.type = .partyRequest
+        self.accentColor = accentColor
+        self.message = message
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(userData: UserModel, accentColor: UIColor) {
+        self.userData = userData
+        self.type = .info
+        self.accentColor = accentColor
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(chatData: RecentChatModel, userData: UserModel, accentColor: UIColor) {
+        self.userData = userData
+        self.type = .messageRequest
+        self.accentColor = accentColor
+        self.chatData = chatData
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -160,6 +228,8 @@ final class InfoUserVC: UIViewController {
         ageLabel.text = String(ageComponents.year!)
         
         userRatingLabel.text = "0.0 *"
+        
+        messageTextLabel.text = message
     }
     
     private func setupViews() {
@@ -171,13 +241,24 @@ final class InfoUserVC: UIViewController {
         view.insertSubview(blurEffectView, at: 0)
         blurEffectView.contentView.addSubview(arrowDirectionImageView)
         blurEffectView.contentView.addSubview(scrollView)
-        scrollView.addSubview(messageTextField)
+
         scrollView.addSubview(nameAgeStackView)
         scrollView.addSubview(userRatingLabel)
         scrollView.addSubview(descriptionTitleLabel)
         scrollView.addSubview(descriptionTextLabel)
         scrollView.addSubview(interestsTitleLable)
         scrollView.addSubview(interestsCollectionView)
+        
+        switch type {
+        
+        case .info:
+            scrollView.addSubview(messageTextField)
+        case .partyRequest, .messageRequest:
+            scrollView.addSubview(messageTitleLabel)
+            scrollView.addSubview(messageTextLabel)
+            scrollView.addSubview(acceptButton)
+            scrollView.addSubview(declineButton)
+        }
     }
     
     private func setupConstraints() {
@@ -202,15 +283,48 @@ final class InfoUserVC: UIViewController {
             make.right.equalToSuperview().offset(-76)
         }
         
-        messageTextField.snp.makeConstraints { make in
-            make.top.equalTo(nameLabel.snp.bottom).offset(28)
-            make.left.right.equalToSuperview().inset(22)
-            make.height.equalTo(48)
-        }
+        switch type {
         
-        descriptionTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(messageTextField.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
+        case .info:
+            messageTextField.snp.makeConstraints { make in
+                make.top.equalTo(nameLabel.snp.bottom).offset(28)
+                make.left.right.equalToSuperview().inset(22)
+                make.height.equalTo(48)
+            }
+            
+            descriptionTitleLabel.snp.makeConstraints { make in
+                make.top.equalTo(messageTextField.snp.bottom).offset(24)
+                make.left.equalToSuperview().offset(26)
+            }
+        case .partyRequest, .messageRequest:
+            messageTitleLabel.snp.makeConstraints { make in
+                make.top.equalTo(nameLabel.snp.bottom).offset(28)
+                make.left.equalToSuperview().offset(26)
+            }
+            
+            messageTextLabel.snp.makeConstraints { make in
+                make.top.equalTo(messageTitleLabel.snp.bottom).offset(12)
+                make.left.right.equalToSuperview().inset(22)
+            }
+            
+            declineButton.snp.makeConstraints { make in
+                make.top.equalTo(messageTextLabel.snp.bottom).offset(24)
+                make.height.equalTo(44)
+                make.left.equalToSuperview().offset(22)
+                make.width.equalTo(view.frame.size.width / 2.5)
+            }
+            
+            acceptButton.snp.makeConstraints { make in
+                make.top.equalTo(messageTextLabel.snp.bottom).offset(24)
+                make.height.equalTo(44)
+                make.right.equalToSuperview().inset(22)
+                make.width.equalTo(view.frame.size.width / 2.5)
+            }
+            
+            descriptionTitleLabel.snp.makeConstraints { make in
+                make.top.equalTo(declineButton.snp.bottom).offset(24)
+                make.left.equalToSuperview().offset(26)
+            }
         }
         
         descriptionTextLabel.snp.makeConstraints { make in
@@ -234,6 +348,34 @@ final class InfoUserVC: UIViewController {
     }
     
     // MARK: - Handlers
+    @objc private func acceptAction() {
+        if type == .partyRequest {
+            partyRequestDelegate?.userDidAccept(userData)
+        } else if type == .messageRequest {
+            guard let chatData = chatData else {
+                print("ERROR_LOG Error retrieving optional chatData")
+                return
+            }
+            chatRequestDelegate?.userDidAccept(chatData, user: userData)
+        }
+        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @objc private func declineAction() {
+        if type == .partyRequest {
+            partyRequestDelegate?.userDidDecline(userData)
+        } else if type == .messageRequest {
+            guard let chatData = chatData else {
+                print("ERROR_LOG Error retrieving optional chatData")
+                return
+            }
+            chatRequestDelegate?.userDidDecline(chatData)
+        }
+        dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
+    }
+    
     @objc private func shareAction() {
         #warning("Добавить функцию поделиться")
     }
@@ -295,10 +437,10 @@ extension InfoUserVC: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return Constants.sectionInsets.left
+        return Constants.spacingInterest
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return Constants.sectionInsets.left
+        return Constants.spacingInterest
     }
 }

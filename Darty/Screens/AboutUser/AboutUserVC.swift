@@ -23,7 +23,7 @@ import OverlayContainer
 final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewControllerDelegate {
     
     // MARK: - UI Elements
-    let shareButton: UIButton = {
+    private let shareButton: UIButton = {
         let button = UIButton(type: .system)
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
         let trashIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
@@ -35,7 +35,7 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         return button
     }()
     
-    let backButton: UIButton = {
+    private let backButton: UIButton = {
         let button = UIButton(type: .system)
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
         let trashIcon = UIImage(systemName: "chevron.backward", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
@@ -47,18 +47,48 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         return button
     }()
     
+    var partyRequestDelegate: AboutUserPartyRequestDelegate? {
+        didSet {
+            infoUserVC.partyRequestDelegate = partyRequestDelegate
+        }
+    }
+    
+    var chatRequestDelegate: AboutUserChatRequestDelegate? {
+        didSet {
+            infoUserVC.chatRequestDelegate = chatRequestDelegate
+        }
+    }
+    
     // MARK: - Properties
-    private var type: AboutUserVCType
-    private var userData: UserModel
+    private let type: AboutUserVCType
+    private let userData: UserModel
     private let photosUserVC: PhotosUserVC
     private let infoUserVC: InfoUserVC
-    
+  
     // MARK: - Lifecycle
-    required init(userData: UserModel, type: AboutUserVCType) {
+    init(userData: UserModel, message: String) {
         self.userData = userData
-        self.type = type
+        self.type = .partyRequest
         photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
-        infoUserVC = InfoUserVC(userData: userData, type: type)
+        infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange, message: message)
+        super.init(style: .rigid)
+    }
+    
+    init(userData: UserModel) {
+        self.userData = userData
+        self.type = .info
+        photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
+        infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange)
+        super.init(style: .rigid)
+    }
+    
+    private var chatData: RecentChatModel? = nil
+    init(chatData: RecentChatModel, userData: UserModel) {
+        self.chatData = chatData
+        self.type = .messageRequest
+        self.userData = userData
+        photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
+        infoUserVC = InfoUserVC(chatData: chatData, userData: userData, accentColor: .systemOrange)
         super.init(style: .rigid)
     }
     
@@ -100,8 +130,11 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     }
     
     private func setupViews() {
+        if !isBeingPresented {
+            view.addSubview(backButton)
+        }
         view.addSubview(shareButton)
-        view.addSubview(backButton)
+      
     }
     
     private func setupConstraints() {
@@ -110,11 +143,12 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
             make.right.equalToSuperview().offset(-16)
             make.size.equalTo(44)
         }
-        
-        backButton.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-            make.left.equalToSuperview().offset(16)
-            make.size.equalTo(44)
+        if !isBeingPresented {
+            backButton.snp.makeConstraints { make in
+                make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
+                make.left.equalToSuperview().offset(16)
+                make.size.equalTo(44)
+            }
         }
     }
     

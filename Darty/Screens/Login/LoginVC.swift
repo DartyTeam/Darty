@@ -174,7 +174,8 @@ extension LoginVC: GIDSignInDelegate {
                         UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
                             self?.googleButton.hideLoading()
                             self?.view.isUserInteractionEnabled = true
-                            let tabBarController = TabBarController(currentUser: user)
+                            AuthService.shared.currentUser = user
+                            let tabBarController = TabBarController()
                             tabBarController.modalPresentationStyle = .fullScreen
                             self?.present(tabBarController, animated: true, completion: nil)
                         })
@@ -243,7 +244,8 @@ extension LoginVC {
                         UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
                             sender.hideLoading()
                             self?.view.isUserInteractionEnabled = true
-                            let tabBarController = TabBarController(currentUser: user)
+                            AuthService.shared.currentUser = user
+                            let tabBarController = TabBarController()
                             tabBarController.modalPresentationStyle = .fullScreen
                             self?.present(tabBarController, animated: true, completion: nil)
                         })

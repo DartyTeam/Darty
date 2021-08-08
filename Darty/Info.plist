@@ -2,7 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string></string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string></string>
+	<key>NSCameraUsageDescription</key>
 	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -65,8 +69,6 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string></string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>SF-Pro-Display-Regular.otf</string>
@@ -75,6 +77,7 @@
 		<string>SF-Pro-Rounded-Regular.otf</string>
 		<string>SF-Pro-Rounded-Semibold.otf</string>
 		<string>SF-Pro-Rounded-Medium.otf</string>
+		<string>SF-Pro-Rounded-Bold.otf</string>
 		<string>SF-Pro-Text-Medium.otf</string>
 		<string>SF-Pro-Text-Regular.otf</string>
 		<string>SF-Pro-Text-Semibold.otf</string>

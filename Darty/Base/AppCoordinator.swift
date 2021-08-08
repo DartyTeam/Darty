@@ -24,7 +24,8 @@ class AppCoordinator: NSObject {
             FirestoreService.shared.getUserData(user: user) { [weak self] (result) in
                 switch result {
                 case .success(let user):
-                    let tabBarController = TabBarController(currentUser: user)
+                    AuthService.shared.currentUser = user
+                    let tabBarController = TabBarController()
                     tabBarController.modalPresentationStyle = .fullScreen
                     self?.window.rootViewController = tabBarController
                 case .failure(_):

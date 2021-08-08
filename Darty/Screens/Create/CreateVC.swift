@@ -13,7 +13,7 @@ struct SetuppedParty {
     var name: String = ""
     var description: String = ""
     var city: String = ""
-    var location: String = ""
+    var address: String = ""
     var userId: String
     var maxGuests: Int = 1
     var curGuests: Int = 0
@@ -26,6 +26,8 @@ struct SetuppedParty {
     var images: [UIImage] = []
     var minAge: Int = 10
     var type: PartyType = .art
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
 }
 
 final class CreateVC: UIViewController {

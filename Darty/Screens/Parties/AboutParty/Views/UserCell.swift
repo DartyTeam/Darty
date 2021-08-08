@@ -41,7 +41,7 @@ final class UserCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .secondarySystemBackground
-        self.layer.cornerRadius = 10
+        self.layer.cornerRadius = 20
         setupConstraints()
     }
     
@@ -80,6 +80,7 @@ extension UserCell {
         userRatingLabel.snp.makeConstraints { make in
             make.left.equalTo(usernameLabel.snp.left)
             make.centerY.equalToSuperview().offset(8)
+            make.right.equalToSuperview().offset(-8)
         }
     }
 }
