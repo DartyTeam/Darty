@@ -9,7 +9,7 @@ import UIKit
 import Firebase
 import GoogleSignIn
 import FBSDKCoreKit
-import YandexMapsMobile
+import SnapKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,7 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var appCoordinator: AppCoordinator?
         
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        YMKMapKit.setApiKey("18a05a75-58c6-41fd-b83f-8aeae11e597e")
         ApplicationDelegate.shared.application(
             application,
             didFinishLaunchingWithOptions: launchOptions
@@ -28,8 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Initialize sign-in
         FirebaseApp.configure()
-        GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
+//        GIDSignIn.sharedInstance.clientID = FirebaseApp.app()?.options.clientID
         
+        StoreReviewHelper.incrementAppOpenedCount()
         return true
     }
     
@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ApplicationDelegate.shared.application( app, open: url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String, annotation: options[UIApplication.OpenURLOptionsKey.annotation] )
         
         // GoogleSDK
-        return GIDSignIn.sharedInstance().handle(url)
+        return GIDSignIn.sharedInstance.handle(url)
     }
     
     func applicationWillResignActive(_ application: UIApplication) {

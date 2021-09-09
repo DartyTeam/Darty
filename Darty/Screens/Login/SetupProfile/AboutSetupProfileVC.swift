@@ -5,16 +5,17 @@
 //  Created by Руслан Садыков on 02.07.2021.
 //
 
-private enum Constants {
-    static let textPlaceholder = "Text here about you..."
-    static let textFont: UIFont? = .sfProText(ofSize: 26, weight: .semibold)
-}
-
 import UIKit
 import FirebaseAuth
 import SPAlert
 
 final class AboutSetupProfileVC: UIViewController {
+    
+    // MARK: - Constants
+    private enum Constants {
+        static let textPlaceholder = "Text here about you..."
+        static let textFont: UIFont? = .sfProText(ofSize: 26, weight: .semibold)
+    }
     
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {

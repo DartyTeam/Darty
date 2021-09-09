@@ -63,13 +63,17 @@ final class PartiesVC: UIViewController {
         setupCollectionView()
         createDataSource()
         reloadData(with: nil)
-        setupSearchBar()
         setupListeners()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         setupNavigationBar()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        StoreReviewHelper.checkAndAskForReview()
     }
     
     private func setupListeners() {
@@ -149,13 +153,13 @@ final class PartiesVC: UIViewController {
         let archiveBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "archivebox", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(archiveAction))
         let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "list.bullet", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
         let spaceItem = UIBarButtonItem()
-        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem]
+        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem, spaceItem, spaceItem]
     }
     
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(collectionView)
+        view = collectionView
         collectionView.backgroundColor = .systemBackground
         
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeader.reuseId)
@@ -174,7 +178,11 @@ final class PartiesVC: UIViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Section, PartyModel>()
         snapshot.appendSections([.parties])
         snapshot.appendItems(filteredParties, toSection: .parties)
-        dataSource?.apply(snapshot, animatingDifferences: true)
+        dataSource?.apply(snapshot, animatingDifferences: true, completion: {
+            if self.navigationItem.searchController == nil {
+                self.setupSearchBar()
+            }
+        })
     }
     
     private func setupSearchBar() {
@@ -191,18 +199,18 @@ final class PartiesVC: UIViewController {
         ]
         searchController.searchBar.setScopeBarButtonTitleTextAttributes(attrs, for: .normal)
         // Make sure the scope bar is always showing, even when not actively searching
-        searchController.searchBar.showsScopeBar = true
+        #warning("Из-за этого не скрывается навигационный бар")
+        searchController.searchBar.showsScopeBar = true // Из-за этого не скрывается навигационный бар
         searchController.searchBar.selectedScopeButtonIndex = 0
-
-        // Make sure the search bar is showing, even when scrolling
-        navigationItem.hidesSearchBarWhenScrolling = true
-
-        // Add the search controller to the nav item
-        navigationItem.searchController = searchController
-        definesPresentationContext = true
         
 //        searchController.obscuresBackgroundDuringPresentation = false
 //        searchController.hidesNavigationBarDuringPresentation = true
+        
+        // Make sure the search bar is showing, even when scrolling
+//        navigationItem.hidesSearchBarWhenScrolling = true
+
+        // Add the search controller to the nav item
+        navigationItem.searchController = searchController
     }
     
     // MARK: - Handlers

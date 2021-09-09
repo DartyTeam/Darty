@@ -18,7 +18,7 @@ extension UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
-    func setNavigationBar(withColor color: UIColor, title: String, withClear: Bool = true) {
+    func setNavigationBar(withColor color: UIColor, title: String?, withClear: Bool = true) {
 
         navigationController?.setNavigationBarHidden(false, animated: true)
         
@@ -66,5 +66,31 @@ extension UIViewController {
         cell.configure(with: value)
         
         return cell
+    }
+    
+    func startLoading() {
+        let loadingIndicator = UIActivityIndicatorView(style: .large)
+        loadingIndicator.tag = 999
+        view.addSubview(loadingIndicator)
+        loadingIndicator.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+        loadingIndicator.startAnimating()
+        view.isUserInteractionEnabled = false
+    }
+    
+    func stopLoading() {
+        for subview in view.subviews {
+            if let loadingIndicator = subview as? UIActivityIndicatorView, loadingIndicator.tag == 999 {
+                loadingIndicator.stopAnimating()
+                loadingIndicator.removeFromSuperview()
+            }
+        }
+        view.isUserInteractionEnabled = true
+    }
+    
+    var alertController: UIAlertController? {
+        guard let alert = UIApplication.topViewController() as? UIAlertController else { return nil }
+        return alert
     }
 }

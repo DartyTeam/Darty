@@ -650,6 +650,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func showOnMapAction() {
+        print("jjuhiuhijuihjojoijiojijoji")
         let mapVC = MapVC(party: party)
         navigationController?.pushViewController(mapVC, animated: true)
     }

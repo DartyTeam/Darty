@@ -9,6 +9,7 @@ import UIKit
 import GoogleSignIn
 import FBSDKLoginKit
 import FirebaseAuth
+import Firebase
 
 private enum Constants {
     static let socialButtonSize: CGFloat = 50
@@ -151,16 +152,18 @@ final class LoginVC: UIViewController {
 }
 
 // MARK: - GIDSignInDelegate
-extension LoginVC: GIDSignInDelegate {
+extension LoginVC {
     
     @objc private func googleLoginAction() {
         view.isUserInteractionEnabled = false
-        GIDSignIn.sharedInstance()?.delegate = self
-        GIDSignIn.sharedInstance()?.presentingViewController = self
-        GIDSignIn.sharedInstance()?.signIn()
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
+            signIntoToFirebase(didSignInFor: user, withError: error)
+        }
     }
     
-    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
+    func signIntoToFirebase(didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         AuthService.shared.googleLogin(user: user, error: error) { [weak self] (result) in
             switch result {
             
@@ -171,7 +174,7 @@ extension LoginVC: GIDSignInDelegate {
                     
                     case .success(let user):
                         
-                        UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
+                        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
                             self?.googleButton.hideLoading()
                             self?.view.isUserInteractionEnabled = true
                             AuthService.shared.currentUser = user
@@ -241,7 +244,7 @@ extension LoginVC {
                     
                     case .success(let user):
                         
-                        UIApplication.getTopViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
+                        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
                             sender.hideLoading()
                             self?.view.isUserInteractionEnabled = true
                             AuthService.shared.currentUser = user

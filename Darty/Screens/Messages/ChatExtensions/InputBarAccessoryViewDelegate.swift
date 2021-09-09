@@ -12,7 +12,11 @@ extension NewChatVC: InputBarAccessoryViewDelegate {
     
     func inputBar(_ inputBar: InputBarAccessoryView, textViewTextDidChangeTo text: String) {
         if !text.isEmpty {
-//            print("печатает...")
+            typingIndicatorUpdate()
+        }
+        
+        if messageInputBar.sendButton.isAnimating == false {
+            updateMicButtonStatus(show: text.isEmpty)
         }
     }
     

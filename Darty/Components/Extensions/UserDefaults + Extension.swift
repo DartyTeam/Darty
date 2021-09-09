@@ -30,10 +30,22 @@ extension UserDefaults {
 extension UserDefaults {
     enum UserDefaultsKeys: String {
         case isPrevLaunched
+        case appOpenedCount
+        case lastReviewRequestAppVersion
     }
         
     var isPrevLaunched: Bool? {
         set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.isPrevLaunched.rawValue) }
         get { return getCustomObject(forKey: UserDefaultsKeys.isPrevLaunched.rawValue) }
+    }
+    
+    var appOpenedCount: Int? {
+        set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.appOpenedCount.rawValue) }
+        get { return getCustomObject(forKey: UserDefaultsKeys.appOpenedCount.rawValue) }
+    }
+    
+    var lastReviewRequestAppVersion: String? {
+        set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.lastReviewRequestAppVersion.rawValue) }
+        get { return getCustomObject(forKey: UserDefaultsKeys.lastReviewRequestAppVersion.rawValue) }
     }
 }

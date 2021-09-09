@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseAuth
-import SnapKit
 import PhotosUI
 import Agrume
 import SPAlert
@@ -25,7 +24,7 @@ final class FifthCreateVC: UIViewController {
     
     // MARK: - UI Elements
     private lazy var imagesListView: MultiSetImagesView = {
-        let multiSetImagesView = MultiSetImagesView(delegate: self, maxPhotos: 5, shape: .rect, color: .systemPurple)
+        let multiSetImagesView = MultiSetImagesView(maxPhotos: 5, shape: .rect, color: .systemPurple, delegate: self)
         return multiSetImagesView
     }()
     

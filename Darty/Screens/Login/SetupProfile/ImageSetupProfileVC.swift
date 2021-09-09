@@ -22,7 +22,7 @@ final class ImageSetupProfileVC: UIViewController {
     }()
     
     private lazy var setImageView: MultiSetImagesView = {
-        let setImageView = MultiSetImagesView(delegate: self, maxPhotos: 1, shape: .round, color: .systemBlue)
+        let setImageView = MultiSetImagesView(maxPhotos: 1, shape: .round, color: .systemBlue, delegate: self)
         setImageView.translatesAutoresizingMaskIntoConstraints = false
         return setImageView
     }()
@@ -68,7 +68,7 @@ final class ImageSetupProfileVC: UIViewController {
             return
         }
         setuppedUser.image = userimage
-        let interestsSetupProfileVC = InterestsSetupProfileVC(currentUser: currentUser, setupedUser: setuppedUser)
+        let interestsSetupProfileVC = CityAndCountrySetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
         navigationController?.pushViewController(interestsSetupProfileVC, animated: true)
     }
 }

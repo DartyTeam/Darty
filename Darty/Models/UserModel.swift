@@ -18,10 +18,12 @@ struct UserModel: Hashable, Decodable {
     var birthday: Date
     var interestsList: [Int]
     var personalColor: String
+    var city: String
+    var country: String
     let id: String
     let pushId: String
     
-    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String) {
+    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String, city: String, country: String) {
         self.username = username
         self.phone = phone
         self.avatarStringURL = avatarStringURL
@@ -32,6 +34,8 @@ struct UserModel: Hashable, Decodable {
         self.personalColor = personalColor
         self.id = id
         self.pushId = pushId
+        self.city = city
+        self.country = country
     }
     
     init?(document: DocumentSnapshot) {
@@ -46,7 +50,9 @@ struct UserModel: Hashable, Decodable {
         let interestsList = data["interestsList"] as? [Int],
         let personalColor = data["personalColor"] as? String,
         let id = data["uid"] as? String,
-        let pushId = data["pushId"] as? String
+        let pushId = data["pushId"] as? String,
+        let city = data["city"] as? String,
+        let country = data["country"] as? String
         else { return nil }
         
         // Optional value
@@ -62,6 +68,8 @@ struct UserModel: Hashable, Decodable {
         self.personalColor = personalColor
         self.id = id
         self.pushId = pushId
+        self.city = city
+        self.country = country
     }
     
     var representation: [String: Any] {
@@ -76,6 +84,8 @@ struct UserModel: Hashable, Decodable {
         rep["personalColor"] = personalColor
         rep["uid"] = id
         rep["pushId"] = pushId
+        rep["city"] = city
+        rep["country"] = country
         return rep
     }
     

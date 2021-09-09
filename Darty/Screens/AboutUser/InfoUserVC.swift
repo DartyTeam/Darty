@@ -31,7 +31,7 @@ final class InfoUserVC: UIViewController {
         
         static let interestsTitleText = "Интересы"
         
-        static let sectionInsets = UIEdgeInsets(top: 0, left: 22, bottom: 0, right: 0)
+        static let sectionInsets = UIEdgeInsets(top: 0, left: 22, bottom: 0, right: 22)
         static let spacingInterest: CGFloat = 12
         
         static let arrowSize: CGFloat = 30
@@ -165,6 +165,13 @@ final class InfoUserVC: UIViewController {
         return button
     }()
     
+    private let changeMyUserData: UIButton = {
+        let button = UIButton(title: "Изменить данные")
+        button.backgroundColor = .systemIndigo
+        button.addTarget(self, action: #selector(changeAction), for: .touchUpInside)
+        return button
+    }()
+    
     // MARK: - Delegate
     var partyRequestDelegate: AboutUserPartyRequestDelegate?
     var chatRequestDelegate: AboutUserChatRequestDelegate?
@@ -187,7 +194,7 @@ final class InfoUserVC: UIViewController {
     
     init(userData: UserModel, accentColor: UIColor) {
         self.userData = userData
-        self.type = .info
+        self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
         self.accentColor = accentColor
         super.init(nibName: nil, bundle: nil)
     }
@@ -197,6 +204,7 @@ final class InfoUserVC: UIViewController {
         self.type = .messageRequest
         self.accentColor = accentColor
         self.chatData = chatData
+        self.message = chatData.lastMessageContent
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -250,7 +258,8 @@ final class InfoUserVC: UIViewController {
         scrollView.addSubview(interestsCollectionView)
         
         switch type {
-        
+        case .myInfo:
+            scrollView.addSubview(changeMyUserData)
         case .info:
             scrollView.addSubview(messageTextField)
         case .partyRequest, .messageRequest:
@@ -284,7 +293,17 @@ final class InfoUserVC: UIViewController {
         }
         
         switch type {
-        
+        case .myInfo:
+            changeMyUserData.snp.makeConstraints { make in
+                make.top.equalTo(nameLabel.snp.bottom).offset(28)
+                make.left.right.equalToSuperview().inset(22)
+                make.height.equalTo(50)
+            }
+            
+            descriptionTitleLabel.snp.makeConstraints { make in
+                make.top.equalTo(changeMyUserData.snp.bottom).offset(24)
+                make.left.equalToSuperview().offset(26)
+            }
         case .info:
             messageTextField.snp.makeConstraints { make in
                 make.top.equalTo(nameLabel.snp.bottom).offset(28)
@@ -349,11 +368,13 @@ final class InfoUserVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func acceptAction() {
+        startLoading()
         if type == .partyRequest {
             partyRequestDelegate?.userDidAccept(userData)
         } else if type == .messageRequest {
             guard let chatData = chatData else {
                 print("ERROR_LOG Error retrieving optional chatData")
+                stopLoading()
                 return
             }
             chatRequestDelegate?.userDidAccept(chatData, user: userData)
@@ -380,9 +401,15 @@ final class InfoUserVC: UIViewController {
         #warning("Добавить функцию поделиться")
     }
     
+    @objc private func changeAction() {
+        let changeAccountDataVC = ChangeAccountDataVC()
+        navigationController?.pushViewController(changeAccountDataVC, animated: true)
+    }
+    
     @objc private func sendMessageAction() {
         guard let message = messageTextField.text, !message.isEmptyOrWhitespaceOrNewLines() else { return }
         
+        startLoading()
         FirestoreService.shared.createWaitingChat(message: message, receiver: userData) { [weak self] (result) in
             switch result {
             case .success():
@@ -390,8 +417,10 @@ final class InfoUserVC: UIViewController {
                 SPAlert.present(title: "Ваше сообщение для \(self.userData.username) было отправлено", preset: .done)
                 self.view.endEditing(true)
                 self.messageTextField.text?.removeAll()
+                self.stopLoading()
             case .failure(let error):
                 SPAlert.present(title: error.localizedDescription, preset: .error)
+                self?.stopLoading()
             }
         }
     }

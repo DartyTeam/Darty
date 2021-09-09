@@ -22,6 +22,14 @@ class ListenerService {
         return db.collection("recents")
     }
     
+    private var typingRef: CollectionReference {
+        return db.collection("typing")
+    }
+    
+    private var messagesRef: CollectionReference {
+        return db.collection("messages")
+    }
+    
     private var currentUserId: String {
         return Auth.auth().currentUser!.uid
     }
@@ -267,92 +275,7 @@ class ListenerService {
     }
     
     
-    // MARK: - Chats
-    func waitingChatsObserve(chats: [ChatModel], completion: @escaping (Result<[ChatModel], Error>) -> Void) -> ListenerRegistration? {
-        var chats = chats
-        let chatsRef = db.collection(["users", currentUserId, "waitingChats"].joined(separator: "/"))
-        let chatsListener = chatsRef.addSnapshotListener { (querySnapshot, error) in
-            guard let snapshot = querySnapshot else {
-                completion(.failure(error!))
-                return
-            }
-            
-            snapshot.documentChanges.forEach { (diff) in
-                guard let chat = ChatModel(document: diff.document) else { return }
-                switch diff.type {
-                case .added:
-                    guard !chats.contains(chat) else { return }
-                    chats.append(chat)
-                case .modified:
-                    guard let index = chats.firstIndex(of: chat) else { return }
-                    chats[index] = chat
-                case .removed:
-                    guard let index = chats.firstIndex(of: chat) else { return }
-                    chats.remove(at: index)
-                }
-            }
-            
-            completion(.success(chats))
-        }
-        
-        return chatsListener
-    }
-    
-    func activeChatsObserve(chats: [ChatModel], completion: @escaping (Result<[ChatModel], Error>) -> Void) -> ListenerRegistration? {
-        var chats = chats
-        let chatsRef = db.collection(["users", currentUserId, "activeChats"].joined(separator: "/"))
-        let chatsListener = chatsRef.addSnapshotListener { (querySnapshot, error) in
-            guard let snapshot = querySnapshot else {
-                completion(.failure(error!))
-                return
-            }
-            
-            snapshot.documentChanges.forEach { (diff) in
-                guard let chat = ChatModel(document: diff.document) else { return }
-                switch diff.type {
-                case .added:
-                    guard !chats.contains(chat) else { return }
-                    chats.append(chat)
-                case .modified:
-                    guard let index = chats.firstIndex(of: chat) else { return }
-                    chats[index] = chat
-                case .removed:
-                    guard let index = chats.firstIndex(of: chat) else { return }
-                    chats.remove(at: index)
-                }
-            }
-            
-            completion(.success(chats))
-        }
-        
-        return chatsListener
-    }
-    
-    func messagesObserve(chat: ChatModel, completion: @escaping (Result<MessageModel, Error>) -> Void) -> ListenerRegistration? {
-        let ref = usersRef.document(currentUserId).collection("activeChats").document(chat.friendId).collection("messages")
-        let messagesListener = ref.addSnapshotListener { (querySnapshot, error) in
-            guard let snapshot = querySnapshot else {
-                completion(.failure(error!))
-                return
-            }
-            
-            snapshot.documentChanges.forEach { (diff) in
-                guard let message = MessageModel(document: diff.document) else { return }
-                
-                switch diff.type {
-                
-                case .added:
-                    completion(.success(message))
-                case .modified:
-                    break
-                case .removed:
-                    break
-                }
-            }
-        }
-        return messagesListener
-    }
-    
+    // MARK: - Chats    
     func recentChatsObserve(recents: [RecentChatModel], completion: @escaping (Result<[RecentChatModel], Error>) -> Void) -> ListenerRegistration? {
         var recents = recents
 
@@ -370,17 +293,16 @@ class ListenerService {
                     guard !recents.contains(recent) else { return }
                     recents.append(recent)
                 case .modified:
-                    print("asdiojasoidaoijsdas")
                     guard let index = recents.firstIndex(of: recent) else { return }
                     recents[index] = recent
                 case .removed:
-                    print("asdiojasdasd")
                     guard let index = recents.firstIndex(of: recent) else { return }
                     recents.remove(at: index)
                 }
             }
             
-//            recents.sort(by: {$0.date > $1.date })
+            #warning("Не знаю нужна ли тут эта сортировка")
+            recents.sort(by: {$0.date > $1.date })
             completion(.success(recents))
         }
         
@@ -415,5 +337,97 @@ class ListenerService {
         }
         
         return chatsListener
+    }
+    
+    // MARK: - Chat listeners
+    var updatedChatListener: ListenerRegistration!
+    var newChatListener: ListenerRegistration!
+    
+    func listenForNewChats(_ documentId: String, collectionId: String, lastMessageDate: Date) {
+        newChatListener = messagesRef.document(documentId).collection(collectionId).whereField(GlobalConstants.kDATE, isGreaterThan: lastMessageDate).addSnapshotListener({ querySnapshot, error in
+            guard let shanshot = querySnapshot else { return }
+            
+            for change in shanshot.documentChanges {
+                if change.type == .added {
+                    let result = Result {
+                        LocalMessage(document: change.document)
+                    }
+                    
+                    switch result {
+                    
+                    case .success(let messageObject):
+                        if let message = messageObject {
+                            if message.senderId != AuthService.shared.currentUser!.id {
+                                RealmManager.shared.saveToRealm(message)
+                            }
+                        } else {
+                            print("ERROR_LOG Document doesnt exist")
+                        }
+                    case .failure(let error):
+                        print("ERROR_LOG Error decoding LocalMessage: ", error.localizedDescription)
+                    }
+                }
+            }
+        })
+    }
+    
+    func listenForReadStatusChange(_ documentId: String, collectionId: String, completion: @escaping (_ updateMessage: LocalMessage) -> Void) {
+        updatedChatListener = messagesRef.document(documentId).collection(collectionId).addSnapshotListener({ querySnapshot, error in
+            guard let snaphot = querySnapshot else { return }
+            
+            for change in snaphot.documentChanges {
+                if change.type == .modified {
+                    let result = Result {
+                        LocalMessage(document: change.document)
+                    }
+                    
+                    switch result {
+                        
+                    case .success(let messageObject):
+                        if let message = messageObject {
+                            completion(message)
+                        } else {
+                            print("ERROR_LOG document does not exist")
+                        }
+                    case .failure(let error):
+                        print("ERROR_LOG Error decoding local message: ", error.localizedDescription)
+                    }
+                }
+            }
+        })
+    }
+    
+    func removeChatListeners() {
+        self.newChatListener.remove()
+        self.updatedChatListener.remove()
+    }
+    
+    // MARK: - Typing listener
+    var typingListener: ListenerRegistration!
+    
+    func createTypingObserver(chatRoomId: String, completion: @escaping (_ isTyping: Bool) -> Void) {
+        typingListener = typingRef.document(chatRoomId).addSnapshotListener({ [weak self] snapshot, error in
+            guard let self = self else { return }
+            guard let snapshot = snapshot else { return }
+            
+            if snapshot.exists {
+                for data in snapshot.data()! {
+                    if data.key != self.currentUserId {
+                        completion(data.value as! Bool)
+                    }
+                }
+            } else {
+                completion(false)
+                self.typingRef.document(chatRoomId).setData([self.currentUserId: false])
+            }
+        })
+    }
+    
+    class func saveTypingCounter(typing: Bool, chatRoomId: String) {
+        shared.typingRef.document(chatRoomId).updateData([shared.currentUserId: typing])
+    }
+    
+    func removeTypingListener() {
+        self.typingListener.remove()
     }
 }

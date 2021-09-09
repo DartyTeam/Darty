@@ -142,7 +142,6 @@ final class LocationPickerViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-//        mapView.addSubview(scaleView)
         mapView.addSubview(locationButton)
         
         locationManager.delegate = self

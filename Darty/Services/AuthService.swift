@@ -13,10 +13,16 @@ final class AuthService {
     
     static let shared = AuthService()
     
+    private init() {}
+    
     private let userDefaults = UserDefaults.standard
     private let auth = Auth.auth()
     
-    var currentUser: UserModel?
+    var currentUser: UserModel! {
+        didSet {
+            NotificationCenter.default.post(GlobalConstants.changedUserDataNotification)
+        }
+    }
     
     func login(email: String?, password: String?, completion: @escaping (Result<User, Error>) -> Void) {
         auth.signIn(withEmail: email!, password: password!) { (result, error) in
@@ -40,9 +46,11 @@ final class AuthService {
             return
         }
         
-        guard let auth = user.authentication else { return }
+        let auth = user.authentication
         
-        let credential = GoogleAuthProvider.credential(withIDToken: auth.idToken, accessToken: auth.accessToken)
+        guard let authIdToken = auth.idToken else { return }
+        
+        let credential = GoogleAuthProvider.credential(withIDToken: authIdToken, accessToken: auth.accessToken)
         
         Auth.auth().signIn(with: credential) { (result, error) in
             guard let result = result else {

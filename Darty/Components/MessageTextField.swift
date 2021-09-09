@@ -71,6 +71,7 @@ final class MessageTextField: UITextField {
     @objc private func openEmojis() {
         selectedEmoji = true
         reloadInputViews()
+        becomeFirstResponder()
     }
     
     override var textInputMode: UITextInputMode? {

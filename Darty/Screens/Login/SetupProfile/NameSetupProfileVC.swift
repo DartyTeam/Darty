@@ -16,6 +16,8 @@ struct SetuppedUser {
     var sex: Sex?
     var birthday: Date?
     var interestsList: [String]?
+    var city: String?
+    var country: String?
 }
 
 final class NameSetupProfileVC: UIViewController {

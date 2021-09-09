@@ -9,20 +9,22 @@ import UIKit
 import ComplimentaryGradientView
 
 final class PhotosUserVC: UIViewController {
-        
+    
     // MARK: - UI Elements
-    private let imageView: UIImageView = {
+    let imageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         return imageView
     }()
     
     private let complimentaryGradientView: ComplimentaryGradientView = {
         let complimentaryGradientView = ComplimentaryGradientView()
         complimentaryGradientView.gradientType = .colors(start: .primary, end: .secondary)
-
+        
         // Default = `.left`
         complimentaryGradientView.gradientStartPoint = .top
-
+        
         // Default = `.high`
         complimentaryGradientView.gradientQuality = .high
         return complimentaryGradientView
@@ -44,7 +46,17 @@ final class PhotosUserVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         guard let imageUrl = URL(string: imageStringUrl) else { return }
-        imageView.sd_setImage(with: imageUrl)
+        StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
+            switch result {
+            
+            case .success(let image):
+                self?.imageView.image = image
+                self?.imageView.focusOnFaces = true
+            case .failure(let error):
+                print("ERROR_LOG: ", error.localizedDescription)
+            }
+        }
+        
         complimentaryGradientView.image = imageView.image
         setupViews()
         setupConstraints()
@@ -65,10 +77,5 @@ final class PhotosUserVC: UIViewController {
             make.top.equalTo(imageView.snp.bottom)
             make.left.right.bottom.equalToSuperview()
         }
-    }
-    
-    // MARK: - Handlers
-    @objc private func shareAction() {
-        
     }
 }

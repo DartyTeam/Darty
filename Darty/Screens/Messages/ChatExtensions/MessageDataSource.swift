@@ -23,9 +23,8 @@ extension NewChatVC: MessagesDataSource {
     
     // MARK: - Cell top label
     func cellTopLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if indexPath.section % 3 == 0 {
-            
-            let showLoadMore = false
+        if isTimeLabelVisible(at: indexPath) {
+            let showLoadMore = (indexPath.section == 0) && (allLocalMessages.count > displayingMessagesCount)
             
             let text = showLoadMore ? "Потяните, чтобы загрузить больше" : MessageKitDateFormatter.shared.string(from: message.sentDate)
             let font = showLoadMore ? UIFont.sfProRounded(ofSize: 14, weight: .bold) : UIFont.sfProRounded(ofSize: 10, weight: .semibold)

@@ -30,10 +30,6 @@ class FirestoreService {
         return db.collection(["users", currentUser.id, "waitingChats"].joined(separator: "/"))
     }
     
-    private var activeChatsRef: CollectionReference {
-        return db.collection(["users", currentUser.id, "activeChats"].joined(separator: "/"))
-    }
-    
     var currentUser: UserModel!
     
     func getUser(by uid: String, completion: @escaping (Result<UserModel, Error>) -> Void) {
@@ -69,14 +65,14 @@ class FirestoreService {
     
     func getUserData(user: User, completion: @escaping (Result<UserModel, Error>) -> Void ) {
         let docRef = usersRef.document(user.uid)
-        docRef.getDocument { (document, error) in
+        docRef.getDocument { [weak self] (document, error) in
             if let document = document, document.exists {
                 guard let user = UserModel(document: document) else {
                     completion(.failure(UserError.cannotUnwrapToUserModel))
                     return
                 }
                 completion(.success(user))
-                self.currentUser = user
+                self?.currentUser = user
             } else {
                 completion(.failure(UserError.cannotGetUserInfo))
             }
@@ -91,6 +87,8 @@ class FirestoreService {
                          sex: Sex?,
                          birthday: Date,
                          interestsList: [Int],
+                         city: String,
+                         country: String,
                          completion: @escaping (Result<UserModel, Error>) -> Void) {
 
         var user = UserModel(username: username,
@@ -102,16 +100,18 @@ class FirestoreService {
                               interestsList: interestsList,
                               personalColor: "",
                               id: id,
-                              pushId: "")
+                              pushId: "",
+                              city: city,
+                              country: country)
         
-        StorageService.shared.upload(photo: avatarImage!) { (result) in
+        StorageService.shared.upload(photo: avatarImage!) { [weak self] (result) in
             switch result {
             
             case .success(let url):
                 user.avatarStringURL = url.absoluteString
                 
                 // Сохранение данных в firestore
-                self.usersRef.document(user.id).setData(user.representation) { (error) in
+                self?.usersRef.document(user.id).setData(user.representation) { (error) in
                     if let error = error {
                         completion(.failure(error))
                     } else {
@@ -129,13 +129,18 @@ class FirestoreService {
         return usersRef.document(Auth.auth().currentUser!.uid)
     }
     
+    func updateUserInformation(userData: UserModel,
+                               completion: @escaping (Result<Void, Error>) -> Void) {
+        updateUserInformation(username: userData.username, birthday: userData.birthday, avatarStringURL: userData.avatarStringURL, sex: userData.sex, description: userData.description, personalColor: userData.personalColor, interestsList: userData.interestsList, completion: completion)
+    }
+    
     func updateUserInformation(username: String,
-                               birthday: String,
+                               birthday: Date,
                                avatarStringURL: String,
-                               sex: String,
+                               sex: String?,
                                description: String,
                                personalColor: String,
-                               interestsList: String,
+                               interestsList: [Int],
                                completion: @escaping (Result<Void, Error>) -> Void) {
         userRef.updateData([
             "description": description,
@@ -162,8 +167,6 @@ class FirestoreService {
     
     func savePartyWith(party: SetuppedParty,
                        completion: @escaping (Result<PartyModel, Error>) -> Void) {
-
-        
         
         let partyId = UUID().uuidString
         
@@ -187,16 +190,16 @@ class FirestoreService {
         
         print("asdijaido: ", imagesUrlStrings)
 
-        dg.notify(queue: .main) {
+        dg.notify(queue: .main) { [weak self] in
             // Сохранение данных в Firestore
             let party = PartyModel(city: party.city, location: GeoPoint(latitude: party.latitude, longitude: party.longitude), address: party.address, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maxGuests: party.maxGuests, curGuests: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, moneyPrice: party.moneyPrice, anotherPrice: party.anotherPrice, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
             
-            self.partiesRef.document(party.id).setData(party.representation) { (error) in
+            self?.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))
                 }
                 
-                self.userRef.collection("myParties").document(party.id).setData( ["uid" : party.id]) { (error) in
+                self?.userRef.collection("myParties").document(party.id).setData( ["uid" : party.id]) { (error) in
                     if let error = error {
                         completion(.failure(error))
                     }
@@ -540,55 +543,86 @@ class FirestoreService {
     
     // MARK: - Chat funcs
     func createWaitingChat(message: String, receiver: UserModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        let reference = db.collection(["users", receiver.id, "waitingChats"].joined(separator: "/"))
-        let messageRef = reference.document(self.currentUser.id).collection("messages")
- 
-        let message = MessageModel(user: currentUser, content: message)
         
         let chatRoomId = chatRoomIdFrom(user1Id: self.currentUser.id, user2Id: receiver.id)
-        let chat = RecentChatModel(chatRoomId: chatRoomId, senderId: self.currentUser.id, senderName: self.currentUser.username, receiverId: receiver.id, receiverName: receiver.username, lastMessageContent: message.content, memberIds: [currentUser.id, receiver.id], unreadCounter: 1, avatarLink: currentUser.avatarStringURL)
+
+        let localMessage = LocalMessage()
+        localMessage.id = UUID().uuidString
+        localMessage.senderId = currentUser.id
+        localMessage.senderName = currentUser.username
+        localMessage.senderInitials = String(currentUser.username.first!)
+        localMessage.date = Date()
+        localMessage.status = GlobalConstants.kSENT
+        localMessage.chatRoomId = chatRoomId
+        localMessage.message = message
         
-        reference.document(currentUser.id).setData(chat.representation) { (error) in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            messageRef.addDocument(data: message.representation) { (error) in
-                if let error = error {
-                    completion(.failure(error))
-                    return
+        recentChatsRef.whereField("receiverId", isEqualTo: receiver.id).whereField("senderId", isEqualTo: currentUser.id).getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
+            guard let snapshot = snapshot else { return }
+            print("aisdjaiodjasido: ", snapshot.isEmpty)
+            if !snapshot.isEmpty {
+                OutgoingMessage.send(chatId: chatRoomId, text: localMessage.message, photo: nil, video: nil, audio: nil, location: nil, memberIds: [self.currentUser.id, receiver.id]) { result in
+                    switch result {
+                    
+                    case .success():
+                        completion(.success(Void()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
                 }
-                completion(.success(Void()))
+            } else {
+                let reference = self.db.collection(["users", receiver.id, "waitingChats"].joined(separator: "/"))
+                let messageRef = reference.document(chatRoomId).collection("messages")
+                
+                let chat = RecentChatModel(chatRoomId: chatRoomId, senderId: self.currentUser.id, senderName: self.currentUser.username, receiverId: receiver.id, receiverName: receiver.username, lastMessageContent: localMessage.message, memberIds: [self.currentUser.id, receiver.id], unreadCounter: 1, avatarLink: self.currentUser.avatarStringURL)
+                
+                reference.document(chatRoomId).setData(chat.representation) { (error) in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+                    messageRef.document(localMessage.id).setData(localMessage.representation) { (error) in
+                        if let error = error {
+                            completion(.failure(error))
+                            return
+                        }
+                        completion(.success(Void()))
+                    }
+                }
             }
         }
     }
     
-    func deleteWaitingChat(chat: ChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        waitingChatsRef.document(chat.friendId).delete { (error) in
+    func deleteWaitingChat(chat: RecentChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
+        waitingChatsRef.document(chat.chatRoomId).delete { [weak self] (error) in
             if let error = error {
                 completion(.failure(error))
                 return
             }
-            self.deleteMessages(chat: chat, completion: completion)
+            self?.deleteMessages(chat: chat, completion: completion)
         }
     }
     
-    func deleteMessages(chat: ChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        let reference = waitingChatsRef.document(chat.friendId).collection("messages")
+    func deleteMessages(chat: RecentChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
+        let reference = waitingChatsRef.document(chat.chatRoomId).collection("messages")
         
         getWaitingChatMessages(chat: chat) { (result) in
             switch result {
             
             case .success(let messages):
                 for message in messages {
-                    guard let documentId = message.id else { return }
+                    
+                    let documentId = message.id
                     let messageRef = reference.document(documentId)
                     messageRef.delete { (error) in
                         if let error = error {
                             completion(.failure(error))
                             return
                         }
-                        completion(.success(Void()))
+                        
+                        if message == messages.last {
+                            completion(.success(Void()))
+                        }
                     }
                 }
             case .failure(let error):
@@ -597,32 +631,34 @@ class FirestoreService {
         }
     }
     
-    func getWaitingChatMessages(chat: ChatModel, completion: @escaping (Result<[MessageModel], Error>) -> Void) {
-        let reference = waitingChatsRef.document(chat.friendId).collection("messages")
-        var messages = [MessageModel]()
+    func getWaitingChatMessages(chat: RecentChatModel, completion: @escaping (Result<[LocalMessage], Error>) -> Void) {
+        let reference = waitingChatsRef.document(chat.chatRoomId).collection("messages")
+        var messages = [LocalMessage]()
         reference.getDocuments { (querySnapshot, error) in
             if let error = error {
                 completion(.failure(error))
                 return
             }
             for document in querySnapshot!.documents {
-                guard let message = MessageModel(document: document) else { return }
+                guard let message = LocalMessage(document: document) else { return }
                 messages.append(message)
             }
             completion(.success(messages))
         }
     }
     
-    func changeToActive(chat: ChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
+    func changeToActive(chat: RecentChatModel, user1: UserModel, user2: UserModel, completion: @escaping (Result<Void, Error>) -> Void) {
         getWaitingChatMessages(chat: chat) { (result) in
             switch result {
             
             case .success(let messages):
+                print("asdokasdopaskdoapsdkasodkaodakdasodkasd: ", messages)
                 self.deleteWaitingChat(chat: chat) { (result) in
                     switch result {
                     
                     case .success():
-                        self.createActiveChat(chat: chat, messages: messages) { (result) in
+                        
+                        self.createActiveChat(chat: chat, messages: messages, user1: user1, user2: user2) { (result) in
                             switch result {
                             
                             case .success():
@@ -639,43 +675,55 @@ class FirestoreService {
                 completion(.failure(error))
             }
         }
-        
     }
     
-    func createActiveChat(chat: ChatModel, messages: [MessageModel], completion: @escaping (Result<Void, Error>) -> Void) {
-        let messageRef = activeChatsRef.document(chat.friendId).collection("messages")
-        activeChatsRef.document(chat.friendId).setData(chat.representation) { (error) in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
+    func createActiveChat(chat: RecentChatModel, messages: [LocalMessage], user1: UserModel, user2: UserModel, completion: @escaping (Result<Void, Error>) -> Void) {
+    
+        let chatRoomId = chatRoomIdFrom(user1Id: user1.id, user2Id: user2.id)
+        createChat(user1: user1, user2: user2, lastMessage: messages.last?.message ?? " ", countMessages: messages.count) { [weak self] result in
+            switch result {
             
-            for message in messages {
-                messageRef.addDocument(data: message.representation) { (error) in
-                    if let error = error {
-                        completion(.failure(error))
-                        return
+            case .success(_):
+          
+                for message in messages {
+                    RealmManager.shared.saveToRealm(message)
+                    self?.messagesRef.document(user1.id).collection(chatRoomId).addDocument(data: message.representation) { (error) in
+                        if let error = error {
+                            completion(.failure(error))
+                            return
+                        }
+                        
+                        self?.messagesRef.document(user2.id).collection(chatRoomId).addDocument(data: message.representation) { (error) in
+                            if let error = error {
+                                completion(.failure(error))
+                                return
+                            }
+                            
+                            if message == messages.last {
+                                completion(.success(Void()))
+                            }
+                        }
                     }
-                    
-                    completion(.success(Void()))
                 }
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
     
-    func createChat(user1: UserModel, user2: UserModel, completion: @escaping (Result<String, Error>) -> Void) {
+    func createChat(user1: UserModel, user2: UserModel, lastMessage: String, countMessages: Int, completion: @escaping (Result<[String], Error>) -> Void) {
         let chatRoomId = chatRoomIdFrom(user1Id: user1.id, user2Id: user2.id)
 
-        createRecentItems(chatRoomId: chatRoomId, users: [user1, user2], completion: completion)
+        createRecentItems(chatRoomId: chatRoomId, users: [user1, user2], lastMessage: lastMessage, countMessages: countMessages, completion: completion)
     }
     
-    func recreateChat(chatRoomId: String, memberIds: [String], completion: @escaping (Result<String, Error>) -> Void) {
-        getUsers(by: memberIds) { result in
+    func recreateChat(chatRoomId: String, memberIds: [String], lastMessage: String = "", countMessages: Int = 0, completion: @escaping (Result<String, Error>) -> Void) {
+        getUsers(by: memberIds) { [weak self] result in
             switch result {
             
             case .success(let users):
                 if users.count > 0 {
-                    self.createRecentItems(chatRoomId: chatRoomId, users: users) { result in
+                    self?.createRecentItems(chatRoomId: chatRoomId, users: users, lastMessage: lastMessage, countMessages: countMessages) { result in
                         switch result {
                         
                         case .success(_):
@@ -691,32 +739,35 @@ class FirestoreService {
         }
     }
     
-    private func createRecentItems(chatRoomId: String, users: [UserModel], completion: @escaping (Result<String, Error>) -> Void) {
+    private func createRecentItems(chatRoomId: String, users: [UserModel], lastMessage: String, countMessages: Int, completion: @escaping (Result<[String], Error>) -> Void) {
         
         var memberIdsToCreateRecent = [users.first!.id, users.last!.id]
         
-        recentChatsRef.whereField("chatRoomId", isEqualTo: chatRoomId).getDocuments { snapshot, error in
-            
+        recentChatsRef.whereField("chatRoomId", isEqualTo: chatRoomId).getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
             guard let snapshot = snapshot else { return }
             
             if !snapshot.isEmpty {
                 memberIdsToCreateRecent = self.removeMemberWhoHasRecent(snapshot: snapshot, memberIds: memberIdsToCreateRecent)
             }
             
+            var recentIds: [String] = []
             for userId in memberIdsToCreateRecent {
                 
-                print("asdoikasidojad: ", userId)
                 let senderUser = userId == (AuthService.shared.currentUser!.id) ? AuthService.shared.currentUser! : self.getReceiverFrom(users: users)
                 
                 let receiverUser = userId == (AuthService.shared.currentUser!.id) ? self.getReceiverFrom(users: users) : AuthService.shared.currentUser!
                 
-                let recentObject = RecentChatModel(chatRoomId: chatRoomId, senderId: senderUser.id, senderName: senderUser.username, receiverId: receiverUser.id, receiverName: receiverUser.username, lastMessageContent: "", memberIds: [senderUser.id, receiverUser.id], unreadCounter: 0, avatarLink: receiverUser.avatarStringURL)
+                let recentObject = RecentChatModel(chatRoomId: chatRoomId, senderId: senderUser.id, senderName: senderUser.username, receiverId: receiverUser.id, receiverName: receiverUser.username, lastMessageContent: lastMessage, memberIds: [senderUser.id, receiverUser.id], unreadCounter: countMessages, avatarLink: receiverUser.avatarStringURL)
                 
                 self.saveRecent(recent: recentObject) { result in
                     switch result {
                     
                     case .success(_):
-                        completion(.success(chatRoomId))
+                        recentIds.append(recentObject.id)
+                        if userId == memberIdsToCreateRecent.last {
+                            completion(.success(recentIds))
+                        }
                     case .failure(let error):
                         completion(.failure(error))
                     }
@@ -725,14 +776,14 @@ class FirestoreService {
         }
     }
     
-    private func saveRecent(recent: RecentChatModel, completion: @escaping (Result<String, Error>) -> Void) {
+    private func saveRecent(recent: RecentChatModel, completion: ((Result<Void, Error>) -> Void)? = nil) {
         self.recentChatsRef.document(recent.id).setData(recent.representation) { (error) in
             if let error = error {
-                completion(.failure(error))
+                completion?(.failure(error))
                 return
             }
             
-            completion(.success(""))
+            completion?(.success(()))
         }
     }
     
@@ -776,16 +827,47 @@ class FirestoreService {
         recentChatsRef.document(recent.id).delete()
     }
     
-    func clearUnreadCounter(recent: RecentChatModel, completion: @escaping (Result<String, Error>) -> Void) {
+    func updateRecents(chatRoomId: String, lastMessage: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
+        recentChatsRef.whereField(GlobalConstants.kCHATROOMID, isEqualTo: chatRoomId).getDocuments { [weak self] querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                completion?(.failure(ChatErrors.noDocForRecent))
+                print("No documents for recent update")
+                return
+            }
+            
+            let allRecents = documents.compactMap { queryDocumentSnapshot in
+                RecentChatModel(document: queryDocumentSnapshot)
+            }
+            
+            for recentChat in allRecents {
+                self?.updateRecentItemWithNewMessage(recent: recentChat, lastMessage: lastMessage, completion: completion)
+            }
+        }
+    }
+    
+    private func updateRecentItemWithNewMessage(recent: RecentChatModel, lastMessage: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
+        var tempRecent = recent
+        
+        if tempRecent.senderId != currentUser.id {
+            tempRecent.unreadCounter += 1
+        }
+        
+        tempRecent.lastMessageContent = lastMessage
+        tempRecent.date = Date()
+        
+        self.saveRecent(recent: tempRecent, completion: completion)
+    }
+    
+    private func clearUnreadCounter(recent: RecentChatModel, completion: @escaping (Result<Void, Error>) -> Void) {
         var newRecent = recent
         
         newRecent.unreadCounter = 0
         
-        self.saveRecent(recent: recent, completion: completion)
+        self.saveRecent(recent: newRecent, completion: completion)
     }
     
-    func resetRecentCounter(chatRoomId: String, completion: @escaping (Result<String, Error>) -> Void) {
-        recentChatsRef.whereField("chatRoomId", isEqualTo: chatRoomId).whereField("senderId", isEqualTo: currentUser.id).getDocuments { snapshot, error in
+    func resetRecentCounter(chatRoomId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        recentChatsRef.whereField("chatRoomId", isEqualTo: chatRoomId).whereField("senderId", isEqualTo: currentUser.id).getDocuments { [weak self] snapshot, error in
             
             guard let documents = snapshot?.documents else {
                 print("ERROR_LOG no documents for recent with chat room: \(chatRoomId)")
@@ -798,41 +880,27 @@ class FirestoreService {
             }
             
             if allRecents.count > 0 {
-                self.clearUnreadCounter(recent: allRecents.first!, completion: completion)
+                self?.clearUnreadCounter(recent: allRecents.first!, completion: completion)
             }
         }
     }
     
-    // MARK: - Messages
-    func sendMessage(chat: ChatModel, message: MessageModel, completion: @escaping (Result<Void, Error>) -> Void) {
-        let friendRef = usersRef.document(chat.friendId).collection("activeChats").document(currentUser.id) // Добрались до активного чата со мной до активного друга
-        
-        let friendMessageRef = friendRef.collection("messages")
-        let myMessageRef = usersRef.document(currentUser.id).collection("activeChats").document(chat.friendId).collection("messages")
-        
-        // Отзеркаливаем друга и currentUser
-        let chatForFriend = ChatModel(friendUsername: currentUser.username, friendAvatarStringUrl: currentUser.avatarStringURL, lastMessageContent: message.content, friendId: currentUser.id)
-        
-        friendRef.setData(chatForFriend.representation) { (error) in
-            if let error = error {
-                completion(.failure(error))
+    // MARK: - Check for old chats
+    func checkForOldChats(_ documentId: String, collectionId: String) {
+        messagesRef.document(documentId).collection(collectionId).getDocuments { querySnapshot, error in
+            guard let documents = querySnapshot?.documents else {
+                print("ERROR_LOG No documents for old chats")
                 return
             }
             
-            friendMessageRef.addDocument(data: message.representation) { (error) in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                
-                myMessageRef.addDocument(data: message.representation) { (error) in
-                    if let error = error {
-                        completion(.failure(error))
-                        return
-                    }
-                    
-                    completion(.success(Void()))
-                }
+            var oldMessages = documents.compactMap { (queryDocumentSnapshot) in
+                return LocalMessage(document: queryDocumentSnapshot)
+            }
+            
+            oldMessages.sort(by: { $0.date < $1.date })
+            
+            for message in oldMessages {
+                RealmManager.shared.saveToRealm(message)
             }
         }
     }
@@ -848,4 +916,12 @@ class FirestoreService {
         }
     }
     
+    // MARK: - Update message status
+    func updateMessageInFirebase(_ message: LocalMessage, memberIds: [String]) {
+        let values = [GlobalConstants.kSTATUS: GlobalConstants.kREAD, GlobalConstants.kREADDATE: Date()] as [String : Any]
+         
+        for userId in memberIds {
+            messagesRef.document(userId).collection(message.chatRoomId).document(message.id).updateData(values)
+        }
+    }
 }

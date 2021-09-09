@@ -25,6 +25,7 @@ class OnboardVC: UIViewController {
 
 extension OnboardVC: OnboardingViewDelegate {
     func dismiss() {
+        UserDefaults.standard.isPrevLaunched = true
         dismiss(animated: true, completion: nil)
     }
 }
@@ -49,7 +50,6 @@ struct OnboardingView: View {
         //        }
         a.insteadOfCyclingToFirstPage = {
             delegate?.dismiss()
-            print("do your thing")
         }
         a.animationDidEnd = {
             

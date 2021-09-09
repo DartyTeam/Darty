@@ -410,6 +410,7 @@ extension SelectLocationVC: MKMapViewDelegate {
     }
     
     public func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        startLoading()
         setuppedParty.address = location?.address ?? ""
         setuppedParty.latitude = Double((location?.coordinate.latitude)!)
         setuppedParty.longitude = Double((location?.coordinate.longitude)!)
@@ -418,6 +419,7 @@ extension SelectLocationVC: MKMapViewDelegate {
             switch result {
             
             case .success(_):
+                self?.stopLoading()
                 let alertController = UIAlertController(title: "🎉 Ура! Вечеринка создана. Вы можете найти ее в Мои вечеринки", message: "", preferredStyle: .actionSheet)
                 let shareAction = UIAlertAction(title: "Поделиться ссылкой", style: .default) { _ in
                     let items: [Any] = ["This app is my favorite", URL(string: "https://www.apple.com")!]
@@ -438,11 +440,12 @@ extension SelectLocationVC: MKMapViewDelegate {
                 alertController.addAction(doneAction)
                 
                 self?.present(alertController, animated: true, completion: nil)
-            
+                
             case .failure(let error):
-            self?.showAlert(title: "Ошибка", message: error.localizedDescription)
+                self?.stopLoading()
+                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
+            }
         }
-    }
     }
     
     public func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {

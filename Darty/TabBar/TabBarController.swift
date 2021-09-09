@@ -138,6 +138,10 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     func expand(_ isExpand: Bool) {
         observableFloatingExpand.expand = isExpand
     }
+    
+    deinit {
+        print("Deinit: ", TabBarController.self)
+    }
 }
 
 extension UIViewController {

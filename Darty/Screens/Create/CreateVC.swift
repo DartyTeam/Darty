@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseAuth
-import SnapKit
 
 struct SetuppedParty {
     var name: String = ""

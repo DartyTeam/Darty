@@ -23,6 +23,8 @@ final class SetImageViewCell: UICollectionViewCell {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -42,8 +44,7 @@ final class SetImageViewCell: UICollectionViewCell {
         
         if shape == .rect {
             imageView.snp.remakeConstraints { remake in
-                remake.leading.trailing.equalToSuperview().inset(20)
-                remake.top.bottom.equalToSuperview()
+                remake.edges.equalToSuperview()
             }
             
             imageView.layer.cornerRadius = 20
@@ -59,7 +60,7 @@ final class SetImageViewCell: UICollectionViewCell {
     
     private func setupConstraints() {
         imageView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(self.frame.size.width - 40)
             make.centerY.equalToSuperview()
         }

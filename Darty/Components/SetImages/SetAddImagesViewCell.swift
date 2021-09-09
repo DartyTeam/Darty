@@ -41,7 +41,7 @@ final class SetAddImagesViewCell: UICollectionViewCell {
 
         if shape == .rect {
             setImageView.snp.remakeConstraints { remake in
-                remake.leading.trailing.equalToSuperview().inset(20)
+                remake.leading.trailing.equalToSuperview()
                 remake.top.bottom.equalToSuperview()
             }
             
@@ -57,7 +57,7 @@ final class SetAddImagesViewCell: UICollectionViewCell {
     
     private func setupConstraints() {
         setImageView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(self.frame.size.width - 40)
             make.centerY.equalToSuperview()
         }

@@ -12,7 +12,7 @@ import SPAlert
 class MessagesVC: UIViewController {
     
     private enum Constants {
-        static let sectionsTextColor: UIColor = .black
+        static let sectionsTextColor: UIColor = .label
         static let sectionsTextFont: UIFont? = .sfProRounded(ofSize: 16, weight: .bold)
         
         static let activeChatHeight: CGFloat = 64
@@ -53,7 +53,6 @@ class MessagesVC: UIViewController {
     init(currentUser: UserModel) {
         self.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
-//        title = currentUser.username
     }
     
     required init?(coder: NSCoder) {
@@ -69,7 +68,6 @@ class MessagesVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar()
-        setupSearchBar()
         setupCollectionView()
         createDataSource()
         setupListeners()
@@ -82,51 +80,49 @@ class MessagesVC: UIViewController {
     
     private func setupNavBar() {
         setNavigationBar(withColor:.systemTeal, title: "Сообщения")
-        navigationController?.hidesBarsOnSwipe = true
     }
     
     private func setupListeners() {
-//        waitingChatsListener = ListenerService.shared.recentWaitingChatsObserve(chats: waitingChats, completion: { [weak self] (result) in
-//                  switch result {
-//
-//                  case .success(let chats):
-//
-//                      if let waitingChats = self?.waitingChats, waitingChats != [], waitingChats.count <= chats.count {
-//                        if let userId = chats.last?.senderId {
-//                              FirestoreService.shared.getUser(by: userId) { result in
-//                                  switch result {
-//
-//                                  case .success(let userData):
-//                                      print("Successful get user data: ", userData)
-//                                      guard let chatData = chats.last else { return }
-////                                      let aboutUserVC = AboutUserVC(chatData: chatData, userData: userData)
-////                                      aboutUserVC.chatRequestDelegate = self
-////                                      self?.present(aboutUserVC, animated: true, completion: nil)
-//                                  case .failure(let error):
-//                                      print("ERROR_LOG Error get user data: ", error.localizedDescription)
-//                                  }
-//                              }
-//                          }
-//                      }
-//
-//                      self?.waitingChats = chats
-//
-//                      self?.reloadData()
-//
-//                  case .failure(let error):
-//                      self?.showAlert(title: "Ошибка!", message: error.localizedDescription)
-//                  }
-//              })
-        
-        activeChatsListener = ListenerService.shared.recentChatsObserve(recents: activeChats, completion: { (result) in
+        waitingChatsListener = ListenerService.shared.recentWaitingChatsObserve(chats: waitingChats, completion: { [weak self] (result) in
             switch result {
             
             case .success(let chats):
                 
-                self.activeChats = chats
+                if let waitingChats = self?.waitingChats, waitingChats != [], waitingChats.count <= chats.count {
+                    if let userId = chats.last?.senderId {
+                        FirestoreService.shared.getUser(by: userId) { result in
+                            switch result {
+                            
+                            case .success(let userData):
+                                print("Successful get user data: ", userData)
+                                guard let chatData = chats.last else { return }
+                                let aboutUserVC = AboutUserVC(chatData: chatData, userData: userData)
+                                aboutUserVC.chatRequestDelegate = self
+                                self?.present(aboutUserVC, animated: true, completion: nil)
+                            case .failure(let error):
+                                print("ERROR_LOG Error get user data: ", error.localizedDescription)
+                            }
+                        }
+                    }
+                }
                 
-                self.reloadData(with: nil)
+                self?.waitingChats = chats
                 
+                self?.reloadData(with: nil)
+                
+            case .failure(let error):
+                self?.showAlert(title: "Ошибка!", message: error.localizedDescription)
+            }
+        })
+        
+        activeChatsListener = ListenerService.shared.recentChatsObserve(recents: activeChats, completion: { [weak self] (result) in
+            switch result {
+            
+            case .success(let chats):
+                
+                self?.activeChats = chats
+                
+                self?.reloadData(with: nil)
             case .failure(let error):
                 SPAlert.present(title: error.localizedDescription, preset: .error)
             }
@@ -138,8 +134,8 @@ class MessagesVC: UIViewController {
         let searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
-//        searchController.hidesNavigationBarDuringPresentation = true
-//        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = true
+        //        searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchResultsUpdater = self
         searchController.searchBar.placeholder = "Поиск"
         definesPresentationContext = true
@@ -149,6 +145,7 @@ class MessagesVC: UIViewController {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         collectionView.backgroundColor = .systemBackground
+        collectionView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 0, right: 0)
         
         view = collectionView
         
@@ -162,12 +159,12 @@ class MessagesVC: UIViewController {
     
     // Отвечает за заполнение реальными данными. Создает snapshot, добавляет нужные айтемы в нужные секции и регистрируется на dataSource
     private func reloadData(with searchText: String?) {
-        let filteredActiveChatas = activeChats.filter { (chat) -> Bool in
+        let filteredActiveChats = activeChats.filter { (chat) -> Bool in
             chat.contains(filter: searchText)
         }
         var snapshot = NSDiffableDataSourceSnapshot<Section, RecentChatModel>()
         
-        print("asidojasiodjasoidjasdioajsd: ", activeChats)
+        print("asidojasiodjasoidjasdioajsd: ", filteredActiveChats)
         print("asodijkasiodjasoidjasiod: ", waitingChats)
 //        if !activeChats.isEmpty {
 //            snapshot.appendSections([.activeChats])
@@ -176,7 +173,6 @@ class MessagesVC: UIViewController {
 //            snapshot.deleteSections([.activeChats])
 //        }
 //
-//        print("asdijasdioajsdiaosdj: ", waitingChats)
 //        if !waitingChats.isEmpty {
 //            snapshot.appendSections([.waitingChats])
 //            snapshot.appendItems(waitingChats, toSection: .waitingChats)
@@ -186,20 +182,25 @@ class MessagesVC: UIViewController {
 
         snapshot.appendSections([.waitingChats, .activeChats])
         snapshot.appendItems(waitingChats, toSection: .waitingChats)
-        snapshot.appendItems(filteredActiveChatas, toSection: .activeChats)
-
-        dataSource?.apply(snapshot, animatingDifferences: true, completion: {
-            self.dataSource?.apply(snapshot, animatingDifferences: false)
-        })
+        snapshot.appendItems(filteredActiveChats, toSection: .activeChats)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSource?.apply(snapshot, animatingDifferences: true, completion: {
+                self?.dataSource?.apply(snapshot, animatingDifferences: false)
+                if self?.navigationItem.searchController == nil {
+                    self?.setupSearchBar()
+                }
+            })
+        }
     }
     
     // MARK: - Handlers
-    private func removeWaitingChat(chat: ChatModel) {
+    private func removeWaitingChat(chat: RecentChatModel) {
         FirestoreService.shared.deleteWaitingChat(chat: chat) { (result) in
             switch result {
             
             case .success():
-                SPAlert.present(title: "Чат с \(chat.friendUsername) был удален", preset: .done)
+                SPAlert.present(title: "Чат с \(chat.receiverName) был удален", preset: .done)
             case .failure(let error):
                 SPAlert.present(title: "Ошибка: \(error.localizedDescription)", preset: .error)
             }
@@ -207,28 +208,19 @@ class MessagesVC: UIViewController {
     }
     
     private func changeToActive(chat: RecentChatModel, user: UserModel) {
-//        FirestoreService.shared.changeToActive(chat: chat) { (result) in
-//            switch result {
-//
-//            case .success():
-//                SPAlert.present(title: "Приятного общения с \(chat.friendUsername)", preset: .done)
-//            case .failure(let error):
-//                SPAlert.present(title: "Ошибка: \(error.localizedDescription)", preset: .error)
-//            }
-//        }
-        
-        FirestoreService.shared.createChat(user1: AuthService.shared.currentUser!, user2: user) { result in
+        FirestoreService.shared.changeToActive(chat: chat, user1: user, user2: currentUser) { (result) in
             switch result {
-            
-            case .success(_):
-                SPAlert.present(title: "Приятного общения с \(chat.senderName)", preset: .done)
+
+            case .success():
+                
+                SPAlert.present(title: "Приятного общения с \(chat.receiverName)", preset: .done)
             case .failure(let error):
                 SPAlert.present(title: "Ошибка: \(error.localizedDescription)", preset: .error)
             }
         }
     }
     
-    private func goToChat(chat: RecentChatModel) {
+    private func goToChat(chat: RecentChatModel, recipientData: UserModel) {
         FirestoreService.shared.recreateChat(chatRoomId: chat.chatRoomId, memberIds: chat.memberIds) { result in
             switch result {
             
@@ -240,7 +232,7 @@ class MessagesVC: UIViewController {
             }
         }
         
-        let privateChatVC = NewChatVC(chatId: chat.chatRoomId, recipientId: chat.receiverId, recipientName: chat.receiverName)
+        let privateChatVC = NewChatVC(chatId: chat.chatRoomId, recipientId: chat.receiverId, recipientData: recipientData)
         privateChatVC.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(privateChatVC, animated: true)
     }
@@ -261,7 +253,6 @@ extension MessagesVC {
             switch section {
             
             case .activeChats:
-                print("chat: ", chat)
                 return self?.configure(collectionView: collectionView, cellType: ActiveChatCell.self, with: chat, for: indexPath)
             case .waitingChats:
                 return self?.configure(collectionView: collectionView, cellType: WaitingChatCell.self, with: chat, for: indexPath)
@@ -287,7 +278,6 @@ extension MessagesVC {
     
     private func createCompositionalLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
-            
             
             guard let section = Section(rawValue: sectionIndex) else {
                 fatalError("Неизвестная секция для ячейки")
@@ -331,26 +321,6 @@ extension MessagesVC {
     }
     
     private func createActiveChats(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        
-//        var listConfig = UICollectionLayoutListConfiguration(appearance: .grouped)
-//        listConfig.showsSeparators = false
-//        listConfig.backgroundColor = .clear
-//        listConfig.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
-//          guard let self = self else { return nil }
-//
-//            guard let recentChat = self.dataSource?.itemIdentifier(for: indexPath) else { return nil } // get the model for the given index path from your data source
-//            
-//
-//          let actionHandler: UIContextualAction.Handler = { action, view, completion in
-//            FirestoreService.shared.deleteRecentChat(recentChat)
-//            completion(true)
-//            self.collectionView.reloadItems(at: [indexPath])
-//          }
-//
-//          let action = UIContextualAction(style: .destructive, title: "Удалить", handler: actionHandler)
-//          action.image = UIImage(systemName: "trash")
-//          return UISwipeActionsConfiguration(actions: [action])
-//        }
         
         // section -> group -> item -> size
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
@@ -417,21 +387,7 @@ extension MessagesVC: UICollectionViewDelegate {
             FirestoreService.shared.getUser(by: chat.receiverId) { [weak self] result in
                 switch result {
                 case .success(let userData):
-                    if let currentUser = self?.currentUser {
-                        
-                        FirestoreService.shared.clearUnreadCounter(recent: chat) { result in
-                            switch result {
-                            
-                            case .success(_):
-//                                let chatVC = ChatVC(user: currentUser, friendData: userData, chat: chat)
-//                                self?.navigationController?.pushViewController(chatVC, animated: true)
-                                self?.goToChat(chat: chat)
-                            case .failure(let error):
-                                print("ERROR_LOG :", error.localizedDescription)
-                                SPAlert.present(title: error.localizedDescription, preset: .error)
-                            }
-                        }
-                    }
+                    self?.goToChat(chat: chat, recipientData: userData)
                 case .failure(let error):
                     print("ERROR_LOG Eror get user data with id \(chat.receiverId): ", error.localizedDescription)
                     SPAlert.present(title: "Не удалось получить данные пользователя", preset: .error)
@@ -444,7 +400,7 @@ extension MessagesVC: UICollectionViewDelegate {
 
 extension MessagesVC: AboutUserChatRequestDelegate {
     func userDidDecline(_ chat: RecentChatModel) {
-//        removeWaitingChat(chat: chat)
+        removeWaitingChat(chat: chat)
     }
     
     func userDidAccept(_ chat: RecentChatModel, user: UserModel) {

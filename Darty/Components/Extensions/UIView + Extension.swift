@@ -8,7 +8,7 @@
 import UIKit
 
 extension UIView {
-    func showAnimation(_ completionBlock: @escaping () -> Void) {
+    func showAnimation(_ completionBlock: (() -> Void)? = nil) {
         isUserInteractionEnabled = false
         UIView.animate(withDuration: 0.1,
                        delay: 0,
@@ -23,7 +23,7 @@ extension UIView {
                             self?.transform = CGAffineTransform.init(scaleX: 1, y: 1)
                            }) { [weak self] (_) in
                 self?.isUserInteractionEnabled = true
-                completionBlock()
+                completionBlock?()
             }
                        }
     }

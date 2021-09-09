@@ -16,6 +16,11 @@ struct InterestModel {
 
 final class InterestsSetupProfileVC: UIViewController {
         
+    // MARK: - Constants
+    private enum Constants {
+        static let interestsCollectionViewInsets = UIEdgeInsets(top: 32, left: 20, bottom: 128, right: 20)
+    }
+    
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Готово 􀆅")
@@ -23,13 +28,6 @@ final class InterestsSetupProfileVC: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
-    }()
-    
-    private lazy var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.delegate = self
-        return searchBar
     }()
     
     private lazy var interestsCollectionView: UICollectionView = {
@@ -42,8 +40,11 @@ final class InterestsSetupProfileVC: UIViewController {
         collectionView.register(InterestCell.self, forCellWithReuseIdentifier: InterestCell.reuseIdentifier)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.contentInset = Constants.interestsCollectionViewInsets
         return collectionView
     }()
+    
+    private lazy var searchController = UISearchController(searchResultsController: nil)
     
     // MARK: - Properties
     private var isFiltering: Bool {
@@ -51,7 +52,7 @@ final class InterestsSetupProfileVC: UIViewController {
     }
     
     private var searchBarIsEmpty: Bool {
-        guard let text = searchBar.text else { return false }
+        guard let text = searchController.searchBar.text else { return false }
         return text.isEmpty
     }
     
@@ -63,9 +64,9 @@ final class InterestsSetupProfileVC: UIViewController {
     private var selectedInterests = [Int]()
     
     // MARK: - Lifecycle
-    init(currentUser: User, setupedUser: SetuppedUser) {
+    init(currentUser: User, setuppedUser: SetuppedUser) {
         self.currentUser = currentUser
-        self.setupedUser = setupedUser
+        self.setupedUser = setuppedUser
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -78,25 +79,38 @@ final class InterestsSetupProfileVC: UIViewController {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        setNavigationBar(withColor: .systemBlue, title: "Интересы")
+        setNavigationBar(withColor: .systemBlue, title: "Интересы", withClear: false)
+        setupSearchBar()
         setupViews()
         setupConstraints()
     }
     
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        view.addSubview(searchBar)
-        view.addSubview(nextButton)
         view.addSubview(interestsCollectionView)
+        view.addSubview(nextButton)
+    }
+    
+    private func setupSearchBar() {
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
+//        searchController.hidesNavigationBarDuringPresentation = true
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = "Поиск по интересам"
+        definesPresentationContext = true
     }
     
     // MARK: - Handlers
     @objc private func keyboardWillHide(notification: NSNotification) {
-//        nextButton.snp.remakeConstraints { make in
-//            make.left.right.equalToSuperview().inset(63)
-//            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-42)
-//            make.height.equalTo(50)
-//        }
+        
+        nextButton.snp.remakeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+        }
+        
+        interestsCollectionView.contentInset = Constants.interestsCollectionViewInsets
         
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             self?.view.layoutIfNeeded()
@@ -106,12 +120,14 @@ final class InterestsSetupProfileVC: UIViewController {
     @objc private func keyboardWillAppear(notification: NSNotification) {
         let userInfo = notification.userInfo!
         let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-//
-//        nextButton.snp.remakeConstraints { make in
-//            make.left.right.equalToSuperview().inset(63)
-//            make.bottom.equalToSuperview().offset(-keyboardFrame.height - 24)
-//            make.height.equalTo(50)
-//        }
+
+        interestsCollectionView.contentInset = UIEdgeInsets(top:  Constants.interestsCollectionViewInsets.top, left:  Constants.interestsCollectionViewInsets.left, bottom: keyboardFrame.size.height, right:  Constants.interestsCollectionViewInsets.right)
+        
+        nextButton.snp.remakeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalToSuperview().offset(-keyboardFrame.height - 24)
+        }
                 
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             self?.view.layoutIfNeeded()
@@ -131,7 +147,9 @@ final class InterestsSetupProfileVC: UIViewController {
                                                 description: setupedUser.description,
                                                 sex: setupedUser.sex,
                                                 birthday: setupedUser.birthday!,
-                                                interestsList: selectedInterests) { [weak self] (result) in
+                                                interestsList: selectedInterests,
+                                                city: setupedUser.city!,
+                                                country: setupedUser.country!) { [weak self] (result) in
             switch result {
             
             case .success(let user):
@@ -152,41 +170,30 @@ final class InterestsSetupProfileVC: UIViewController {
 extension InterestsSetupProfileVC {
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
+        nextButton.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(50)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+        }
         
-        NSLayoutConstraint.activate([
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-        ])
-        
-        NSLayoutConstraint.activate([
-            interestsCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 32),
-            interestsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            interestsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            interestsCollectionView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -32)
-        ])
-
+        interestsCollectionView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
 }
 
-extension InterestsSetupProfileVC: UISearchBarDelegate {
+extension InterestsSetupProfileVC: UISearchResultsUpdating {
     
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterContentForSearchText(searchBar.text!)
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchController.searchBar.text!)
     }
-    
+
     private func filterContentForSearchText(_ searchText: String) {
         filteredInterests = GlobalConstants.interestsArray.filter({ interest in
-            interest.title.contains(searchText) ||  interest.emoji.contains(searchText)
+            interest.title.lowercased().contains(searchText.lowercased()) || interest.emoji.contains(searchText)
         })
         
-        interestsCollectionView.reloadData()
+        interestsCollectionView.reloadSections([0])
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {

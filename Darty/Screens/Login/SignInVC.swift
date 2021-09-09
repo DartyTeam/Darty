@@ -7,6 +7,8 @@
 
 import UIKit
 import FirebaseAuth
+import PhoneNumberKit
+import SPAlert
 
 private enum Constants {
     static let socialButtonSize: CGFloat = 50
@@ -42,15 +44,16 @@ final class SignInVC: UIViewController {
         return label
     }()
     
-    private lazy var phoneTextField: BottomLineTextField = {
-        let textField = BottomLineTextField(color: .systemPurple)
-        textField.translatesAutoresizingMaskIntoConstraints = false
+    private let phoneNumberKit = PhoneNumberKit()
+    
+    private lazy var phoneTextField: PhoneNumberTF = {
+        let textField = PhoneNumberTF(color: .systemPurple)
+        textField.withFlag = true
+        textField.withPrefix = true
+        textField.withExamplePlaceholder = true
         textField.font = Constants.textFieldFont
-        textField.tintColor = .systemPurple
-        textField.delegate = self
-        textField.placeholder = "+X (XXX) XXX XX XX"
-        textField.textColor = .systemPurple
-        textField.keyboardType = .numberPad
+        textField.maxDigits = 10
+        textField.flagButton.addTarget(self, action: #selector(openCountrySelector), for: .touchUpInside)
         return textField
     }()
     
@@ -71,7 +74,7 @@ final class SignInVC: UIViewController {
        
         view.backgroundColor = .systemBackground
         
-        setNavigationBar(withColor: .systemPurple, title: "Введите номер")
+        setNavigationBar(withColor: .systemPurple, title: "Введите номер", withClear: false)
         view.addSubview(acceptButton)
         view.addSubview(dartyLogo)
         view.addSubview(warningLabel)
@@ -105,11 +108,10 @@ final class SignInVC: UIViewController {
             containerView.bottomAnchor.constraint(greaterThanOrEqualTo: warningLabel.topAnchor)
         ])
         
-        NSLayoutConstraint.activate([
-            phoneTextField.widthAnchor.constraint(equalToConstant: 256),
-            phoneTextField.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            phoneTextField.centerXAnchor.constraint(equalTo: containerView.centerXAnchor)
-        ])
+        phoneTextField.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.width.equalTo(264)
+        }
     }
     
     // MARK: - Handlers
@@ -118,57 +120,33 @@ final class SignInVC: UIViewController {
     }
     
     @objc private func acceptAction() {
-        
+        if let phone = phoneTextField.text {
+            if phoneNumberKit.isValidPhoneNumber(phone) {
+                print("asdijoasjoidoasdojias: ", phone)
+            } else {
+                SPAlert.present(title: "Введен некорректный номер телефона", preset: .error)
+            }
+        } else {
+            print("ERROR_LOG Error get phone number")
+        }
+      
     }
     
-    func format(with mask: String, phone: String) -> String {
-        let numbers = phone.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
-        var result = ""
-        var index = numbers.startIndex // numbers iterator
-
-        // iterate over the mask characters until the iterator of numbers ends
-        for ch in mask where index < numbers.endIndex {
-            if ch == "X" {
-                // mask requires a number in this place, so take the next one
-                result.append(numbers[index])
-
-                // move numbers iterator to the next index
-                index = numbers.index(after: index)
-
+    @objc private func openCountrySelector() {
+        let alert = UIAlertController(style: .actionSheet, title: "Коды стран")
+        alert.addLocalePicker(type: .phoneCode) { [weak self] info in
+        
+            if let country = CountryCodePickerViewController.Country(for: info!.code, with: PhoneNumberKit()) {
+                self?.phoneTextField.text = (self?.isEditing ?? false) ? "+" + country.prefix : ""
+                self?.phoneTextField.partialFormatter.defaultRegion = country.code
+                self?.phoneTextField.updateFlag()
+                self?.phoneTextField.updatePlaceholder()
             } else {
-                result.append(ch) // just append a mask character
+                SPAlert.present(title: "Код страны отсуствует в базе данных Google. Используйте страну с аналогичным кодом", preset: .error)
             }
         }
-        return result
-    }
-}
-
-extension SignInVC: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard let text = textField.text else { return false }
-        let newString = (text as NSString).replacingCharacters(in: range, with: string)
-        textField.text = format(with: "+X (XXX) XXX XX XX", phone: newString)
-        if textField.text?.digits.count == 11 {
-            phoneTextField.select(true)
-            resignFirstResponder()
-        }
         
-
-        return false
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        phoneTextField.select(true)
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        phoneTextField.select(false)
+        alert.addAction(title: "OK", style: .cancel)
+        alert.show()
     }
 }
-
-

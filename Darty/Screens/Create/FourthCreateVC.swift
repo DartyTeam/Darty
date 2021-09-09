@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseAuth
-import SnapKit
 
 final class FourthCreateVC: UIViewController {
     

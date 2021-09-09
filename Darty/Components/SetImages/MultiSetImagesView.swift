@@ -27,12 +27,17 @@ enum ShapeImageView {
 
 final class MultiSetImagesView: UIView {
     
+    // MARK: - Constants
+    enum Constants {
+        static let itemSpace: CGFloat = 40
+        static let itemSpaceForMultiItemsInPage: CGFloat = 20
+        static let leftRightInsets: CGFloat = 20
+    }
+    
     // MARK: - UI Elements    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
         let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = .clear
@@ -41,12 +46,19 @@ final class MultiSetImagesView: UIView {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isPagingEnabled = true
+        collectionView.decelerationRate = .fast
         return collectionView
     }()
     
     // MARK: - Properties
     var images: [UIImage] = []
-    private let delegate: MultiSetImagesViewDelegate!
+    var numberOfItemInPage: CGFloat = 1
+    var isPagingEnabled = true {
+        didSet {
+            collectionView.isPagingEnabled = isPagingEnabled
+        }
+    }
+    var delegate: MultiSetImagesViewDelegate?
     private let maxPhotos: Int!
     private let shape: ShapeImageView!
     private let color: UIColor!
@@ -54,13 +66,12 @@ final class MultiSetImagesView: UIView {
     private var cellFrame: CGRect = CGRect.zero
     
     // MARK: - Lifecycle
-    init(delegate: MultiSetImagesViewDelegate, maxPhotos: Int, shape: ShapeImageView, color: UIColor) {
+    init(maxPhotos: Int, shape: ShapeImageView, color: UIColor, delegate: MultiSetImagesViewDelegate? = nil) {
         self.delegate = delegate
         self.maxPhotos = maxPhotos
         self.shape = shape
         self.color = color
         super.init(frame: CGRect.zero)
-        
         setupView()
         setupConstraints()
     }
@@ -86,7 +97,9 @@ final class MultiSetImagesView: UIView {
         let indexPath = IndexPath(item: sender.tag, section: 0)
         self.collectionView.performBatchUpdates({
             self.collectionView.deleteItems(at:[indexPath])
-        }, completion:nil)
+        }) { flag in
+            self.collectionView.reloadData()
+        }
     }
     
     @objc private func showFullscreenAction(_ sender: UITapGestureRecognizer) {
@@ -109,16 +122,51 @@ final class MultiSetImagesView: UIView {
               self?.collectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
             }
             
-            self?.delegate.showFullscreen(agrume)
+            self?.delegate?.showFullscreen(agrume)
         }
     }
 }
 
 extension MultiSetImagesView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.frame.size.width, height: self.frame.size.height)
+        let width = (collectionView.frame.size.width - (Constants.itemSpace / (numberOfItemInPage == 0 ? 1 : 2)) * numberOfItemInPage) / numberOfItemInPage
+        return CGSize(width: width, height: self.frame.size.height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return Constants.itemSpace / (numberOfItemInPage == 0 ? 1 : 2)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 0, left: Constants.leftRightInsets / (numberOfItemInPage == 0 ? 1 : 2), bottom: 0, right: Constants.leftRightInsets / (numberOfItemInPage == 0 ? 1 : 2))
     }
 }
+
+//extension MultiSetImagesView: UIScrollViewDelegate {
+//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//
+//        let pageWidth = Float(itemWidth + itemSpacing)
+//        let targetXContentOffset = Float(targetContentOffset.pointee.x)
+//        let contentWidth = Float(collectionView.contentSize.width  )
+//        var newPage = Float(self.pageControl.currentPage)
+//
+//        if velocity.x == 0 {
+//            newPage = floor( (targetXContentOffset - Float(pageWidth) / 2) / Float(pageWidth)) + 1.0
+//        } else {
+//            newPage = Float(velocity.x > 0 ? self.pageControl.currentPage + 1 : self.pageControl.currentPage - 1)
+//            if newPage < 0 {
+//                newPage = 0
+//            }
+//            if (newPage > contentWidth / pageWidth) {
+//                newPage = ceil(contentWidth / pageWidth) - 1.0
+//            }
+//        }
+//
+//        self.pageControl.currentPage = Int(newPage)
+//        let point = CGPoint (x: CGFloat(newPage * pageWidth), y: targetContentOffset.pointee.y)
+//        targetContentOffset.pointee = point
+//    }
+//}
 
 extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -140,7 +188,7 @@ extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSour
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetImageViewCell.reuseIdentifier, for: indexPath) as! SetImageViewCell
-            cell.deleteButton.tag = indexPath.row
+            cell.deleteButton.tag = indexPath.item
             cell.deleteButton.addTarget(self, action: #selector(deleteAction(_:)), for: .touchDown)
             cell.setupCell(image: images[indexPath.row], shape: shape, color: color)
             cell.tag = indexPath.row
@@ -172,15 +220,15 @@ extension MultiSetImagesView: UIViewControllerTransitioningDelegate {
 
 extension MultiSetImagesView: SetImageDelegate {
     func showActionSheet(_ actionSheet: UIAlertController) {
-        delegate.showActionSheet(actionSheet)
+        delegate?.showActionSheet(actionSheet)
     }
     
     func showCamera(_ imagePicker: UIImagePickerController) {
-        delegate.showCamera(imagePicker)
+        delegate?.showCamera(imagePicker)
     }
     
     func showImagePicker(_ imagePicker: PHPickerViewController) {
-        delegate.showImagePicker(imagePicker)
+        delegate?.showImagePicker(imagePicker)
     }
     
     func imagesDidSet(_ images: [UIImage]) {
@@ -195,11 +243,11 @@ extension MultiSetImagesView: SetImageDelegate {
     }
     
     func dismissImagePicker() {
-        delegate.dismissImagePicker()
+        delegate?.dismissImagePicker()
     }
     
     func showError(_ error: String) {
-        delegate.showError(error)
+        delegate?.showError(error)
     }
 }
 

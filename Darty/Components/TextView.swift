@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol TextViewDelegate {
+    func textViewDidEndEditing(_ textView: UITextView)
+}
+
 class TextView: UIView {
 
     private enum Constants {
@@ -25,6 +29,8 @@ class TextView: UIView {
     private var floatingLabel: UILabel!
 
     private var activeBorderColor: UIColor = UIColor.blue
+    
+    var delegate: TextViewDelegate?
 
     init(placeholder: String = "Описание", isEditable: Bool, color: UIColor) {
         super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -153,6 +159,8 @@ extension TextView: UITextViewDelegate {
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {
+        delegate?.textViewDidEndEditing(textView)
+        
         removeFloatingLabel()
         if textView.text.isEmpty {
             if !errorMessage.isEmpty {

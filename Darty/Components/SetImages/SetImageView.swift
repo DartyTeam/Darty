@@ -38,14 +38,12 @@ final class SetImageView: BlurEffectView {
     
     let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let plusIcon: UIImageView = {
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 50, weight: .medium))
         let imageView = UIImageView(image: UIImage(systemName: "plus", withConfiguration: configIcon))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
@@ -88,17 +86,13 @@ final class SetImageView: BlurEffectView {
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            plusIcon.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            plusIcon.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-        ])
+        plusIcon.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
         
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: self.topAnchor),
-            imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            imageView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-        ])
+        imageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
     
     // MARK: - Handlers

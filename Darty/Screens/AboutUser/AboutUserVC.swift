@@ -9,6 +9,7 @@ enum AboutUserVCType {
     case info
     case messageRequest
     case partyRequest
+    case myInfo
 }
 
 // MARK: - OverlayNotch
@@ -25,9 +26,9 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     // MARK: - UI Elements
     private let shareButton: UIButton = {
         let button = UIButton(type: .system)
-        let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let trashIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
-        button.setImage(trashIcon, for: .normal)
+        let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .bold))
+        let shareIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
+        button.setImage(shareIcon, for: UIControl.State())
         button.layer.cornerRadius = 22
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(shareAction), for: .touchUpInside)
@@ -37,9 +38,9 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     
     private let backButton: UIButton = {
         let button = UIButton(type: .system)
-        let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let trashIcon = UIImage(systemName: "chevron.backward", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
-        button.setImage(trashIcon, for: .normal)
+        let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .bold))
+        let backIcon = UIImage(systemName: "chevron.backward", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
+        button.setImage(backIcon, for: UIControl.State())
         button.layer.cornerRadius = 22
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(backAction), for: .touchUpInside)
@@ -76,7 +77,7 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     
     init(userData: UserModel) {
         self.userData = userData
-        self.type = .info
+        self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
         photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
         infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange)
         super.init(style: .rigid)
