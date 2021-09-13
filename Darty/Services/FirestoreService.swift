@@ -12,6 +12,8 @@ class FirestoreService {
     
     static let shared = FirestoreService()
     
+    private init () {}
+    
     let db = Firestore.firestore()
     
     private var recentChatsRef: CollectionReference {
@@ -131,7 +133,7 @@ class FirestoreService {
     
     func updateUserInformation(userData: UserModel,
                                completion: @escaping (Result<Void, Error>) -> Void) {
-        updateUserInformation(username: userData.username, birthday: userData.birthday, avatarStringURL: userData.avatarStringURL, sex: userData.sex, description: userData.description, personalColor: userData.personalColor, interestsList: userData.interestsList, completion: completion)
+        updateUserInformation(username: userData.username, birthday: userData.birthday, avatarStringURL: userData.avatarStringURL, sex: userData.sex, description: userData.description, personalColor: userData.personalColor, interestsList: userData.interestsList, instagramId: userData.instagramId, completion: completion)
     }
     
     func updateUserInformation(username: String,
@@ -141,6 +143,7 @@ class FirestoreService {
                                description: String,
                                personalColor: String,
                                interestsList: [Int],
+                               instagramId: String?,
                                completion: @escaping (Result<Void, Error>) -> Void) {
         userRef.updateData([
             "description": description,
@@ -149,7 +152,8 @@ class FirestoreService {
             "birthday": birthday,
             "username": username,
             "personalColor": personalColor,
-            "interestsList": interestsList
+            "interestsList": interestsList,
+            "instagramId": instagramId,
         ]) { err in
             if let err = err {
                 completion(.failure(err))

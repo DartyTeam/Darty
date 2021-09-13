@@ -7,11 +7,13 @@
 
 import UIKit
 import SDWebImage
+import MapKit
 
 class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
     static var reuseId: String = reuseIdentifier
 
+    // MARK: - Constants
     private enum Constants {
         static let titleFont: UIFont? = .sfProRounded(ofSize: 20, weight: .semibold)
         static let textFont: UIFont? = .sfProDisplay(ofSize: 12, weight: .semibold)
@@ -98,12 +100,12 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         return label
     }()
     
-    private let mapView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .red
-        view.layer.cornerRadius = Constants.cornerRadius
-        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        return view
+    private let mapImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.cornerRadius = Constants.cornerRadius
+        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        imageView.maskToBounds = true
+        return imageView
     }()
     
     private let infoLabel: UILabel = {
@@ -162,6 +164,27 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         }
         
         minAgeLabel.text = "\(party.minAge)+"
+        let mapSnapshotOptions = MKMapSnapshotter.Options()
+
+        // Set the region of the map that is rendered.
+        let location = CLLocationCoordinate2DMake(party.location.latitude, party.location.longitude) // Apple HQ
+        let region = MKCoordinateRegion(center: location, latitudinalMeters: 1000, longitudinalMeters: 1000)
+        mapSnapshotOptions.region = region
+
+        // Set the scale of the image. We'll just use the scale of the current device, which is 2x scale on Retina screens.
+        mapSnapshotOptions.scale = UIScreen.main.scale
+
+        // Set the size of the image output.
+        mapSnapshotOptions.size = mapImageView.size
+
+        // Show buildings and Points of Interest on the snapshot
+        mapSnapshotOptions.showsBuildings = true
+        mapSnapshotOptions.pointOfInterestFilter = MKPointOfInterestFilter(including: [.airport, .amusementPark, .aquarium, .atm, .bakery, .bank, .beach, .brewery, .cafe, .campground, .carRental, .evCharger, .fireStation, .fitnessCenter, .foodMarket, .gasStation, .hospital, .hotel ,.laundry, .library])
+
+        let snapShotter = MKMapSnapshotter(options: mapSnapshotOptions)
+        snapShotter.start { snapshot, error in
+            self.mapImageView.image = snapshot?.image
+        }
     }
     
     func setRejected() {
@@ -195,7 +218,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     private func setupViews() {
         backgroundColor = .systemBackground
-        addSubview(mapView)
+        addSubview(mapImageView)
         addSubview(dateLabel)
         addSubview(timeLabel)
         addSubview(userNameLabel)
@@ -241,7 +264,7 @@ extension PartyCell {
             make.centerY.equalTo(timeLabel.snp.centerY)
         }
         
-        mapView.snp.makeConstraints { make in
+        mapImageView.snp.makeConstraints { make in
             make.top.left.right.equalToSuperview()
             make.bottom.equalToSuperview().offset(-59)
         }
@@ -252,7 +275,7 @@ extension PartyCell {
         }
         
         minAgeView.snp.makeConstraints { make in
-            make.bottom.equalTo(mapView.snp.bottom).offset(-12)
+            make.bottom.equalTo(mapImageView.snp.bottom).offset(-12)
             make.right.equalToSuperview().offset(-7)
         }
         
@@ -282,7 +305,7 @@ extension PartyCell {
         }
         
         infoLabel.snp.makeConstraints { make in
-            make.bottom.equalTo(mapView.snp.bottom).offset(-12)
+            make.bottom.equalTo(mapImageView.snp.bottom).offset(-12)
             make.left.equalToSuperview().offset(8)
         }
         

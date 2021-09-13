@@ -7,6 +7,7 @@
 
 import UIKit
 import SPAlert
+import Agrume
 
 final class ChangeAccountDataInfoViewVC: UIViewController {
     
@@ -28,6 +29,10 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         static let sexTitleLabelText = "Пол"
         
         static let segmentFont: UIFont? = .sfProRounded(ofSize: 14, weight: .medium)
+        
+        static let instagramTitleLabelText = "Мои фото в Instagram"
+        
+        static let playlistTitleLabelText = "Плейлист"
     }
     
     // MARK: - UI Elements
@@ -123,10 +128,80 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         return button
     }()
     
+    private let instagramTitleLable: UILabel = {
+        let label = UILabel()
+        label.text = Constants.instagramTitleLabelText
+        label.font = Constants.titleFont
+        label.textColor = Constants.textColor
+        return label
+    }()
+    
+    private let connectInstagramButton: UIButton = {
+        let button = UIButton(title: "Подключить Instagram")
+        button.backgroundColor = .systemIndigo
+        button.addTarget(self, action: #selector(connectInstagram), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var instagramPhotosCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+        collectionView.collectionViewLayout = layout
+        collectionView.backgroundColor = .clear
+        collectionView.register(InstagramPhotoCell.self, forCellWithReuseIdentifier: InstagramPhotoCell.reuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.allowsSelection = false
+        return collectionView
+    }()
+    
+    private let playlistTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = Constants.playlistTitleLabelText
+        label.font = Constants.titleFont
+        label.textColor = Constants.textColor
+        return label
+    }()
+    
+    private lazy var playlistCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+        collectionView.collectionViewLayout = layout
+        collectionView.backgroundColor = .clear
+        collectionView.register(InstagramPhotoCell.self, forCellWithReuseIdentifier: InstagramPhotoCell.reuseIdentifier)
+        //        collectionView.delegate = self
+        //        collectionView.dataSource = self
+        collectionView.showsHorizontalScrollIndicator = false
+        return collectionView
+    }()
+    
+    private let connectAppleMusicButton: UIButton = {
+        let button = UIButton(title: "Подключить Apple Music")
+        button.backgroundColor = .systemIndigo
+        button.addTarget(self, action: #selector(connectAppleMusic), for: .touchUpInside)
+        return button
+    }()
+    
     private let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
     private lazy var blurEffectView = UIVisualEffectView(effect: blurEffect)
     
     // MARK: - Properties
+    private var instagramApi = InstagramApi.shared
+    private var instagramUser: InstagramUser?
+    private var instagramPhotos: [InstaMediaData] = [] {
+        didSet {
+            DispatchQueue.main.async {
+                self.instagramPhotosCollectionView.reloadSections([0])
+            }
+        }
+    }
+    private var instagramPhotoUrls: [URL] = []
+    
     private var userData: UserModel
     private var accentColor: UIColor
     
@@ -140,6 +215,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(reloadInterests), name: GlobalConstants.changedUserInterestsNotification.name, object: nil)
@@ -159,7 +235,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     private func setupUser() {
         nameTextField.text = userData.username
         aboutTextView.text = userData.description
-
+        
         birthdayDatePicker.date = userData.birthday
         
         switch userData.sex {
@@ -172,6 +248,11 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         default:
             break
         }
+        
+        if UserDefaults.standard.instagramAccessToken != nil {
+            connectInstagramButton.isHidden = true
+            getInstaPhotos()
+        }
     }
     
     private func setupViews() {
@@ -183,7 +264,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         view.insertSubview(blurEffectView, at: 0)
         blurEffectView.contentView.addSubview(arrowDirectionImageView)
         blurEffectView.contentView.addSubview(scrollView)
-
+        
         scrollView.addSubview(nameTextField)
         scrollView.addSubview(aboutTextView)
         scrollView.addSubview(birthdayTitleLabel)
@@ -193,6 +274,12 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         scrollView.addSubview(interestsTitleLable)
         scrollView.addSubview(interestsCollectionView)
         scrollView.addSubview(changeInterestsButton)
+        scrollView.addSubview(instagramTitleLable)
+        scrollView.addSubview(instagramPhotosCollectionView)
+        scrollView.addSubview(connectInstagramButton)
+        scrollView.addSubview(playlistTitleLabel)
+        scrollView.addSubview(playlistCollectionView)
+        scrollView.addSubview(connectAppleMusicButton)
     }
     
     private func setupConstraints() {
@@ -205,7 +292,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-
+        
         nameTextField.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(64)
             make.left.right.equalToSuperview().inset(20)
@@ -247,11 +334,47 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
             make.top.equalTo(interestsTitleLable.snp.bottom)
             make.left.right.equalToSuperview()
             make.height.equalTo(54)
+            make.centerX.equalToSuperview()
             make.width.equalTo(view.frame.size.width)
         }
         
         changeInterestsButton.snp.makeConstraints { make in
             make.top.equalTo(interestsCollectionView.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
+        }
+        
+        instagramTitleLable.snp.makeConstraints { make in
+            make.top.equalTo(changeInterestsButton.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+        
+        instagramPhotosCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(64)
+        }
+        
+        connectInstagramButton.snp.makeConstraints { make in
+            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
+        }
+        
+        playlistTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(instagramPhotosCollectionView.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+        
+        playlistCollectionView.backgroundColor = .green
+        playlistCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(64)
+        }
+        
+        connectAppleMusicButton.snp.makeConstraints { make in
+            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
             make.height.equalTo(44)
             make.left.right.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().offset(-96)
@@ -267,7 +390,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         DispatchQueue.main.async() {
             self.interestsCollectionView.reloadSections([0])
         }
-        updateUserDateInFirestore()
+        updateUserDataInFirestore()
     }
     
     @objc private func sexChangedAction(_ sender: UISegmentedControl) {
@@ -284,8 +407,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         default:
             break
         }
-
-        updateUserDateInFirestore()
+        
+        updateUserDataInFirestore()
     }
     
     @objc private func changeInterestsOpen() {
@@ -295,19 +418,108 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     
     @objc private func changedBirthday() {
         AuthService.shared.currentUser.birthday = birthdayDatePicker.date
-        updateUserDateInFirestore()
+        updateUserDataInFirestore()
     }
     
-    private func updateUserDateInFirestore() {
-        startLoading()
+    private func updateUserDataInFirestore() {
+        DispatchQueue.main.async {
+            self.startLoading()
+        }
         FirestoreService.shared.updateUserInformation(userData: AuthService.shared.currentUser) { [weak self] result in
             switch result {
             
             case .success():
-                self?.stopLoading()
+                DispatchQueue.main.async {
+                    self?.stopLoading()
+                }
             case .failure(let error):
-                self?.stopLoading()
-                SPAlert.present(title: error.localizedDescription, preset: .error)
+                DispatchQueue.main.async {
+                    self?.stopLoading()
+                    SPAlert.present(title: error.localizedDescription, preset: .error)
+                }
+            }
+        }
+    }
+    
+    @objc private func connectInstagram() {
+        let instaAuthVC = InstaAuthViewController(instagramApi: instagramApi)
+        instaAuthVC.delegate = self
+        present(instaAuthVC, animated:true)
+    }
+    
+    private func getInstaPhotos() {
+        if let accessToken = UserDefaults.standard.instagramAccessToken {
+            self.instagramApi.getMediaData(accessToken: accessToken, completion: { [weak self] instagramMediaData in
+                print("asdioajidaiosjdiasjoidjaisjoidas")
+                if let error = instagramMediaData.error {
+                    DispatchQueue.main.async {
+                        self?.connectInstagramButton.isHidden = false
+                        SPAlert.present(title: "Instagram: " + error.errorUserTitle, message: error.errorUserMsg, preset: .error)
+                    }
+                    return
+                }
+                DispatchQueue.main.async { [weak self] in
+                    self?.connectInstagramButton.isHidden = true
+                }
+                if let instaPhotos = instagramMediaData.data?.sorted(by: { $0.timestamp > $1.timestamp }).filter({ instaMediaDataItem in
+                    instaMediaDataItem.mediaType == .IMAGE
+                }) {
+                    self?.instagramPhotoUrls = instaPhotos.map({ instaMediaDataItem in
+                        instaMediaDataItem.mediaUrl
+                    })
+                    self?.instagramPhotos = instaPhotos
+                }
+            })
+        }
+    }
+    
+    @objc private func connectAppleMusic() {
+        
+    }
+    
+    @objc private func showFullImageAction(_ sender: UITapGestureRecognizer) {
+        sender.view?.showAnimation { [weak self] in
+            guard let self = self else { return }
+            
+            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
+            
+            let agrume = Agrume(urls: self.instagramPhotoUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+
+            agrume.didScroll = { [unowned self] index in
+                self.instagramPhotosCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+            }
+            
+            let helper = AgrumeHelper.shared.makeHelper()
+            agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
+            
+            agrume.show(from: self)
+        }
+    }
+}
+
+extension ChangeAccountDataInfoViewVC: InstaAuthDelegate {
+    func didGetUserData(_ instaUser: InstagramTestUser) {
+        startLoading()
+        instagramApi.getLongTermAccessTiken(accessToken: instaUser.accessToken) { [weak self] instaLongTermAccessToken in
+            guard let self = self else { return }
+            if let error = instaLongTermAccessToken.error {
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    SPAlert.present(title: "Instagram: " + error.errorUserTitle, message: error.errorUserMsg, preset: .error)
+                }
+                return
+            }
+            self.instagramApi.getInstagramUser(testUserData: instaUser) { [weak self] (user) in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    SPAlert.present(title: "Вход выполнен с акканта:", message: user.username, preset: .done)
+                }
+                AuthService.shared.currentUser.instagramId = user.id
+                self.updateUserDataInFirestore()
+                self.instagramUser = user
+                UserDefaults.standard.instagramAccessToken = instaLongTermAccessToken.accessToken
+                self.getInstaPhotos()
             }
         }
     }
@@ -320,35 +532,54 @@ extension ChangeAccountDataInfoViewVC: UITextFieldDelegate {
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         AuthService.shared.currentUser.username = textField.text ?? userData.username
-        updateUserDateInFirestore()
+        updateUserDataInFirestore()
     }
 }
 
 extension ChangeAccountDataInfoViewVC: TextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         AuthService.shared.currentUser.description = textView.text ?? userData.description
-        updateUserDateInFirestore()
+        updateUserDataInFirestore()
     }
 }
 
 // MARK: UICollectionViewDataSource
-extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource {
+extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return AuthService.shared.currentUser.interestsList.count
+        if collectionView == interestsCollectionView {
+            return AuthService.shared.currentUser.interestsList.count
+        } else if collectionView == instagramPhotosCollectionView {
+            return instagramPhotoUrls.count
+        } else {
+            return 0
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
-        let interest = GlobalConstants.interestsArray[AuthService.shared.currentUser.interestsList[indexPath.row]]
-    
-        cell.setupCell(title: interest.title, emoji: interest.emoji)
-        cell.isSelected = true
-
-        return cell
+        if collectionView == interestsCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
+            let interest = GlobalConstants.interestsArray[AuthService.shared.currentUser.interestsList[indexPath.row]]
+            
+            cell.setupCell(title: interest.title, emoji: interest.emoji)
+            cell.isSelected = true
+            
+            return cell
+        } else if collectionView == instagramPhotosCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InstagramPhotoCell.reuseIdentifier, for: indexPath) as! InstagramPhotoCell
+            let photoUrl = instagramPhotoUrls[indexPath.row]
+            cell.configure(with: photoUrl)
+            cell.tag = indexPath.row
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullImageAction(_:)))
+            cell.addGestureRecognizer(tapGestureRecognizer)
+            return cell
+        } else {
+            
+            return UICollectionViewCell()
+        }
     }
 }
 

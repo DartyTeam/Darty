@@ -12,6 +12,8 @@ class ListenerService {
     
     static let shared = ListenerService()
     
+    private init () {}
+    
     private let db = Firestore.firestore()
     
     private var usersRef: CollectionReference {

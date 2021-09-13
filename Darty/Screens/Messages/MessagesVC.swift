@@ -67,7 +67,6 @@ class MessagesVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavBar()
         setupCollectionView()
         createDataSource()
         setupListeners()
@@ -75,11 +74,12 @@ class MessagesVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupNavBar()
         setIsTabBarHidden(false)
     }
     
     private func setupNavBar() {
-        setNavigationBar(withColor:.systemTeal, title: "Сообщения")
+        setNavigationBar(withColor:.systemTeal, title: "Сообщения", withClear: false)
     }
     
     private func setupListeners() {
@@ -184,13 +184,11 @@ class MessagesVC: UIViewController {
         snapshot.appendItems(waitingChats, toSection: .waitingChats)
         snapshot.appendItems(filteredActiveChats, toSection: .activeChats)
         
-        DispatchQueue.main.async { [weak self] in
-            self?.dataSource?.apply(snapshot, animatingDifferences: true, completion: {
-                self?.dataSource?.apply(snapshot, animatingDifferences: false)
-                if self?.navigationItem.searchController == nil {
-                    self?.setupSearchBar()
-                }
-            })
+        dataSource?.apply(snapshot, animatingDifferences: true) { [weak self] in
+            self?.collectionView.reloadData()
+            if self?.navigationItem.searchController == nil {
+                self?.setupSearchBar()
+            }
         }
     }
     

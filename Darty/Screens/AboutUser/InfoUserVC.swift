@@ -7,6 +7,7 @@
 
 import UIKit
 import SPAlert
+import Agrume
 
 protocol AboutUserPartyRequestDelegate {
     func userDidDecline(_ user: UserModel)
@@ -38,6 +39,8 @@ final class InfoUserVC: UIViewController {
         
         static let messageTitleText = "Сообщение"
         static let messageTextFont: UIFont? = .sfProText(ofSize: 12, weight: .regular)
+        
+        static let instagramTitleLabelText = "Фото в Instagram"
     }
     
     // MARK: - UI Elements
@@ -172,11 +175,52 @@ final class InfoUserVC: UIViewController {
         return button
     }()
     
+    private let instagramTitleLable: UILabel = {
+        let label = UILabel()
+        label.text = Constants.instagramTitleLabelText
+        label.font = Constants.titleFont
+        label.textColor = Constants.textColor
+        return label
+    }()
+    
+    private let connectInstagramButton: UIButton = {
+        let button = UIButton(title: "Подключить Instagram")
+        button.backgroundColor = .systemIndigo
+        button.addTarget(self, action: #selector(connectInstagram), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var instagramPhotosCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        let collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+        collectionView.collectionViewLayout = layout
+        collectionView.backgroundColor = .clear
+        collectionView.register(InstagramPhotoCell.self, forCellWithReuseIdentifier: InstagramPhotoCell.reuseIdentifier)
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.allowsSelection = false
+        return collectionView
+    }()
+    
     // MARK: - Delegate
     var partyRequestDelegate: AboutUserPartyRequestDelegate?
     var chatRequestDelegate: AboutUserChatRequestDelegate?
     
     // MARK: - Properties
+    private var instagramApi = InstagramApi.shared
+    private var instagramUser: InstagramUser?
+    private var instagramPhotos: [InstaMediaData] = [] {
+        didSet {
+            DispatchQueue.main.async {
+                self.instagramPhotosCollectionView.reloadSections([0])
+            }
+        }
+    }
+    private var instagramPhotoUrls: [URL] = []
+    
     private var userData: UserModel
     private var type: AboutUserVCType
     private var accentColor: UIColor
@@ -238,6 +282,12 @@ final class InfoUserVC: UIViewController {
         userRatingLabel.text = "0.0 *"
         
         messageTextLabel.text = message
+        
+        print("asdjaiosdjasdoiaoisdjasiodasd: ", userData.instagramId)
+        if userData.instagramId != nil, UserDefaults.standard.instagramAccessToken != nil {
+            connectInstagramButton.isHidden = true
+            getInstaPhotos()
+        }
     }
     
     private func setupViews() {
@@ -249,7 +299,7 @@ final class InfoUserVC: UIViewController {
         view.insertSubview(blurEffectView, at: 0)
         blurEffectView.contentView.addSubview(arrowDirectionImageView)
         blurEffectView.contentView.addSubview(scrollView)
-
+        
         scrollView.addSubview(nameAgeStackView)
         scrollView.addSubview(userRatingLabel)
         scrollView.addSubview(descriptionTitleLabel)
@@ -267,6 +317,12 @@ final class InfoUserVC: UIViewController {
             scrollView.addSubview(messageTextLabel)
             scrollView.addSubview(acceptButton)
             scrollView.addSubview(declineButton)
+        }
+        
+        if userData.instagramId != nil {
+            scrollView.addSubview(instagramTitleLable)
+            scrollView.addSubview(instagramPhotosCollectionView)
+            scrollView.addSubview(connectInstagramButton)
         }
     }
     
@@ -362,7 +418,29 @@ final class InfoUserVC: UIViewController {
             make.left.right.equalToSuperview()
             make.height.equalTo(54)
             make.width.equalTo(view.frame.size.width)
-            make.bottom.equalToSuperview().offset(-96)
+            if userData.instagramId == nil {
+                make.bottom.equalToSuperview().offset(-96)
+            }
+        }
+        
+        if userData.instagramId != nil {
+            instagramTitleLable.snp.makeConstraints { make in
+                make.top.equalTo(interestsCollectionView.snp.bottom).offset(24)
+                make.left.equalToSuperview().offset(26)
+            }
+            
+            instagramPhotosCollectionView.snp.makeConstraints { make in
+                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(64)
+            }
+            
+            connectInstagramButton.snp.makeConstraints { make in
+                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+                make.height.equalTo(44)
+                make.left.right.equalToSuperview().inset(20)
+                make.bottom.equalToSuperview().offset(-96)
+            }
         }
     }
     
@@ -428,6 +506,83 @@ final class InfoUserVC: UIViewController {
     @objc private func tapAction() {
         self.view.endEditing(true)
     }
+    
+    @objc private func connectInstagram() {
+        let instaAuthVC = InstaAuthViewController(instagramApi: instagramApi)
+        instaAuthVC.delegate = self
+        present(instaAuthVC, animated:true)
+    }
+    
+    @objc private func showFullImageAction(_ sender: UITapGestureRecognizer) {
+        sender.view?.showAnimation { [weak self] in
+            guard let self = self else { return }
+            
+            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
+            
+            let agrume = Agrume(urls: self.instagramPhotoUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            
+            agrume.didScroll = { [unowned self] index in
+                self.instagramPhotosCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+            }
+            
+            let helper = AgrumeHelper.shared.makeHelper()
+            agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
+            
+            agrume.show(from: self)
+        }
+    }
+    
+    private func getInstaPhotos() {
+        if let accessToken = UserDefaults.standard.instagramAccessToken, let userId = userData.instagramId {
+            self.instagramApi.getMediaData(for: userId, accessToken: accessToken, completion: { [weak self] instagramMediaData in
+                print("asdioajidaiosjdiasjoidjaisjoidas")
+                if let error = instagramMediaData.error {
+                    DispatchQueue.main.async {
+                        self?.connectInstagramButton.isHidden = false
+                        SPAlert.present(title: "Instagram: " + error.errorUserTitle, message: error.errorUserMsg, preset: .error)
+                    }
+                    return
+                }
+                DispatchQueue.main.async { [weak self] in
+                    self?.connectInstagramButton.isHidden = true
+                }
+                if let instaPhotos = instagramMediaData.data?.sorted(by: { $0.timestamp > $1.timestamp }).filter({ instaMediaDataItem in
+                    instaMediaDataItem.mediaType == .IMAGE
+                }) {
+                    self?.instagramPhotoUrls = instaPhotos.map({ instaMediaDataItem in
+                        instaMediaDataItem.mediaUrl
+                    })
+                    self?.instagramPhotos = instaPhotos
+                }
+            })
+        }
+    }
+}
+
+extension InfoUserVC: InstaAuthDelegate {
+    func didGetUserData(_ instaUser: InstagramTestUser) {
+        startLoading()
+        instagramApi.getLongTermAccessTiken(accessToken: instaUser.accessToken) { [weak self] instaLongTermAccessToken in
+            guard let self = self else { return }
+            if let error = instaLongTermAccessToken.error {
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    SPAlert.present(title: "Instagram: " + error.errorUserTitle, message: error.errorUserMsg, preset: .error)
+                }
+                return
+            }
+            self.instagramApi.getInstagramUser(testUserData: instaUser) { [weak self] (user) in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    SPAlert.present(title: "Вход выполнен с акканта:", message: user.username, preset: .done)
+                }
+                self.instagramUser = user
+                UserDefaults.standard.instagramAccessToken = instaLongTermAccessToken.accessToken
+                self.getInstaPhotos()
+            }
+        }
+    }
 }
 
 extension InfoUserVC: UITextFieldDelegate {
@@ -443,20 +598,36 @@ extension InfoUserVC: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return userData.interestsList.count
+        if collectionView == instagramPhotosCollectionView {
+            return instagramPhotoUrls.count
+        } else {
+            return userData.interestsList.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
-        let interest = GlobalConstants.interestsArray[userData.interestsList[indexPath.row]]
-    
-        cell.setupCell(title: interest.title, emoji: interest.emoji)
-        
-        if AuthService.shared.currentUser?.interestsList.contains(userData.interestsList[indexPath.row]) ?? false {
-            cell.isSelected = true
+        if collectionView == instagramPhotosCollectionView {
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InstagramPhotoCell.reuseIdentifier, for: indexPath) as! InstagramPhotoCell
+            let photoUrl = instagramPhotoUrls[indexPath.row]
+            cell.configure(with: photoUrl)
+            cell.tag = indexPath.row
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullImageAction(_:)))
+            cell.addGestureRecognizer(tapGestureRecognizer)
+            return cell
+        } else {
+            
+            
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
+            let interest = GlobalConstants.interestsArray[userData.interestsList[indexPath.row]]
+            
+            cell.setupCell(title: interest.title, emoji: interest.emoji)
+            
+            if AuthService.shared.currentUser?.interestsList.contains(userData.interestsList[indexPath.row]) ?? false {
+                cell.isSelected = true
+            }
+            
+            return cell
         }
-
-        return cell
     }
 }
 

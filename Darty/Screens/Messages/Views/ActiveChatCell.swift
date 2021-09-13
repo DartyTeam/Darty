@@ -77,8 +77,6 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
     func configure<U>(with value: U) where U : Hashable {
         guard let chat: RecentChatModel = value as? RecentChatModel else { return }
         
-        print("asdkasdljasd: ", chat)
-        
         if let imageUrl = URL(string: chat.avatarLink) {
             StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
                 switch result {
@@ -99,8 +97,13 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
         if chat.unreadCounter != 0 {
             countLabel.isHidden = false
             countMessagesView.isHidden = false
-            let unreadCount = String(chat.unreadCounter)
-            countLabel.text = unreadCount
+            if chat.unreadCounter > 99 {
+                countLabel.text = "🤯"
+            } else {
+                let unreadCount = String(chat.unreadCounter)
+                countLabel.text = unreadCount
+            }
+  
             layer.borderWidth = 1
         } else {
             layer.borderWidth = 0
@@ -164,7 +167,7 @@ extension ActiveChatCell {
         usernameLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(10)
             make.left.equalTo(userImageView.snp.right).offset(8)
-            make.right.equalToSuperview().inset(64)
+            make.right.equalToSuperview().inset(76)
         }
         
         lastMessageLabel.snp.makeConstraints { make in
@@ -176,7 +179,7 @@ extension ActiveChatCell {
         
         timeLabel.snp.makeConstraints { make in
             make.centerY.equalTo(usernameLabel.snp.centerY)
-            make.right.equalTo(countMessagesView.snp.left).inset(-6)
+            make.right.equalToSuperview().inset(32)
         }
     }
 }

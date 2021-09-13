@@ -69,6 +69,8 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         self.viewControllers = [photosUserVC, infoUserVC]
         self.delegate = self
+        
+        drivingScrollView = (viewControllers.last as? ChangeAccountDataInfoViewVC)?.scrollView
         setupViews()
         setupConstraints()
         moveOverlay(toNotchAt: 0, animated: true)
@@ -78,11 +80,6 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigationBar()
-    }
-    
-    func overlayContainerViewController(_ containerViewController: OverlayContainerViewController,
-                                        scrollViewDrivingOverlay overlayViewController: UIViewController) -> UIScrollView? {
-        return (viewControllers.last as? ChangeAccountDataInfoViewVC)?.scrollView
     }
     
     func overlayContainerViewController(_ containerViewController: OverlayContainerViewController, willMoveOverlay overlayViewController: UIViewController, toNotchAt index: Int) {
@@ -231,19 +228,23 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
                     switch result {
                     
                     case .success():
-                        self?.stopLoading()
                         DispatchQueue.main.async {
+                            self?.stopLoading()
                             self?.photosUserVC.imageView.image = image
                             self?.photosUserVC.imageView.focusOnFaces = true
                         }
                     case .failure(let error):
-                        self?.stopLoading()
-                        SPAlert.present(title: error.localizedDescription, preset: .error)
+                        DispatchQueue.main.async {
+                            self?.stopLoading()
+                            SPAlert.present(title: error.localizedDescription, preset: .error)
+                        }
                     }
                 }
             case .failure(let error):
-                self?.stopLoading()
-                SPAlert.present(title: error.localizedDescription, preset: .error)
+                DispatchQueue.main.async {
+                    self?.stopLoading()
+                    SPAlert.present(title: error.localizedDescription, preset: .error)
+                }
             }
         }
     }
@@ -281,4 +282,3 @@ extension ChangeAccountDataVC: UIImagePickerControllerDelegate, UINavigationCont
         dismiss(animated: true, completion: nil)
     }
 }
-

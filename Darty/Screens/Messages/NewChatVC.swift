@@ -238,10 +238,10 @@ class NewChatVC: MessagesViewController {
         messageInputBar.inputTextView.placeholder = "Сообщение..."
         messageInputBar.inputTextView.font = .sfProDisplay(ofSize: 14, weight: .medium)
         
-        messageInputBar.layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
-        messageInputBar.layer.shadowRadius = 5
-        messageInputBar.layer.shadowOpacity = 0.3
-        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
+//        messageInputBar.layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+//        messageInputBar.layer.shadowRadius = 5
+//        messageInputBar.layer.shadowOpacity = 0.3
+//        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
         
         configureSendButton()
         configureAttachButton()
@@ -680,6 +680,7 @@ extension NewChatVC: PHPickerViewControllerDelegate {
                     DispatchQueue.main.async { [weak self] in
                         if let image = image as? UIImage {
                             images.append(image)
+                            self?.updateMicButtonStatus(show: false)
                             self?.messageSend(text: nil, photo: image, video: nil, audio: nil, location: nil)
                             if i == results.count - 1 {
                                 print("Succesfull sended \(images.count) photos")
@@ -691,6 +692,7 @@ extension NewChatVC: PHPickerViewControllerDelegate {
                 item.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, err in
                     if let url = url {
                         DispatchQueue.main.sync { [weak self] in
+                            self?.updateMicButtonStatus(show: false)
                             self?.messageSend(text: nil, photo: nil, video: url, audio: nil, location: nil)
                         }
                     }
@@ -708,6 +710,7 @@ extension NewChatVC: UIImagePickerControllerDelegate, UINavigationControllerDele
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         if let image = info[.editedImage] as? UIImage {
+            updateMicButtonStatus(show: false)
             messageSend(text: nil, photo: image, video: nil, audio: nil, location: nil)
         } else {
             SPAlert.present(title: "Ошибка получени изображения с камеры", preset: .error)

@@ -50,8 +50,10 @@ final class PhotosUserVC: UIViewController {
             switch result {
             
             case .success(let image):
-                self?.imageView.image = image
-                self?.imageView.focusOnFaces = true
+                DispatchQueue.main.async {
+                    self?.imageView.image = image
+                    self?.imageView.focusOnFaces = true
+                }
             case .failure(let error):
                 print("ERROR_LOG: ", error.localizedDescription)
             }

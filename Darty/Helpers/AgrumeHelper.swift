@@ -11,6 +11,7 @@ import Photos
 
 final class AgrumeHelper {
     static let shared = AgrumeHelper()
+    private init () {}
     
     func makeHelper() -> AgrumePhotoLibraryHelper {
         let saveButtonTitle = NSLocalizedString("Сохранить фото", comment: "Save Photo")

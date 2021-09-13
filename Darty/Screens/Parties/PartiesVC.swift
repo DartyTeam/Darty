@@ -151,7 +151,7 @@ final class PartiesVC: UIViewController {
         
         let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .semibold))
         let archiveBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "archivebox", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(archiveAction))
-        let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "list.bullet", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
+        let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "slider.horizontal.3", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
         let spaceItem = UIBarButtonItem()
         navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem, spaceItem, spaceItem]
     }
@@ -178,9 +178,10 @@ final class PartiesVC: UIViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Section, PartyModel>()
         snapshot.appendSections([.parties])
         snapshot.appendItems(filteredParties, toSection: .parties)
-        dataSource?.apply(snapshot, animatingDifferences: true, completion: {
-            if self.navigationItem.searchController == nil {
-                self.setupSearchBar()
+        dataSource?.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+            self?.collectionView.reloadData()
+            if self?.navigationItem.searchController == nil {
+                self?.setupSearchBar()
             }
         })
     }

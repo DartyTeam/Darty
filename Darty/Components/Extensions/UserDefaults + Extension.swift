@@ -32,6 +32,7 @@ extension UserDefaults {
         case isPrevLaunched
         case appOpenedCount
         case lastReviewRequestAppVersion
+        case instagramAccessToken
     }
         
     var isPrevLaunched: Bool? {
@@ -47,5 +48,10 @@ extension UserDefaults {
     var lastReviewRequestAppVersion: String? {
         set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.lastReviewRequestAppVersion.rawValue) }
         get { return getCustomObject(forKey: UserDefaultsKeys.lastReviewRequestAppVersion.rawValue) }
+    }
+    
+    var instagramAccessToken: String? {
+        set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.instagramAccessToken.rawValue) }
+        get { return getCustomObject(forKey: UserDefaultsKeys.instagramAccessToken.rawValue) }
     }
 }

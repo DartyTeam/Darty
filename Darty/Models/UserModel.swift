@@ -22,8 +22,9 @@ struct UserModel: Hashable, Decodable {
     var country: String
     let id: String
     let pushId: String
+    var instagramId: String?
     
-    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String, city: String, country: String) {
+    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String, city: String, country: String, instagramId: String? = nil) {
         self.username = username
         self.phone = phone
         self.avatarStringURL = avatarStringURL
@@ -36,6 +37,7 @@ struct UserModel: Hashable, Decodable {
         self.pushId = pushId
         self.city = city
         self.country = country
+        self.instagramId = instagramId
     }
     
     init?(document: DocumentSnapshot) {
@@ -57,6 +59,7 @@ struct UserModel: Hashable, Decodable {
         
         // Optional value
         let sex = data["sex"] as? Sex.RawValue
+        let instagramId = data["instagramId"] as? String
         
         self.username = username
         self.phone = phone
@@ -70,6 +73,7 @@ struct UserModel: Hashable, Decodable {
         self.pushId = pushId
         self.city = city
         self.country = country
+        self.instagramId = instagramId
     }
     
     var representation: [String: Any] {
@@ -86,6 +90,7 @@ struct UserModel: Hashable, Decodable {
         rep["pushId"] = pushId
         rep["city"] = city
         rep["country"] = country
+        rep["instagramId"] = instagramId
         return rep
     }
     
