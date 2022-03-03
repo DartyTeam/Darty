@@ -10,7 +10,8 @@ import SPAlert
 import Agrume
 
 final class ChangeAccountDataInfoViewVC: UIViewController {
-    
+
+    // MARK: - Constants
     private enum Constants {
         static let textColor: UIColor = .white
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .medium)
@@ -205,7 +206,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     private var userData: UserModel
     private var accentColor: UIColor
     
-    // MARK: - Lifecycle
+    // MARK: - Init
     init(userData: UserModel, accentColor: UIColor) {
         self.userData = userData
         self.accentColor = accentColor
@@ -215,7 +216,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(reloadInterests), name: GlobalConstants.changedUserInterestsNotification.name, object: nil)
@@ -483,7 +485,10 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
             
             let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
             
-            let agrume = Agrume(urls: self.instagramPhotoUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            let agrume = Agrume(urls: self.instagramPhotoUrls,
+                                startIndex: sender.view?.tag ?? 0,
+                                background: .blurred(.light),
+                                dismissal: .withPhysicsAndButton(button))
 
             agrume.didScroll = { [unowned self] index in
                 self.instagramPhotosCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
@@ -497,6 +502,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }
 }
 
+// MARK: - InstaAuthDelegate
 extension ChangeAccountDataInfoViewVC: InstaAuthDelegate {
     func didGetUserData(_ instaUser: InstagramTestUser) {
         startLoading()
@@ -525,6 +531,7 @@ extension ChangeAccountDataInfoViewVC: InstaAuthDelegate {
     }
 }
 
+// MARK: - UITextFieldDelegate
 extension ChangeAccountDataInfoViewVC: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -536,6 +543,7 @@ extension ChangeAccountDataInfoViewVC: UITextFieldDelegate {
     }
 }
 
+// MARK: - TextViewDelegate
 extension ChangeAccountDataInfoViewVC: TextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         AuthService.shared.currentUser.description = textView.text ?? userData.description
@@ -583,6 +591,7 @@ extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource, UICollectionV
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
 extension ChangeAccountDataInfoViewVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return Constants.sectionInsets

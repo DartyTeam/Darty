@@ -13,17 +13,33 @@ enum TabItem: String, CaseIterable {
     case create = "Создать"
     case messages = "Сообщения"
     case account = "Аккаунт"
-    
+
+    // Cюда надо сделать список координаторов, вместо контроллеров
     var viewController: UIViewController {
         switch self {
         case .parties:
             return PartiesVC(currentUser: AuthService.shared.currentUser!)
         case .create:
-            return CreateVC(currentUser: AuthService.shared.currentUser!)
+            let navController = UINavigationController()
+            
+            return navController
         case .messages:
             return MessagesVC(currentUser: AuthService.shared.currentUser!)
         case .account:
             return AccountVC()
+        }
+    }
+
+    var coordinator: Coordinator {
+        switch self {
+        case .parties:
+            return CreateCoordinator(navigationController: UINavigationController())
+        case .create:
+            return CreateCoordinator(navigationController: UINavigationController())
+        case .messages:
+            return CreateCoordinator(navigationController: UINavigationController())
+        case .account:
+            return CreateCoordinator(navigationController: UINavigationController())
         }
     }
     

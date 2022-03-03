@@ -9,19 +9,9 @@ import UIKit
 import FirebaseAuth
 import SPAlert
 
-struct SetuppedUser {
-    var image: UIImage?
-    var name: String
-    var description: String
-    var sex: Sex?
-    var birthday: Date?
-    var interestsList: [String]?
-    var city: String?
-    var country: String?
-}
-
 final class NameSetupProfileVC: UIViewController {
-    
+
+    // MARK: - Constraints
     private enum Constants {
         static let textPlaceholder = "Text here..."
         static let textFont: UIFont? = .sfProText(ofSize: 24, weight: .medium)
@@ -46,35 +36,24 @@ final class NameSetupProfileVC: UIViewController {
         textField.returnKeyType = .next
         return textField
     }()
-    
-    // MARK: - Properties
-    private let currentUser: User
-    
+
+    // MARK: - Delegate
+    weak var delegate: NameSetupProfileDelegate?
+
     // MARK: - Lifecycle
-    init(currentUser: User) {
-        self.currentUser = currentUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigationBar(withColor: .systemBlue, title: "Имя")
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         if let image = UIImage(named: "name.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
             addBackground(image)
         }
-        
         view.backgroundColor = .systemBackground
-        
         view.addSubview(nameTextField)
         view.addSubview(nextButton)
     }
@@ -89,16 +68,12 @@ final class NameSetupProfileVC: UIViewController {
             SPAlert.present(title: "Необходимо ввести имя", preset: .error)
             return
         }
-        
-        let setuppedUser = SetuppedUser(image: nil, name: username, description: "", sex: nil, birthday: nil, interestsList: nil)
-        let aboutSetupProfileVC = AboutSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
+        delegate?.goNext(name: username)
     }
 }
 
 // MARK: - Setup constraints
 extension NameSetupProfileVC {
-    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -117,7 +92,6 @@ extension NameSetupProfileVC {
 
 // MARK: - UITextFieldDelegate
 extension NameSetupProfileVC: UITextFieldDelegate {
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         nextButtonTapped()
 //        textField.resignFirstResponder()

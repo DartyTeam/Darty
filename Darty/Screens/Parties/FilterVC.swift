@@ -8,33 +8,102 @@
 import UIKit
 import rubber_range_picker
 
-enum QuerySign: String {
+enum QuerySign: String, CaseIterable {
     case isGreaterThanOrEqualTo
     case isLessThanOrEqualTo
     case isEqual
+
+    var index: Int {
+        switch self {
+        case .isGreaterThanOrEqualTo:
+            return 0
+        case .isLessThanOrEqualTo:
+            return 1
+        case .isEqual:
+            return 2
+        }
+    }
+
+    var segmentTitle: String {
+        switch self {
+        case .isGreaterThanOrEqualTo:
+            return "от"
+        case .isLessThanOrEqualTo:
+            return "до"
+        case .isEqual:
+            return "="
+        }
+    }
 }
 
 protocol FilterVCDelegate {
-    func didChangeFilter(_ filter: [String: Any])
+    func didChangeFilter(_ filterParams: FilterManager.FilterParams)
+}
+
+final class FilterManager {
+    static let shared = FilterManager()
+
+    private init() {}
+
+    var filterParams = FilterParams()
+
+    struct FilterParams {
+        var dateSign: QuerySign = .isLessThanOrEqualTo
+        var priceLower: Int?
+        var priceUpper: Int?
+        var maxGuestsLower: Int?
+        var maxGuestsUpper: Int?
+        var priceType: PriceType?
+        var city: String?
+        var type: PartyType?
+        var date: Date = Date()
+        var sortingType: SortingType = .date
+        var ascendingType: AscendingType = .desc
+    }
+
+    enum SortingType: String, CaseIterable {
+        case price = "Цена 􀖥"
+        case date = "Дата 􀉉"
+        case guests = "Кол 􀝊"
+
+        var index: Int {
+            switch self {
+            case .price:
+                return 0
+            case .date:
+                return 1
+            case .guests:
+                return 2
+            }
+        }
+    }
+
+    enum AscendingType: String, CaseIterable {
+        case asc = "􀄨"
+        case desc = "􀄩"
+
+        var index: Int {
+            switch self {
+            case .asc:
+                return 0
+            case .desc:
+                return 1
+            }
+        }
+    }
 }
 
 final class FilterVC: UIViewController {
     
     private enum Constants {
         static let topLineHeight: CGFloat = 6
-        
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .medium)
         static let titleText = "Фильтр"
-
         static let maxGuestsText = "Макс. кол-во гостей"
         static let paramNameFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
-        
         static let typeText = "Тематика"
-        
         static let dateText = "Дата"
-        
         static let priceTypeText = "Цена"
-        
         static let sortingText = "Сортировка"
     }
     
@@ -119,9 +188,7 @@ final class FilterVC: UIViewController {
         textFieldWithoutInteract.delegate = self
         textFieldWithoutInteract.text = "Любой"
         textFieldWithoutInteract.textColor = .systemOrange
-        
         textFieldWithoutInteract.font = Constants.paramNameFont
-        
         return textFieldWithoutInteract
     }()
     
@@ -142,11 +209,12 @@ final class FilterVC: UIViewController {
         return datePicker
     }()
     
-    private let dateSegmentControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: ["от", "до", "="])
+    private lazy var dateSegmentControl: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: [QuerySign.allCases])
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
-        segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
+        segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any], for: .normal)
         segmentedControl.addTarget(self, action: #selector(dateSegmentChanged), for: .valueChanged)
+        segmentedControl.selectedSegmentIndex = filterParams.dateSign.index
         return segmentedControl
     }()
     
@@ -157,9 +225,11 @@ final class FilterVC: UIViewController {
         return label
     }()
     
-    private let priceTypeSegment: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: [PriceType.free.rawValue, PriceType.money.rawValue, PriceType.another.rawValue])
-        segmentedControl.selectedSegmentIndex = 0
+    private lazy var priceTypeSegment: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: [PriceType.allCases])
+        if let priceTypeIndex = filterParams.priceType?.index {
+            segmentedControl.selectedSegmentIndex = priceTypeIndex
+        }
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
         segmentedControl.addTarget(self, action: #selector(priceTypeChangedAction(_:)), for: .valueChanged)
@@ -192,10 +262,11 @@ final class FilterVC: UIViewController {
         return segmentedControl
     }()
     
-    private let ascSegment: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: ["􀄨", "􀄩"])
+    private lazy var ascSegment: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: [FilterManager.AscendingType.allCases])
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
+        segmentedControl.selectedSegmentIndex = filterParams.ascendingType.index
         return segmentedControl
     }()
     
@@ -203,9 +274,13 @@ final class FilterVC: UIViewController {
     private lazy var blurEffectView = UIVisualEffectView(effect: blurEffect)
     
     // MARK: - Properties
-    private var filterParams: [String: Any] = [:]
-    private var pickedType: PartyType? = nil
-    
+    private var filterParams = FilterManager.shared.filterParams {
+        didSet {
+            commonFilterUpdate()
+        }
+    }
+
+    // MARK: - Delegate
     private let delegate: FilterVCDelegate
     
     // MARK: - Lifecycle
@@ -220,33 +295,60 @@ final class FilterVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        filterParams["date"] = Date()
         setupViews()
         setupConstraints()
     }
+
     private func setupViews() {
         blurEffectView.frame = view.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
         view.insertSubview(blurEffectView, at: 0)
-        
         blurEffectView.contentView.addSubview(closeButton)
         blurEffectView.contentView.addSubview(topLineView)
         blurEffectView.contentView.addSubview(titleLabel)
-        blurEffectView.contentView.addSubview(maxGuestsLabel)
-        blurEffectView.contentView.addSubview(maxGuestsPicker)
-        blurEffectView.contentView.addSubview(typeLabel)
-        blurEffectView.contentView.addSubview(typeBackgroundView)
+
+        let maxGuestsView = UIView()
+        maxGuestsView.addSubview(maxGuestsLabel)
+        maxGuestsView.addSubview(maxGuestsPicker)
+
+        let typeView = UIView()
+        typeView.addSubview(typeLabel)
+        typeView.addSubview(typeBackgroundView)
         typeBackgroundView.addSubview(typeTextField)
-        blurEffectView.contentView.addSubview(priceTypeLabel)
-        blurEffectView.contentView.addSubview(priceTypeSegment)
-        blurEffectView.contentView.addSubview(priceRangePicker)
-        blurEffectView.contentView.addSubview(dateLabel)
-        blurEffectView.contentView.addSubview(datePicker)
-        blurEffectView.contentView.addSubview(dateSegmentControl)
-        blurEffectView.contentView.addSubview(sortingLabel)
-        blurEffectView.contentView.addSubview(sortingTypeSegment)
-        blurEffectView.contentView.addSubview(ascSegment)
+
+        let priceView = UIView()
+        priceView.addSubview(priceTypeLabel)
+        priceView.addSubview(priceTypeSegment)
+        priceView.addSubview(priceRangePicker)
+
+        let dateView = UIView()
+        dateView.addSubview(dateLabel)
+        dateView.addSubview(datePicker)
+        dateView.addSubview(dateSegmentControl)
+
+        let sortingView = UIView()
+        sortingView.addSubview(sortingLabel)
+        sortingView.addSubview(sortingTypeSegment)
+        sortingView.addSubview(ascSegment)
+
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                maxGuestsView,
+                typeView,
+                priceView,
+                dateView,
+                sortingView
+        ],
+            axis: .vertical,
+            spacing: 24
+        )
+        blurEffectView.contentView.addSubview(stackView)
+
+        stackView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(24)
+            make.top.equalTo(titleLabel.snp.bottom).offset(24)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+        }
     }
     
     private func setupConstraints() {
@@ -269,23 +371,22 @@ final class FilterVC: UIViewController {
         }
         
         maxGuestsLabel.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(24)
-            make.top.equalTo(titleLabel.snp.bottom).offset(24)
+            make.left.top.right.equalToSuperview()
         }
         
         maxGuestsPicker.snp.makeConstraints { make in
             make.top.equalTo(maxGuestsLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(24)
+            make.left.right.bottom.equalToSuperview()
         }
         
         typeLabel.snp.makeConstraints { make in
-            make.top.equalTo(maxGuestsPicker.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(24)
+            make.left.top.equalToSuperview()
         }
         
         typeBackgroundView.snp.makeConstraints { make in
             make.centerY.equalTo(typeLabel.snp.centerY)
             make.left.equalTo(typeLabel.snp.right).offset(10)
+            make.bottom.right.equalToSuperview()
         }
         
         typeTextField.snp.makeConstraints { make in
@@ -294,52 +395,49 @@ final class FilterVC: UIViewController {
         }
         
         priceTypeLabel.snp.makeConstraints { make in
-            make.top.equalTo(typeLabel.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(24)
+            make.left.top.right.equalToSuperview()
         }
         
         priceRangePicker.snp.makeConstraints { make in
             make.centerY.equalTo(priceTypeLabel.snp.centerY)
             make.left.equalToSuperview().offset(156)
-            make.right.equalToSuperview().inset(24)
+            make.right.equalToSuperview()
         }
         
         priceTypeSegment.snp.makeConstraints { make in
             make.top.equalTo(priceTypeLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
+            make.left.right.bottom.equalToSuperview()
         }
         
         dateLabel.snp.makeConstraints { make in
-            make.top.equalTo(priceTypeSegment.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(24)
+            make.left.top.equalToSuperview()
         }
         
         datePicker.snp.makeConstraints { make in
             make.centerY.equalTo(dateLabel.snp.centerY)
-            make.right.equalToSuperview().offset(-24)
+            make.right.equalToSuperview()
         }
         
         dateSegmentControl.snp.makeConstraints { make in
             make.centerY.equalTo(dateLabel.snp.centerY)
             make.left.equalTo(dateLabel.snp.right).offset(10)
             make.right.equalToSuperview().inset(156)
+            make.bottom.equalToSuperview()
         }
         
         sortingLabel.snp.makeConstraints { make in
-            make.top.equalTo(dateLabel.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(24)
+            make.left.top.right.equalToSuperview()
         }
         
         ascSegment.snp.makeConstraints { make in
             make.top.equalTo(sortingLabel.snp.bottom).offset(16)
-            make.right.equalToSuperview().inset(24)
+            make.right.equalToSuperview()
         }
         
         sortingTypeSegment.snp.makeConstraints { make in
             make.centerY.equalTo(ascSegment.snp.centerY)
-            make.left.equalToSuperview().offset(24)
             make.right.equalTo(ascSegment.snp.left).offset(-10)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+            make.left.bottom.equalToSuperview()
         }
     }
     
@@ -354,9 +452,8 @@ final class FilterVC: UIViewController {
     
     @objc private func maxGuestsUpdated() {
         maxGuestsLabel.text = String(format:"\(Constants.maxGuestsText): \(Int(maxGuestsPicker.lowerValue)) - \(Int(maxGuestsPicker.upperValue))")
-        filterParams["maxGuestsLower"] = Int(maxGuestsPicker.lowerValue)
-        filterParams["maxGuestsUpper"] = Int(maxGuestsPicker.upperValue)
-        commonFilterUpdate()
+        filterParams.maxGuestsLower = Int(maxGuestsPicker.lowerValue)
+        filterParams.maxGuestsUpper = Int(maxGuestsPicker.upperValue)
     }
     
     @objc private func typeDoneTapped() {
@@ -364,12 +461,9 @@ final class FilterVC: UIViewController {
     }
     
     @objc private func typeAnyTapped() {
-        pickedType = nil
+        filterParams.type = nil
         typeTextField.text = "Любой"
         typeTextField.resignFirstResponder()
-        
-        filterParams["type"] = nil
-        commonFilterUpdate()
     }
     
     @objc private func priceTypeChangedAction(_ sender: UISegmentedControl) {
@@ -377,53 +471,47 @@ final class FilterVC: UIViewController {
         case 0:
             priceRangePicker.isHidden = true
             priceTypeLabel.text = Constants.priceTypeText
-            filterParams["priceType"] = PriceType.free
+            filterParams.priceType = PriceType.free
         case 1:
             priceRangePicker.isHidden = false
             priceTypeLabel.text = String(format:"\(Constants.priceTypeText): \(Int(priceRangePicker.lowerValue)) - \(Int(priceRangePicker.upperValue))")
-            filterParams["priceType"] = PriceType.money
+            filterParams.priceType = PriceType.money
         case 2:
             priceRangePicker.isHidden = true
             priceTypeLabel.text = Constants.priceTypeText
-            filterParams["priceType"] = PriceType.another
+            filterParams.priceType = PriceType.another
         default:
             break
         }
-        
-        commonFilterUpdate()
     }
     
     @objc private func priceRangeUpdated() {
         priceTypeLabel.text = String(format:"\(Constants.priceTypeText): \(Int(priceRangePicker.lowerValue)) - \(Int(priceRangePicker.upperValue))")
         if priceTypeSegment.selectedSegmentIndex == 1 {
-            filterParams["priceLower"] = Int(priceRangePicker.lowerValue)
-            filterParams["priceUpper"] = Int(priceRangePicker.upperValue)
+            filterParams.priceLower = Int(priceRangePicker.lowerValue)
+            filterParams.priceUpper = Int(priceRangePicker.upperValue)
         }
-        
-        commonFilterUpdate()
     }
     
     @objc private func dateSegmentChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
-            filterParams["dateSign"] = QuerySign.isGreaterThanOrEqualTo
+            filterParams.dateSign = QuerySign.isGreaterThanOrEqualTo
         case 1:
-            filterParams["dateSign"] = QuerySign.isLessThanOrEqualTo
+            filterParams.dateSign = QuerySign.isLessThanOrEqualTo
         case 2:
-            filterParams["dateSign"] = QuerySign.isEqual
+            filterParams.dateSign = QuerySign.isEqual
         default:
             break
         }
-        
-        commonFilterUpdate()
     }
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
-        filterParams["date"] = sender.date
-        commonFilterUpdate()
+        filterParams.date = sender.date
     }
     
     private func commonFilterUpdate() {
+        FilterManager.shared.filterParams = filterParams
         delegate.didChangeFilter(filterParams)
     }
 }
@@ -431,9 +519,8 @@ final class FilterVC: UIViewController {
 extension FilterVC: UIPickerViewDataSource, UIPickerViewDelegate {
     
     private func setPickedType(_ type: PartyType?) {
-        pickedType = type
-        typeTextField.text = pickedType?.rawValue
-        filterParams["type"] = pickedType
+        filterParams.type = type
+        typeTextField.text = type?.rawValue
         commonFilterUpdate()
     }
     

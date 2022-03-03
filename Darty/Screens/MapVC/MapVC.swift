@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-protocol MapViewControllerDelegate {
+protocol MapViewControllerDelegate: AnyObject {
     func getAddress(_ address: String?)
 }
 

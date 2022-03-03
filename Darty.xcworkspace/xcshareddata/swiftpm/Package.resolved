@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "SFSymbols",
+        "repositoryURL": "https://github.com/ivanvorobei/SFSymbols",
+        "state": {
+          "branch": null,
+          "revision": "784d07d0d0d044fd122dfb25c3c15117a2e3f43f",
+          "version": "1.0.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

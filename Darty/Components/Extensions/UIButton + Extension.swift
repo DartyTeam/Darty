@@ -8,6 +8,8 @@
 import UIKit
 
 extension UIButton {
+
+    static let defaultButtonHeight: CGFloat = 56
     
     convenience init(title: String? = "") {
         self.init(type: .system)
@@ -18,6 +20,7 @@ extension UIButton {
         self.titleLabel?.font = .sfProRounded(ofSize: 17, weight: .semibold)
         
         self.layer.cornerRadius = 10
+        self.layer.cornerCurve = .continuous
             
         self.layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
         self.layer.shadowRadius = 4

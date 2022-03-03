@@ -11,7 +11,7 @@ private enum Constants {
     static let borderHeight: CGFloat = 4
 }
 
-class BottomLineTextField: UITextField {
+final class BottomLineTextField: UITextField {
     
     // MARK: - UI Elements
     private var bottomBorder: UIView = {

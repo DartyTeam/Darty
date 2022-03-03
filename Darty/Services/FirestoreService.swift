@@ -169,7 +169,7 @@ class FirestoreService {
         return db.collection("parties")
     }
     
-    func savePartyWith(party: SetuppedParty,
+    func savePartyWith(party: CreateCoordinator.PartyInfo,
                        completion: @escaping (Result<PartyModel, Error>) -> Void) {
         
         let partyId = UUID().uuidString
@@ -229,7 +229,24 @@ class FirestoreService {
         }
     }
     
-    func searchPartiesWith(city: String? = nil, type: PartyType? = nil, date: Date? = nil, dateSign: QuerySign? = nil, maxGuestsLower: Int? = nil, maxGuestsUpper: Int? = nil, priceType: PriceType? = nil, priceLower: Int? = nil, priceUpper: Int? = nil, completion: @escaping (Result<[PartyModel], Error>) -> Void) {
+    func searchPartiesWith(
+        city: String? = nil,
+        type: PartyType? = nil,
+        date: Date,
+        dateSign: QuerySign? = nil,
+        maxGuestsLower: Int? = nil,
+        maxGuestsUpper: Int? = nil,
+        priceType: PriceType? = nil,
+        priceLower: Int? = nil,
+        priceUpper: Int? = nil,
+        isDateInSearch: Bool,
+        isPriceInSearch: Bool,
+        isGuestsInSearch: Bool,
+        isUserIdInSearch: Bool,
+        ascType: FilterManager.AscendingType,
+        sortingType: FilterManager.SortingType,
+        completion: @escaping (Result<[PartyModel], Error>) -> Void
+    ) {
         
         var query: Query = db.collection("parties")
         
@@ -237,37 +254,47 @@ class FirestoreService {
         if let type = type { query = query.whereField("type", isEqualTo : type.rawValue) } // WORKING 
         if let dateSign = dateSign {
             switch dateSign {
-                
             case .isGreaterThanOrEqualTo:
-                if let date = date { query = query.whereField("date", isGreaterThanOrEqualTo: date) }
+                if isDateInSearch {
+                    query = query.whereField("date", isGreaterThanOrEqualTo: date)
+                }
             case .isLessThanOrEqualTo:
-                if let date = date { query = query.whereField("date", isLessThanOrEqualTo: date) }
+                if isDateInSearch {
+                    query = query.whereField("date", isLessThanOrEqualTo: date)
+                }
             case .isEqual:
-                if let date = date { query = query.whereField("date", isEqualTo : date) }
+                query = query.whereField("date", isEqualTo : date)
             }
             // WORKING
         }
-        if let maxGuestsLower = maxGuestsLower, let maxGuestsUpper = maxGuestsUpper {
-            print("asdasjdajsjdasjidasoijajisdas")
+
+        if isGuestsInSearch, let maxGuestsLower = maxGuestsLower, let maxGuestsUpper = maxGuestsUpper {
             query = query.whereField("maxGuests", isLessThanOrEqualTo: maxGuestsUpper)
             query = query.whereField("maxGuests", isGreaterThanOrEqualTo: maxGuestsLower)
         }
+
         if let priceType = priceType {
             query = query.whereField("priceType", isEqualTo: priceType.rawValue)
-            if priceType == .money {
-                if let priceLower = priceLower, let priceUpper = priceUpper {
-                    query = query.whereField("moneyPrice", isGreaterThanOrEqualTo: priceLower)
-                    query = query.whereField("moneyPrice", isLessThanOrEqualTo: priceUpper)
-                }
+            if priceType == .money, isPriceInSearch, let priceLower = priceLower, let priceUpper = priceUpper {
+                query = query.whereField("moneyPrice", isGreaterThanOrEqualTo: priceLower)
+                query = query.whereField("moneyPrice", isLessThanOrEqualTo: priceUpper)
             }
         }
-        
-        query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
-        
-//        query = query.order(by: <#T##String#>, descending: <#T##Bool#>)
+
+        if isUserIdInSearch {
+            query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
+        }
+
+        switch sortingType {
+        case .date:
+            query = query.order(by: "date", descending: ascType == .desc)
+        case .guests:
+            query = query.order(by: "maxGuests", descending: ascType == .desc)
+        case .price:
+            query = query.order(by: "moneyPrice", descending: ascType == .desc)
+        }
         
         query.getDocuments() { (querySnapshot, err) in
-            
             if let err = err {
                 completion(.failure(err))
             } else {

@@ -14,6 +14,17 @@ enum PriceType: String, CaseIterable {
     case money = "Деньги 􀭿"
     case another = "Другое 􀍣"
 
+    var index: Int {
+        switch self {
+        case .free:
+            return 0
+        case .money:
+            return 1
+        case .another:
+            return 2
+        }
+    }
+
 //    var description: String {
 //        get {
 //            switch self {

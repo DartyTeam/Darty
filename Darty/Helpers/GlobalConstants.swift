@@ -9,7 +9,7 @@ import UIKit
 import AudioToolbox
 
 enum GlobalConstants {
-    static let tabBarHeight: CGFloat = 60
+    static let tabBarHeight: CGFloat = 100
     
     static let maximumGuests = 100
     static let maximumPrice = 9999

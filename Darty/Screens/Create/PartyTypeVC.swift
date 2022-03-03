@@ -1,15 +1,15 @@
 //
-//  ThirdCreateVC.swift
+//  PartyTypeVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 12.07.2021.
 //
 
 import UIKit
-import FirebaseAuth
 
-final class ThirdCreateVC: UIViewController {
-    
+final class PartyTypeVC: UIViewController {
+
+    // MARK: - Constants
     private enum Constants {
         static let textFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
     }
@@ -34,31 +34,22 @@ final class ThirdCreateVC: UIViewController {
         pickerView.selectRow(PartyType.allCases.count / 2, inComponent: 0, animated: false)
         return pickerView
     }()
-    
-    private var pickedType = PartyType.allCases.first
-    
+
     // MARK: - Properties
-    private let currentUser: UserModel
-    private var setuppedParty: SetuppedParty
+    private var pickedType = PartyType.allCases.first!
+    
+    // MARK: - Delegate
+    weak var delegate: PartyTypeDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: UserModel, setuppedParty: SetuppedParty) {
-        self.currentUser = currentUser
-        self.setuppedParty = setuppedParty
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar()
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
@@ -80,17 +71,13 @@ final class ThirdCreateVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        setuppedParty.type = pickedType!
-        let fourthCreateVC = FourthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
-        navigationController?.pushViewController(fourthCreateVC, animated: true)
+        delegate?.goNext(with: pickedType)
     }
 }
 
 // MARK: - Setup constraints
-extension ThirdCreateVC {
-    
+extension PartyTypeVC {
     private func setupConstraints() {
-                        
         logoView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(44)
             make.centerX.equalToSuperview()
@@ -110,7 +97,7 @@ extension ThirdCreateVC {
 }
 
 // MARK: - UIPickerViewDataSource, UIPickerViewDelegate
-extension ThirdCreateVC: UIPickerViewDataSource, UIPickerViewDelegate {
+extension PartyTypeVC: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1
     }

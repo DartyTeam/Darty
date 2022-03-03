@@ -51,7 +51,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     private let photosUserVC: PhotosUserVC
     private let infoUserVC: ChangeAccountDataInfoViewVC
   
-    // MARK: - Lifecycle
+    // MARK: - Init
     init() {
         photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
         infoUserVC = ChangeAccountDataInfoViewVC(userData: userData, accentColor: .systemIndigo)
@@ -95,7 +95,8 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
             break
         }
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         if !isBeingPresented {
             view.addSubview(backButton)
@@ -188,9 +189,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     }
     
     func chooseImagePicker(source: UIImagePickerController.SourceType) {
-        
         if source == .camera {
-            
             AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
                 if response {
                     if UIImagePickerController.isSourceTypeAvailable(source) {
@@ -268,8 +267,8 @@ extension ChangeAccountDataVC: PHPickerViewControllerDelegate {
     }
 }
 
+// MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
 extension ChangeAccountDataVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         

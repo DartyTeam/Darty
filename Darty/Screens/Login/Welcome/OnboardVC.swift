@@ -9,11 +9,11 @@ import UIKit
 import SwiftUI
 import ConcentricOnboarding
 
-class OnboardVC: UIViewController {
-    
+final class OnboardVC: UIViewController {
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         var onboardingView = OnboardingView()
         onboardingView.delegate = self
         let childView = UIHostingController(rootView: onboardingView)
@@ -23,6 +23,7 @@ class OnboardVC: UIViewController {
     }
 }
 
+// MARK: - OnboardingViewDelegate
 extension OnboardVC: OnboardingViewDelegate {
     func dismiss() {
         UserDefaults.standard.isPrevLaunched = true
@@ -30,42 +31,29 @@ extension OnboardVC: OnboardingViewDelegate {
     }
 }
 
-protocol OnboardingViewDelegate {
+protocol OnboardingViewDelegate: AnyObject {
     func dismiss()
 }
 
 struct OnboardingView: View {
     
-    var delegate: OnboardingViewDelegate?
+    weak var delegate: OnboardingViewDelegate?
     
     var body: some View {
-        let pages = (0...4).map { i in
-            AnyView(PageView(title: MockData.title, imageName: MockData.imageNames[i], header: MockData.headers[i], content: MockData.contentStrings[i], textColor: MockData.textColors[i]))
-        }
-        
-        var a = ConcentricOnboardingView(pages: pages, bgColors: MockData.colors)
-        
-        //        a.didPressNextButton = {
-        //            a.goToPreviousPage(animated: true)
-        //        }
-        a.insteadOfCyclingToFirstPage = {
-            delegate?.dismiss()
-        }
-        a.animationDidEnd = {
-            
-        }
-        a.didGoToLastPage = {
-        }
-        return a
+        ConcentricOnboardingView(pageContents: MockData.pages.map { (PageView(page: $0), $0.color) })
+            .duration(1.0)
+            .nextIcon("chevron.forward")
+            .animationDidEnd {
+                print("Animation Did End")
+            }
+            .insteadOfCyclingToFirstPage {
+                delegate?.dismiss()
+            }
     }
 }
 
 struct PageView: View {
-    var title: String
-    var imageName: String
-    var header: String
-    var content: String
-    var textColor: Color
+    let page: PageData
     
     let imageWidth: CGFloat = 150
     let textWidth: CGFloat = 350
@@ -73,23 +61,23 @@ struct PageView: View {
     var body: some View {
         return
             VStack(alignment: .center, spacing: 50) {
-                Text(title)
+                Text(page.title)
                     .font(Font.system(size: 40, weight: .bold, design: .default))
-                    .foregroundColor(textColor)
+                    .foregroundColor(page.textColor)
                     .frame(width: textWidth)
                     .multilineTextAlignment(.center)
-                Image(systemName: imageName)
+                Image(systemName: page.imageName)
                     .font(.system(size: 56.0))
-                    .foregroundColor(textColor)
+                    .foregroundColor(page.textColor)
                 VStack(alignment: .center, spacing: 5) {
-                    Text(header)
+                    Text(page.header)
                         .font(Font.system(size: 25, weight: .bold, design: .default))
-                        .foregroundColor(textColor)
+                        .foregroundColor(page.textColor)
                         .frame(width: 300, alignment: .center)
                         .multilineTextAlignment(.center)
-                    Text(content)
+                    Text(page.content)
                         .font(Font.system(size: 18, weight: .bold, design: .default))
-                        .foregroundColor(textColor)
+                        .foregroundColor(page.textColor)
                         .frame(width: 300, alignment: .center)
                         .multilineTextAlignment(.center)
                 }
@@ -97,43 +85,51 @@ struct PageView: View {
     }
 }
 
+struct PageData {
+    let title: String
+    let header: String
+    let content: String
+    let imageName: String
+    let color: Color
+    let textColor: Color
+}
+
 struct MockData {
-    static let title = "Что можно делать в Darty?"
-    static let headers = [
-        "Создавать и искать вечеринки",
-        "Общаться и заводить новых друзей",
-        "Рассказать о себе всему миру",
-        "Читать и оставлять отзывы",
-        "Весело проводить время"
-    ]
-    static let contentStrings = [
-        "Вписка или танцевальная вечеринка? А может, домашний хакатон? Все это уже в твоих руках",
-        "Обменивайся сообщениями не выходя из приложения",
-        "Заполни профиль и отправляй заявки на вечеринки. Организатор и другие гости обязательно оценят твою карточку",
-        "Делись эмоциями и узнавай больше о наших тусовщиках",
-        "Хватит это читать. Скорее жми кнопку ниже и начинай веселье!"
-    ]
-    static let imageNames = [
-        "flame",
-        "message",
-        "person",
-        "hand.thumbsup",
-        "face.smiling"
-    ]
-    
-    static let colors = [
-        Color(.systemOrange),
-        Color(.systemTeal),
-        Color(.systemIndigo),
-        Color(.systemYellow),
-        Color(.systemGreen),
-    ]
-    
-    static let textColors = [
-        Color(.white),
-        Color(.black),
-        Color(.white),
-        Color(.black),
-        Color(.white),
-    ]
+    static let pages: [PageData] = [
+            PageData(
+                title: "Что можно делать в Darty?",
+                header: "Создавать и искать вечеринки",
+                content: "Вписка или танцевальная вечеринка? А может, домашний хакатон? Все это уже в твоих руках",
+                imageName: "flame",
+                color: Color(.systemOrange),
+                textColor: Color(.white)),
+            PageData(
+                title: "Что можно делать в Darty?",
+                header: "Общаться и заводить новых друзей",
+                content: "Обменивайся сообщениями не выходя из приложения",
+                imageName: "message",
+                color: Color(.systemTeal),
+                textColor: Color(.black)),
+            PageData(
+                title: "Что можно делать в Darty?",
+                header: "Рассказать о себе всему миру",
+                content: "Заполни профиль и отправляй заявки на вечеринки. Организатор и другие гости обязательно оценят твою карточку",
+                imageName: "person",
+                color: Color(.systemIndigo),
+                textColor: Color(.white)),
+            PageData(
+                title: "Что можно делать в Darty?",
+                header: "Читать и оставлять отзывы",
+                content: "Делись эмоциями и узнавай больше о наших тусовщиках",
+                imageName: "hand.thumbsup",
+                color: Color(.systemYellow),
+                textColor: Color(.black)),
+            PageData(
+                title: "Что можно делать в Darty?",
+                header: "Весело проводить время",
+                content: "Хватит это читать. Скорее жми кнопку ниже и начинай веселье!",
+                imageName: "face.smiling",
+                color: Color(.systemGreen),
+                textColor: Color(.white)),
+        ]
 }

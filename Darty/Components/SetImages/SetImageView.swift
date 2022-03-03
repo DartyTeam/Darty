@@ -74,12 +74,8 @@ final class SetImageView: BlurEffectView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    private func addTap() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
-        addGestureRecognizer(tap)
-    }
-    
+
+    // MARK: - Setup
     private func setupView() {
         contentView.addSubview(plusIcon)
         contentView.addSubview(imageView)
@@ -94,6 +90,11 @@ final class SetImageView: BlurEffectView {
             make.edges.equalToSuperview()
         }
     }
+
+    private func addTap() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        addGestureRecognizer(tap)
+    }
     
     // MARK: - Handlers
     @objc func viewTapped() {
@@ -101,7 +102,8 @@ final class SetImageView: BlurEffectView {
             self.selectPhoto()
         }
     }
-    
+
+    // MARK: - Functions
     private func selectPhoto() {
                 
         let actionSheet = UIAlertController(title: nil,
@@ -159,7 +161,7 @@ final class SetImageView: BlurEffectView {
     }
 }
 
-// MARK: - IImagePickerControllerDelegate, UINavigationControllerDelegat (Work with image)
+// MARK: - ImagePickerControllerDelegate, UINavigationControllerDelegat (Work with image)
 extension SetImageView: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
@@ -185,8 +187,8 @@ extension SetImageView: PHPickerViewControllerDelegate {
     }
 }
 
+// MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
 extension SetImageView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         

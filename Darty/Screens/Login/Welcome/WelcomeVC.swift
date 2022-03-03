@@ -91,6 +91,7 @@ final class WelcomeVC: UIViewController {
         setupConstraints()
     }
 
+    // MARK: - Setup
     private func setupViews() {
         view.backgroundColor = .systemBackground
         
@@ -140,7 +141,6 @@ extension WelcomeVC: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: AboutCell.reuseIdentifier) as? AboutCell else { return UITableViewCell() }
         let data = aboutArray[indexPath.row]
         cell.setupCell(backIconColor: data.iconBackgroundColor, iconImage: data.iconImage, title: data.title, subtitle: data.subtitle)
-        
         return cell
     }
 }

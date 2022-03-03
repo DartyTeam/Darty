@@ -1,14 +1,11 @@
 import UIKit
 
-
 final class CountryTableViewCell: UITableViewCell {
     
     // MARK: Properties
-    
     static let identifier = String(describing: CountryTableViewCell.self)
     
     // MARK: Initialize
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
@@ -30,6 +27,3 @@ final class CountryTableViewCell: UITableViewCell {
         accessoryType = selected ? .checkmark : .none
     }
 }
-
-
-

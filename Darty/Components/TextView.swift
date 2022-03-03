@@ -92,6 +92,7 @@ class TextView: UIView {
     
     private func setupBorder() {
         layer.cornerRadius = 8
+        layer.cornerCurve = .continuous
         layer.borderColor = Constants.unselectedBorderColor
         layer.borderWidth = 1
     }

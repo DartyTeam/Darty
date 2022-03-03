@@ -102,8 +102,8 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        self.viewControllers = [photosUserVC, infoUserVC]
-        self.delegate = self
+        viewControllers = [photosUserVC, infoUserVC]
+        delegate = self
         setupNavigationBar()
         setupViews()
         setupConstraints()

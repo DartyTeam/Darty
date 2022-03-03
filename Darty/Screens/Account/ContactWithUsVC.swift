@@ -87,7 +87,6 @@ final class ContactWithUsVC: UIViewController {
     }
     
     private func setupConstraints() {
-        
         mailAnimationView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
             make.left.right.equalToSuperview().inset(76)
@@ -145,11 +144,11 @@ final class ContactWithUsVC: UIViewController {
         mailComposeVC.setToRecipients(["s.ru5c55an.n@gmail.com"])
         mailComposeVC.setSubject("Message from DartyApp")
         mailComposeVC.setMessageBody(messageTextView.text, isHTML: false)
-        
         return mailComposeVC
     }
 }
 
+// MARK: - MFMailComposeViewControllerDelegate
 extension ContactWithUsVC: MFMailComposeViewControllerDelegate {
     private func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
         switch result {
@@ -167,12 +166,11 @@ extension ContactWithUsVC: MFMailComposeViewControllerDelegate {
         default:
             break
         }
-        
         controller.dismiss(animated: true, completion: nil)
-        
     }
 }
 
+// MARK: - MultiSetImagesViewDelegate
 extension ContactWithUsVC: MultiSetImagesViewDelegate {
     func showFullscreen(_ agrume: Agrume) {
         agrume.show(from: self)
@@ -199,13 +197,11 @@ extension ContactWithUsVC: MultiSetImagesViewDelegate {
     }
 }
 
+// MARK: - UIScrollViewDelegate
 extension ContactWithUsVC: UIScrollViewDelegate {
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
         let y = 300 - (scrollView.contentOffset.y + 200)
         let h = max(0, y)
-
         mailAnimationView.snp.updateConstraints { update in
             update.height.equalTo(h)
         }

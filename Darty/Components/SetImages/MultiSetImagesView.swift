@@ -11,7 +11,7 @@ import Photos
 import PhotosUI
 import Agrume
 
-protocol MultiSetImagesViewDelegate {
+protocol MultiSetImagesViewDelegate: AnyObject {
     func showActionSheet(_ actionSheet: UIAlertController)
     func showCamera(_ imagePicker: UIImagePickerController)
     func showImagePicker(_ imagePicker: PHPickerViewController)
@@ -58,7 +58,7 @@ final class MultiSetImagesView: UIView {
             collectionView.isPagingEnabled = isPagingEnabled
         }
     }
-    var delegate: MultiSetImagesViewDelegate?
+    weak var delegate: MultiSetImagesViewDelegate?
     private let maxPhotos: Int!
     private let shape: ShapeImageView!
     private let color: UIColor!

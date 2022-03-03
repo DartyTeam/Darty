@@ -8,14 +8,14 @@
 import UIKit
 import Firebase
 
-class AppCoordinator: NSObject {
+final class AppCoordinator: NSObject {
     
     var window: UIWindow!
+    var authCoordinator: AuthCoordinator?
 
     init(window: UIWindow?) {
         self.window = window!
         super.init()
-        
         startScreenFlow()
     }
 
@@ -24,22 +24,29 @@ class AppCoordinator: NSObject {
             FirestoreService.shared.getUserData(user: user) { [weak self] (result) in
                 switch result {
                 case .success(let user):
-                    AuthService.shared.currentUser = user
-                    let tabBarController = TabBarController()
-                    tabBarController.modalPresentationStyle = .fullScreen
-                    self?.window.rootViewController = tabBarController
+                    self?.openMainFlow(for: user)
                 case .failure(_):
-                    let navController = UINavigationController(rootViewController: LoginVC())
-                    navController.setNavigationBarHidden(true, animated: false)
-                    self?.window.rootViewController = navController
+                    self?.openAuthFlow()
                 }
             }
         } else {
-            let navController = UINavigationController(rootViewController: LoginVC())
-            navController.setNavigationBarHidden(true, animated: false)
-            window.rootViewController = navController
+            openAuthFlow()
         }
-        
+    }
+
+    private func openAuthFlow() {
+        let navController = UINavigationController()
+        authCoordinator = AuthCoordinator(navigationController: navController)
+        authCoordinator?.start()
+        window.rootViewController = navController
+        window.makeKeyAndVisible()
+    }
+
+    private func openMainFlow(for user: UserModel) {
+        AuthService.shared.currentUser = user
+        let tabBarController = TabBarController()
+        tabBarController.modalPresentationStyle = .fullScreen
+        window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
 }

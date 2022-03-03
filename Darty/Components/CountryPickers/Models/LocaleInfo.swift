@@ -1,6 +1,6 @@
 import UIKit
 
-public struct LocaleInfo {
+struct LocaleInfo {
     
     public var locale: Locale?
     

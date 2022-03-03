@@ -19,6 +19,7 @@ final class PartyImageCell: UICollectionViewCell {
     private let partyImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 10
+        imageView.layer.cornerCurve = .continuous
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = .systemGray

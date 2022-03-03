@@ -63,7 +63,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     private let priceView: UIView = {
         let view = UIView()
-        view.backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
         view.layer.cornerRadius = 10
         return view
     }()
@@ -76,7 +76,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     private let typeView: UIView = {
         let view = UIView()
-        view.backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
         view.layer.cornerRadius = 10
         return view
     }()
@@ -89,7 +89,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     private let minAgeView: UIView = {
         let view = UIView()
-        view.backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
         view.layer.cornerRadius = 10
         return view
     }()
@@ -114,10 +114,24 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         return label
     }()
 
+    private let redView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemRed.withAlphaComponent(0.5)
+        return view
+    }()
+
+    private let rejectedLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.titleFont
+        label.text = "Отклонено"
+        return label
+    }()
+
     // MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.layer.cornerRadius = Constants.cornerRadius
+        self.layer.cornerCurve = .continuous
         setupShadows()
         setupViews()
         setupConstraints()
@@ -129,17 +143,18 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     func configure<U>(with value: U) where U : Hashable {
         guard let party: PartyModel = value as? PartyModel else { return }
-        
+
+        redView.isHidden = true
+        rejectedLabel.isHidden = true
+
         FirestoreService.shared.getUser(by: party.userId) { [weak self] (result) in
             switch result {
-            
             case .success(let user):
                 if user.avatarStringURL != "" {
                     self?.userImageView.sd_setImage(with: URL(string: user.avatarStringURL), completed: { image, error, cacheType, url in
                         self?.userImageView.focusOnFaces = true
                     })
                 }
-               
                 self?.userNameLabel.text = user.username
                 self?.userRatingLabel.text = "00000000"
             case .failure(let error):
@@ -179,7 +194,28 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
         // Show buildings and Points of Interest on the snapshot
         mapSnapshotOptions.showsBuildings = true
-        mapSnapshotOptions.pointOfInterestFilter = MKPointOfInterestFilter(including: [.airport, .amusementPark, .aquarium, .atm, .bakery, .bank, .beach, .brewery, .cafe, .campground, .carRental, .evCharger, .fireStation, .fitnessCenter, .foodMarket, .gasStation, .hospital, .hotel ,.laundry, .library])
+        mapSnapshotOptions.pointOfInterestFilter = MKPointOfInterestFilter(including: [
+            .airport,
+            .amusementPark,
+            .aquarium,
+            .atm,
+            .bakery,
+            .bank,
+            .beach,
+            .brewery,
+            .cafe,
+            .campground,
+            .carRental,
+            .evCharger,
+            .fireStation,
+            .fitnessCenter,
+            .foodMarket,
+            .gasStation,
+            .hospital,
+            .hotel,
+            .laundry,
+            .library]
+        )
 
         let snapShotter = MKMapSnapshotter(options: mapSnapshotOptions)
         snapShotter.start { snapshot, error in
@@ -188,21 +224,8 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     }
     
     func setRejected() {
-        let redView = UIView()
-        redView.backgroundColor = .systemRed.withAlphaComponent(0.5)
-        addSubview(redView)
-        redView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        let rejectedLabel = UILabel()
-        rejectedLabel.font = Constants.titleFont
-        rejectedLabel.text = "Отклонено"
-        
-        addSubview(rejectedLabel)
-        rejectedLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
+        redView.isHidden = false
+        rejectedLabel.isEnabled = false
     }
     
     func setRequests(count: Int) {
@@ -210,10 +233,11 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     }
     
     private func setupShadows() {
-        layer.shadowColor = UIColor(.black).cgColor
-        layer.shadowRadius = 20
+        layer.shadowColor = UIColor.systemGray6.withAlphaComponent(0.7).cgColor
+        layer.shadowRadius = 15
         layer.shadowOpacity = 0.5
         layer.shadowOffset = CGSize(width: -5, height: 10)
+        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
     }
     
     private func setupViews() {
@@ -232,6 +256,8 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         addSubview(minAgeView)
         minAgeView.addSubview(minAgeLabel)
         addSubview(infoLabel)
+        addSubview(redView)
+        addSubview(rejectedLabel)
     }
 }
 
@@ -307,6 +333,14 @@ extension PartyCell {
         infoLabel.snp.makeConstraints { make in
             make.bottom.equalTo(mapImageView.snp.bottom).offset(-12)
             make.left.equalToSuperview().offset(8)
+        }
+
+        redView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        rejectedLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
         
         layoutIfNeeded()

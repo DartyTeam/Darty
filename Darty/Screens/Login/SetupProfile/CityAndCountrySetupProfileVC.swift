@@ -76,26 +76,17 @@ final class CityAndCountrySetupProfileVC: UIViewController {
         label.numberOfLines = 0
         return label
     }()
-    
+
     // MARK: - Properties
-    private let currentUser: User
-    private var setuppedUser: SetuppedUser
+    private var city: String?
+    private var country: String?
     
+    // MARK: - Delegate
+    weak var delegate: CityAndCountrySetupProfileDelegate?
+
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setuppedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-                
         checkLocationServices()
         setNavigationBar(withColor: .systemBlue, title: "О вас")
         setupViews()
@@ -121,8 +112,8 @@ final class CityAndCountrySetupProfileVC: UIViewController {
             locationManager.location?.fetchCityAndCountry(completion: { [weak self] city, country, error in
                 if let error = error {
                     SPAlert.present(title: error.localizedDescription, message: "Вы можете попробовать снова в настройках аккаунта, а пока будет выбрано - Россия, Москва", preset: .error)
-                    self?.setuppedUser.city = "Moscow"
-                    self?.setuppedUser.country = "Russia"
+                    self?.city = "Moscow"
+                    self?.country = "Russia"
                     self?.countryLabel.text = "Russia"
                     self?.cityLabel.text = "Moscow"
                     return
@@ -130,8 +121,8 @@ final class CityAndCountrySetupProfileVC: UIViewController {
                 
                 self?.countryLabel.text = country
                 self?.cityLabel.text = city
-                self?.setuppedUser.city = city
-                self?.setuppedUser.country = country
+                self?.city = city
+                self?.country = country
             })
             break
         case .denied:
@@ -153,9 +144,7 @@ final class CityAndCountrySetupProfileVC: UIViewController {
         if let image = UIImage(named: "about.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
             addBackground(image)
         }
-                
         view.backgroundColor = .systemBackground
-        
         view.addSubview(aboutTitleLabel)
         view.addSubview(nextButton)
         view.addSubview(countryLabel)
@@ -169,13 +158,11 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard let _ = setuppedUser.city, let _ = setuppedUser.country else {
+        guard let city = city, let country = country else {
             SPAlert.present(title: "Запросите определение местоположения снова", preset: .error)
             return
         }
-
-        let aboutSetupProfileVC = InterestsSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
+        delegate?.goNext(with: city, and: country)
     }
 }
 
@@ -216,9 +203,8 @@ extension CityAndCountrySetupProfileVC {
 }
 
 extension CityAndCountrySetupProfileVC: CLLocationManagerDelegate {
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.first else { return }
+        guard let _ = locations.first else { return }
         manager.stopUpdatingLocation()
     }
 }

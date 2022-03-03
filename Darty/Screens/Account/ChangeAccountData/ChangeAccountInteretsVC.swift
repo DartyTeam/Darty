@@ -55,16 +55,17 @@ final class ChangeAccountInteretsVC: UIViewController {
         setupViews()
         setupConstraints()
     }
-    
-    private func setupViews() {
-        view.backgroundColor = .systemBackground
-        view.addSubview(interestsCollectionView)
-    }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         AuthService.shared.currentUser.interestsList = selectedInterests
         NotificationCenter.default.post(GlobalConstants.changedUserInterestsNotification)
+    }
+
+    // MARK: - Setup views
+    private func setupViews() {
+        view.backgroundColor = .systemBackground
+        view.addSubview(interestsCollectionView)
     }
     
     private func setupSearchBar() {
@@ -105,7 +106,6 @@ final class ChangeAccountInteretsVC: UIViewController {
 
 // MARK: - Setup constraints
 extension ChangeAccountInteretsVC {
-    
     private func setupConstraints() {
         interestsCollectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -113,8 +113,8 @@ extension ChangeAccountInteretsVC {
     }
 }
 
+// MARK: - UISearchResultsUpdating
 extension ChangeAccountInteretsVC: UISearchResultsUpdating {
-    
     func updateSearchResults(for searchController: UISearchController) {
         filterContentForSearchText(searchController.searchBar.text!)
     }
@@ -132,8 +132,8 @@ extension ChangeAccountInteretsVC: UISearchResultsUpdating {
     }
 }
 
+// MARK: - UICollectionViewDelegate, UICollectionViewDataSource
 extension ChangeAccountInteretsVC: UICollectionViewDelegate, UICollectionViewDataSource {
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if isFiltering {
             return filteredInterests.count

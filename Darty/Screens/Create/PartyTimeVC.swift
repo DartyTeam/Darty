@@ -1,15 +1,15 @@
 //
-//  SecondCreateVC.swift
+//  PartyTimeVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 12.07.2021.
 //
 
 import UIKit
-import FirebaseAuth
 
-final class SecondCreateVC: UIViewController {
-    
+final class PartyTimeVC: UIViewController {
+
+    // MARK: - Constants
     private enum Constants {
         static let textFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
     }
@@ -52,62 +52,41 @@ final class SecondCreateVC: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.minimumDate = Date()
-        if #available(iOS 14.0, *) {
-            datePicker.preferredDatePickerStyle = .wheels
-        } else {
-            // Fallback on earlier versions
-        }
+        datePicker.preferredDatePickerStyle = .wheels
         return datePicker
     }()
     
     private let startTimePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .time
-        if #available(iOS 14.0, *) {
-            datePicker.preferredDatePickerStyle = .inline
-        } else {
-            // Fallback on earlier versions
-        }
+        datePicker.preferredDatePickerStyle = .inline
         return datePicker
     }()
     
     private let endTimePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .time
-        if #available(iOS 14.0, *) {
-            datePicker.preferredDatePickerStyle = .inline
-        }
+        datePicker.preferredDatePickerStyle = .inline
         return datePicker
     }()
     
-    // MARK: - Properties
-    private let currentUser: UserModel
-    private var setuppedParty: SetuppedParty
-    
+    // MARK: - Delegate
+    weak var delegate: PartyTimeDelegate?
+
     // MARK: - Lifecycle
-    init(currentUser: UserModel, setuppedParty: SetuppedParty) {
-        self.currentUser = currentUser
-        self.setuppedParty = setuppedParty
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-       
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         setupViews()
         setupConstraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.setIsTabBarHidden(true)
+        setIsTabBarHidden(true)
+        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         view.backgroundColor = .systemBackground
         view.addSubview(logoView)
@@ -122,23 +101,13 @@ final class SecondCreateVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-        let startTime = startTimePicker.date
-        let endTime = endTimePicker.date
-        let date = datePicker.date
-        
-        setuppedParty.startTime = startTime
-        setuppedParty.endTime = endTime
-        setuppedParty.date = date
-        let thirdCreateVC = ThirdCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
-        navigationController?.pushViewController(thirdCreateVC, animated: true)
+        delegate?.goNext(startTime: startTimePicker.date, endTime: endTimePicker.date, date: datePicker.date)
     }
 }
 
 // MARK: - Setup constraints
-extension SecondCreateVC {
-    
+extension PartyTimeVC {
     private func setupConstraints() {
-                        
         logoView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(44)
             make.centerX.equalToSuperview()

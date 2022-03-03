@@ -465,22 +465,22 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         switch type {
         case .search:
             actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
                 make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
         case .approved:
             actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
                 make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
             changeToApprovedButton()
         case .waiting:
             cancelPartyButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(GlobalConstants.tabBarHeight)
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
                 make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
             cancelPartyButton.isHidden = false
             cancelPartyButton.setTitle("Отменить заявку 􀆄", for: .normal)
@@ -488,7 +488,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             actionButton.snp.makeConstraints { make in
                 make.bottom.equalTo(cancelPartyButton.snp.top).offset(-16)
                 make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
             changeToSendButton()
         case .my:
@@ -497,13 +497,13 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(54)
                 make.left.equalToSuperview().inset(20)
                 make.right.equalToSuperview().inset(112)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
             
             actionButton.snp.makeConstraints { make in
                 make.bottom.equalTo(cancelPartyButton.snp.top).offset(-16)
                 make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(50)
+                make.height.equalTo(UIButton.defaultButtonHeight)
             }
             
             let count = waitingGuestsRequests.count

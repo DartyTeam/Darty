@@ -38,6 +38,7 @@ final class MessageTextField: UITextField {
         font = UIFont.sfProDisplay(ofSize: 14, weight: .regular)
         clearButtonMode = .whileEditing
         layer.cornerRadius = 18
+        layer.cornerCurve = .continuous
         
         clipsToBounds = false
         

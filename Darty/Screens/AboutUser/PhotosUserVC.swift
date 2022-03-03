@@ -48,18 +48,14 @@ final class PhotosUserVC: UIViewController {
         guard let imageUrl = URL(string: imageStringUrl) else { return }
         StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
             switch result {
-            
             case .success(let image):
-                DispatchQueue.main.async {
-                    self?.imageView.image = image
-                    self?.imageView.focusOnFaces = true
-                }
+                self?.imageView.image = image
+                self?.imageView.focusOnFaces = true
+                self?.complimentaryGradientView.image = self?.imageView.image
             case .failure(let error):
                 print("ERROR_LOG: ", error.localizedDescription)
             }
         }
-        
-        complimentaryGradientView.image = imageView.image
         setupViews()
         setupConstraints()
     }

@@ -27,22 +27,10 @@ final class ImageSetupProfileVC: UIViewController {
         return setImageView
     }()
     
-    // MARK: - Properties
-    private let currentUser: User
-    private var setuppedUser: SetuppedUser
+    // MARK: - Delegate
+    weak var delegate: ImageSetupProfileDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setuppedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigationBar(withColor: .systemBlue, title: "Изображение")
@@ -63,13 +51,11 @@ final class ImageSetupProfileVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-        guard let userimage = setImageView.images.first else {
+        guard let userImage = setImageView.images.first else {
             showAlert(title: "Выберите изображение", message: "")
             return
         }
-        setuppedUser.image = userimage
-        let interestsSetupProfileVC = CityAndCountrySetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(interestsSetupProfileVC, animated: true)
+        delegate?.goNext(with: userImage)
     }
 }
 
@@ -92,6 +78,7 @@ extension ImageSetupProfileVC {
     }
 }
 
+// MARK: - MultiSetImagesViewDelegate
 extension ImageSetupProfileVC: MultiSetImagesViewDelegate {
     func showFullscreen(_ agrume: Agrume) {
         agrume.show(from: self)

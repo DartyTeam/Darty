@@ -53,7 +53,7 @@ final class AboutCell: UITableViewCell {
         return label
     }()
    
-    // MARK: - Lifecycle
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -64,15 +64,15 @@ final class AboutCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Setup
     func setupCell(backIconColor: UIColor, iconImage: UIImage?, title: String, subtitle: String) {
         titleLabel.text = title
         subtitleLabel.text = subtitle
         backIconView.backgroundColor = backIconColor
         self.iconImage.image = iconImage
     }
-    
-    // MARK: - Setup views
+
     private func setupViews() {
         backgroundColor = .clear
 

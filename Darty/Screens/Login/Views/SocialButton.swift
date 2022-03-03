@@ -54,9 +54,9 @@ final class SocialButton: UIControl {
     }()
     
     // MARK: - Properties
-    private let social: SocialLogin!
+    private let social: SocialLogin
     
-    // MARK: - Lifecycle
+    // MARK: - Init
     init(social: SocialLogin) {
         self.social = social
         super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -72,7 +72,8 @@ final class SocialButton: UIControl {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Setup
     private func setupView() {
         layer.cornerRadius = self.frame.height / 2
         layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.25).cgColor
@@ -103,7 +104,7 @@ final class SocialButton: UIControl {
         let yCenterConstraint = NSLayoutConstraint(item: self, attribute: .centerY, relatedBy: .equal, toItem: activityIndicator, attribute: .centerY, multiplier: 1, constant: 0)
         self.addConstraint(yCenterConstraint)
     }
-    
+
     override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
         animate()
         showLoading()
@@ -112,7 +113,8 @@ final class SocialButton: UIControl {
 //            self.iconView.transform = CGAffineTransform.init(scaleX: 0, y: 0)
 //        })
     }
-    
+
+    // MARK: - Functions
     func animate(completion: (() -> Void)? = nil) {
         isUserInteractionEnabled = false
         transform = CGAffineTransform(scaleX: 0.6, y: 0.6)

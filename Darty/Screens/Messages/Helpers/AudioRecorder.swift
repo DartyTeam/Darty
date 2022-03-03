@@ -8,7 +8,7 @@
 import Foundation
 import AVFoundation
 
-class AudioRecorder: NSObject, AVAudioRecorderDelegate {
+final class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     var recordingSession: AVAudioSession!
     var audioRecorder: AVAudioRecorder!
     var isAudioRecordingGranted: Bool!

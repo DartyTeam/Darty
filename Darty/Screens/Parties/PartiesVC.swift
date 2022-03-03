@@ -79,7 +79,6 @@ final class PartiesVC: UIViewController {
     private func setupListeners() {
         rejectedPartiesListener = ListenerService.shared.rejectedPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
-        
             case .success(let parties):
                 self.rejectedParties = parties
                 self.reloadPartiesType()
@@ -90,7 +89,6 @@ final class PartiesVC: UIViewController {
         
         waitingPartiesListener = ListenerService.shared.waitingPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
-        
             case .success(let parties):
                 self.waitingParties = parties
                 self.reloadPartiesType()
@@ -101,7 +99,6 @@ final class PartiesVC: UIViewController {
         
         approvedPartiesListener = ListenerService.shared.approvedPartiesObserve(parties: approvedParties, completion: { (result) in
             switch result {
-        
             case .success(let parties):
                 self.approvedParties = parties
                 self.reloadPartiesType()
@@ -112,7 +109,6 @@ final class PartiesVC: UIViewController {
         
         myPartiesListener = ListenerService.shared.myPartiesObserve(parties: myParties, completion: { (result) in
             switch result {
-        
             case .success(let parties):
                 self.myParties = parties
                 self.reloadPartiesType()
@@ -153,7 +149,7 @@ final class PartiesVC: UIViewController {
         let archiveBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "archivebox", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(archiveAction))
         let filterBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "slider.horizontal.3", withConfiguration: boldConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(filterAction))
         let spaceItem = UIBarButtonItem()
-        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem, spaceItem, spaceItem]
+        navigationItem.rightBarButtonItems = [archiveBarButtonItem, filterBarButtonItem, spaceItem, spaceItem, spaceItem, spaceItem, spaceItem, spaceItem, spaceItem, spaceItem]
     }
     
     private func setupCollectionView() {
@@ -208,7 +204,7 @@ final class PartiesVC: UIViewController {
 //        searchController.hidesNavigationBarDuringPresentation = true
         
         // Make sure the search bar is showing, even when scrolling
-//        navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.hidesSearchBarWhenScrolling = true
 
         // Add the search controller to the nav item
         navigationItem.searchController = searchController
@@ -219,7 +215,7 @@ final class PartiesVC: UIViewController {
         let index = searchController.searchBar.selectedScopeButtonIndex
         switch searchController.searchBar.scopeButtonTitles![index] {
         case scopeTitles[0]:
-            searchParties(filter: [String : String]())
+            searchParties(filterParams: FilterManager.shared.filterParams)
             type = .search
         case scopeTitles[1]:
             parties = approvedParties
@@ -273,13 +269,13 @@ final class PartiesVC: UIViewController {
             // Sets the maximum width allowed for the sheet. This defaults to nil and doesn't limit the width.
             maxWidth: nil
         )
-        
-        print("asdkojasdiojasdoiajsda")
+
         let filterVC = FilterVC(delegate: self)
-        let sheetController = SheetViewController(controller: filterVC, sizes: [], options: options)
+        let sheetController = SheetViewController(controller: filterVC, sizes: [.intrinsic], options: options)
         sheetController.contentBackgroundColor = .clear
         sheetController.cornerRadius = 30
         sheetController.shouldRecognizePanGestureWithUIControls = false
+        sheetController.allowPullingPastMaxHeight = false
         present(sheetController, animated: true, completion: nil)
     }
     
@@ -429,32 +425,78 @@ extension PartiesVC: UICollectionViewDelegate {
 
 // MARK: - Search parties
 extension PartiesVC {
-    @objc private func searchParties(filter: [String: Any]) {
-        FirestoreService.shared.searchPartiesWith(city: filter["city"] as? String, type: filter["type"] as? PartyType, date: filter["date"] as? Date, dateSign: filter["dateSign"] as? QuerySign, maxGuestsLower: filter["maxGuestsLower"] as? Int, maxGuestsUpper: filter["maxGuestsUpper"] as? Int, priceLower: filter["priceLower"] as? Int, priceUpper: filter["priceUpper"] as? Int) { [weak self] (result) in
-            
+    private func searchParties(filterParams: FilterManager.FilterParams) {
+        var isDateInSearch = false
+        var isPriceInSearch = false
+        var isGuestsInSearch = false
+        var isUserIdInSearch = false
+
+        if filterParams.dateSign != .isEqual {
+            isDateInSearch = true
+        } else if filterParams.priceLower != nil, filterParams.priceUpper != nil, filterParams.priceType == .money {
+            isPriceInSearch = true
+        } else if filterParams.maxGuestsLower != nil, filterParams.maxGuestsUpper != nil {
+            isGuestsInSearch = true
+        } else {
+            isUserIdInSearch = true
+        }
+        FirestoreService.shared.searchPartiesWith(
+            city: filterParams.city,
+            type: filterParams.type,
+            date: filterParams.date,
+            dateSign: filterParams.dateSign,
+            maxGuestsLower: filterParams.maxGuestsLower,
+            maxGuestsUpper: filterParams.maxGuestsUpper,
+            priceType: filterParams.priceType,
+            priceLower: filterParams.priceLower,
+            priceUpper: filterParams.priceUpper,
+            isDateInSearch: isDateInSearch,
+            isPriceInSearch: isPriceInSearch,
+            isGuestsInSearch: isGuestsInSearch,
+            isUserIdInSearch: isUserIdInSearch,
+            ascType: filterParams.ascendingType,
+            sortingType: filterParams.sortingType
+        ) { [weak self] (result) in
             switch result {
-            
             case .success(let parties):
-           
-                print("asdijasdiijaosdjoiasdiojajoisd")
+                var parties = parties
+                if !isGuestsInSearch, let maxGuestsLower = filterParams.maxGuestsLower, let maxGuestsUpper = filterParams.maxGuestsUpper {
+                    parties = parties.filter { party in
+                        party.maxGuests >= maxGuestsLower && party.maxGuests <= maxGuestsUpper
+                    }
+                }
+
+                if !isDateInSearch, filterParams.dateSign != .isEqual {
+                    parties = parties.filter { party in
+                        if filterParams.dateSign == .isGreaterThanOrEqualTo {
+                            return party.date >= filterParams.date
+                        } else {
+                            return party.date <= filterParams.date
+                        }
+                    }
+                }
+
+                if !isPriceInSearch,
+                   let priceLower = filterParams.priceLower,
+                    let priceUpper = filterParams.priceUpper,
+                    filterParams.priceType == .money {
+                    parties = parties.filter { party in
+                        if let partyMoneyPrice = party.moneyPrice {
+                            return partyMoneyPrice >= priceLower && partyMoneyPrice <= priceUpper
+                        } else {
+                            return false
+                        }
+                    }
+                }
+
+                if !isUserIdInSearch {
+                    parties = parties.filter { party in
+                        party.userId != AuthService.shared.currentUser.id
+                    }
+                }
+
                 self?.searchedParties = parties
-                
-//                if filter["charCountPeoples"] == ">" {
-//                    if let countPeoples = filter["countPeoples"], countPeoples != "" { self?.searchedParties.removeAll(where: { $0.maximumPeople < countPeoples }) }
-//                } else if filter["charCountPeoples"] == "<" {
-//                    if let countPeoples = filter["countPeoples"], countPeoples != "" { self?.searchedParties.removeAll(where: { $0.maximumPeople > countPeoples }) }
-//                } else if filter["charCountPeoples"] == "=" {
-//                    if let countPeoples = filter["countPeoples"], countPeoples != "" { self?.searchedParties.removeAll(where: { $0.maximumPeople != countPeoples }) }
-//                }
-////
-//                if filter["charPrice"] as? String == ">" {
-//                    if let price = filter["price"] as? String, price != "" {  self?.searchedParties.removeAll(where: { $0.price < price }) }
-//                } else if filter["charPrice"] as? String == "<" {
-//                    if let price = filter["price"] as? String, price != "" { self?.searchedParties.removeAll(where: { $0.price > price }) }
-//                } else if filter["charPrice"] as? String == "=" {
-//                    if let price = filter["price"] as? String, price != "" { self?.searchedParties.removeAll(where: { $0.price != price }) }
-//                }
-                
+
                 self?.parties = self?.searchedParties ?? [PartyModel]()
                 
                 print("asdmasoidjasdioajsdiosj: ", self?.parties, self?.parties.count)
@@ -462,7 +504,6 @@ extension PartiesVC {
                 
                 // Костыльно наверное. Нужно чтобы число вечеринок обновлялось
                 self?.collectionView.reloadData()
-                
             case .failure(let error):
                 self?.parties = [PartyModel]()
                 print(error.localizedDescription)
@@ -473,7 +514,7 @@ extension PartiesVC {
 }
 
 extension PartiesVC: FilterVCDelegate {
-    func didChangeFilter(_ filter: [String : Any]) {
-        searchParties(filter: filter)
+    func didChangeFilter(_ filter: FilterManager.FilterParams) {
+        searchParties(filterParams: filter)
     }
 }

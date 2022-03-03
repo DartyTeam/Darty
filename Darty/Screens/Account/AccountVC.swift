@@ -48,7 +48,7 @@ final class AccountVC: UIViewController {
         
         static let segmentFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
         
-        static let settingButtonsHeight: CGFloat =  44
+        static let settingButtonsHeight: CGFloat =  50
         static let settingButtonsFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
         
         static let subscribeButtonsTitleFont: UIFont? = .sfProRounded(ofSize: 12, weight: .medium)
@@ -222,6 +222,7 @@ final class AccountVC: UIViewController {
         let view = UIView()
         view.backgroundColor = .systemGroupedBackground
         view.layer.cornerRadius = 12
+        view.layer.cornerCurve = .continuous
 
         let iconConfing = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 32, weight: .medium))
         let iconImageView = UIImageView(image: UIImage(systemName: "moon.circle.fill", withConfiguration: iconConfing)?.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal))
@@ -259,6 +260,7 @@ final class AccountVC: UIViewController {
         let view = UIView()
         view.backgroundColor = .systemGroupedBackground
         view.layer.cornerRadius = 12
+        view.layer.cornerCurve = .continuous
 
         let iconConfing = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 32, weight: .medium))
         let iconImageView = UIImageView(image: UIImage(systemName: "heart.fill", withConfiguration: iconConfing)?.withTintColor(.systemPink, renderingMode: .alwaysOriginal))
@@ -304,6 +306,7 @@ final class AccountVC: UIViewController {
         let view = UIView()
         view.backgroundColor = .systemGroupedBackground
         view.layer.cornerRadius = 15
+        view.layer.cornerCurve = .continuous
         return view
     }()
     
@@ -352,6 +355,7 @@ final class AccountVC: UIViewController {
         button.setImage(rateIcon, for: UIControl.State())
         button.backgroundColor = .systemYellow
         button.layer.cornerRadius = 12
+        button.layer.cornerCurve = .continuous
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(rateUsAction), for: .touchUpInside)
@@ -368,6 +372,7 @@ final class AccountVC: UIViewController {
         button.setImage(rateIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
+        button.layer.cornerCurve = .continuous
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(contactWithUsAction), for: .touchUpInside)
@@ -393,6 +398,7 @@ final class AccountVC: UIViewController {
         button.setImage(bellIcon, for: UIControl.State())
         button.backgroundColor = .systemTeal
         button.layer.cornerRadius = 12
+        button.layer.cornerCurve = .continuous
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(rateUsAction), for: .touchUpInside)
@@ -409,6 +415,7 @@ final class AccountVC: UIViewController {
         button.setImage(bellIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
+        button.layer.cornerCurve = .continuous
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(changePhone), for: .touchUpInside)
@@ -433,6 +440,7 @@ final class AccountVC: UIViewController {
         button.setImage(paperplaneIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
+        button.layer.cornerCurve = .continuous
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(shareApp), for: .touchUpInside)
@@ -467,7 +475,12 @@ final class AccountVC: UIViewController {
         setupNavigationBar()
         setIsTabBarHidden(false)
     }
-    
+
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: GlobalConstants.changedUserDataNotification.name, object: nil)
+    }
+
+    // MARK: - Setup
     @objc private func setupUserInfo() {
         guard let userData = AuthService.shared.currentUser else {
             print("ERROR_LOG Error get user data from AuthService.shared.currentUser")
@@ -672,9 +685,7 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func themeSwitchAction() {
-        
         switch themeMode {
-        
         case .manual:
             darkModeButton.setImage(autoIcon, for: UIControl.State())
             themeMode = .auto
@@ -696,8 +707,7 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func segmentChanged(_ sender: UISegmentedControl) {
-      
-        self.isAfterTappedToSegmentedControl = true
+        isAfterTappedToSegmentedControl = true
         if sender.selectedSegmentIndex == 0 {
             UIView.animate(withDuration: 0.3, delay: 0, options: [.allowAnimatedContent]) {
                 self.scrollView.setContentOffset(CGPoint(x: self.subscribeSegmentContainer.frame.minX, y: 0), animated: false)
@@ -732,7 +742,8 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func changePhone() {
-        
+        let changePhoneVC = ChangePhoneVC()
+        navigationController?.pushViewController(changePhoneVC, animated: true)
     }
     
     @objc private func contactWithUsAction() {
@@ -741,7 +752,6 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func openAboutUser(_ sender: UITapGestureRecognizer) {
-        print("aidsoasidjaiosdjaoisda")
         guard let userData = AuthService.shared.currentUser else {
             print("ERROR_LOG Error get user data from AuthService.shared.currentUser")
             return
@@ -751,12 +761,9 @@ final class AccountVC: UIViewController {
             self.navigationController?.pushViewController(aboutUserVC, animated: true)
         }
     }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: GlobalConstants.changedUserDataNotification.name, object: nil)
-    }
 }
 
+// MARK: - UIScrollViewDelegate
 extension AccountVC: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if isAfterTappedToSegmentedControl == false {

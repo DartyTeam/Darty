@@ -9,11 +9,14 @@ import UIKit
 import MapKit
 
 final class LocationSearchResultsViewController: UITableViewController {
+
+    // MARK: - Properties
     var locations: [Location] = []
     var onSelectLocation: ((Location) -> ())?
     var isShowingHistory = false
     var searchHistoryLabel: String?
-    
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         extendedLayoutIncludesOpaqueBars = true
@@ -30,7 +33,8 @@ final class LocationSearchResultsViewController: UITableViewController {
         super.viewDidLayoutSubviews()
         preferredContentSize.height = tableView.contentSize.height
     }
-    
+
+    // MARK: - Table view
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return isShowingHistory ? searchHistoryLabel : nil
     }

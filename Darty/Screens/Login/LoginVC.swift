@@ -11,13 +11,14 @@ import FBSDKLoginKit
 import FirebaseAuth
 import Firebase
 
-private enum Constants {
-    static let socialButtonSize: CGFloat = 50
-    static let textFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
-}
-
 final class LoginVC: UIViewController {
-    
+
+    // MARK: - Constants
+    private enum Constants {
+        static let socialButtonSize: CGFloat = 50
+        static let textFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
+    }
+
     // MARK: - UI Elements
     private let dartyLogo: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo.text"))
@@ -65,6 +66,9 @@ final class LoginVC: UIViewController {
         button.addTarget(self, action: #selector(facebookLoginAction(_:)), for: .touchUpInside)
         return button
     }()
+
+    // MARK: - Delegates
+    weak var coordinator: AuthCoordinator?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -72,21 +76,13 @@ final class LoginVC: UIViewController {
         setupViews()
         setupConstraints()
     }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        if !(UserDefaults.standard.isPrevLaunched ?? false) {
-            let onboardVC = OnboardVC()
-            onboardVC.modalPresentationStyle = .overFullScreen
-            present(onboardVC, animated: true, completion: nil)
-        }
-        
-//        let welcomeVC = WelcomeVC()
-//        welcomeVC.modalPresentationStyle = .popover
-//        present(welcomeVC, animated: true, completion: nil)
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         if let image = UIImage(named: "login.background") {
             addBackground(image)
@@ -104,7 +100,7 @@ final class LoginVC: UIViewController {
         NSLayoutConstraint.activate([
             signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            signInButton.heightAnchor.constraint(equalToConstant: 50),
+            signInButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
             signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -183)
         ])
         
@@ -142,18 +138,31 @@ final class LoginVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func signInAction() {
-        let signInVC = SignInVC()
-        navigationController?.pushViewController(signInVC, animated: true)
+        coordinator?.signIn()
     }
     
     @objc private func appleLoginAction(_ sender: SocialButton) {
         
     }
+
+    private func startSetupProfile(for user: User) {
+        showAlert(title: "Успешно", message: "Осталось заполнить профиль") { [weak self] in
+            self?.view.isUserInteractionEnabled = true
+            self?.coordinator?.startSetupProfile(for: user)
+        }
+    }
+
+    private func didSuccessfullLogin(with user: UserModel) {
+        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: { [weak self] in
+            self?.view.isUserInteractionEnabled = true
+            AuthService.shared.currentUser = user
+            self?.coordinator?.changeToMainFlow()
+        })
+    }
 }
 
 // MARK: - GIDSignInDelegate
 extension LoginVC {
-    
     @objc private func googleLoginAction() {
         view.isUserInteractionEnabled = false
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
@@ -166,30 +175,14 @@ extension LoginVC {
     func signIntoToFirebase(didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         AuthService.shared.googleLogin(user: user, error: error) { [weak self] (result) in
             switch result {
-            
             case .success(let user):
-                
                 FirestoreService.shared.getUserData(user: user) { (result) in
+                    self?.googleButton.hideLoading()
                     switch result {
-                    
                     case .success(let user):
-                        
-                        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
-                            self?.googleButton.hideLoading()
-                            self?.view.isUserInteractionEnabled = true
-                            AuthService.shared.currentUser = user
-                            let tabBarController = TabBarController()
-                            tabBarController.modalPresentationStyle = .fullScreen
-                            self?.present(tabBarController, animated: true, completion: nil)
-                        })
+                        self?.didSuccessfullLogin(with: user)
                     case .failure(_):
-                        
-                        self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
-                            self?.googleButton.hideLoading()
-                            self?.view.isUserInteractionEnabled = true
-                            let setupPrifileVC = NameSetupProfileVC(currentUser: user)
-                            self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
-                        }
+                        self?.startSetupProfile(for: user)
                     }
                 }
             case .failure(let error):
@@ -203,7 +196,6 @@ extension LoginVC {
 
 // MARK: Facebook SDK
 extension LoginVC {
-    
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
         print("Did log out of facebook")
     }
@@ -214,7 +206,6 @@ extension LoginVC {
         if let token = AccessToken.current, !token.isExpired {
             facebookLoginFirebase(sender)
         } else {
-            
             let loginManager = LoginManager()
             loginManager.logIn(permissions: [.publicProfile, .userBirthday, .userGender], viewController: self, completion: { [weak self] loginResult in
                 switch loginResult {
@@ -227,7 +218,7 @@ extension LoginVC {
                     sender.hideLoading()
                     self?.view.isUserInteractionEnabled = true
                 case .success(let grantedPermissions, let declinedPermissions, let accessToken):
-                    print("\(grantedPermissions) \(declinedPermissions)")
+                    print("\(grantedPermissions) \(declinedPermissions) \(accessToken)")
                     self?.facebookLoginFirebase(sender)
                 }
             })
@@ -237,29 +228,15 @@ extension LoginVC {
     private func facebookLoginFirebase(_ sender: SocialButton) {
         AuthService.shared.facebookLogin(error: Error?.self as? Error) { [weak self] result in
             switch result {
-            
             case .success(let user):
                 FirestoreService.shared.getUserData(user: user) { (result) in
+                    sender.hideLoading()
                     switch result {
-                    
                     case .success(let user):
-                        
-                        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: {
-                            sender.hideLoading()
-                            self?.view.isUserInteractionEnabled = true
-                            AuthService.shared.currentUser = user
-                            let tabBarController = TabBarController()
-                            tabBarController.modalPresentationStyle = .fullScreen
-                            self?.present(tabBarController, animated: true, completion: nil)
-                        })
+                        self?.didSuccessfullLogin(with: user)
                     case .failure(let error):
                         print("ERROR_LOG get user data: ", error.localizedDescription)
-                        self?.showAlert(title: "Успешно", message: "Осталось заполнить профиль") {
-                            sender.hideLoading()
-                            self?.view.isUserInteractionEnabled = true
-                            let setupPrifileVC = NameSetupProfileVC(currentUser: user)
-                            self?.navigationController?.pushViewController(setupPrifileVC, animated: true)
-                        }
+                        self?.startSetupProfile(for: user)
                     }
                 }
             case .failure(let error):

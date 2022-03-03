@@ -42,21 +42,10 @@ final class BirthdaySetupProfileVC: UIViewController {
         return blurredEffectView
     }()
 
-    private let currentUser: User
-    private var setuppedUser: SetuppedUser
-    
+    // MARK: - Delegate
+    weak var delegate: BirthdaySetupProfileDelegate?
+
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setuppedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigationBar(withColor: .systemBlue, title: "День рождения")
@@ -68,9 +57,7 @@ final class BirthdaySetupProfileVC: UIViewController {
         if let image = UIImage(named: "birthday.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
             addBackground(image)
         }
-        
         view.backgroundColor = .systemBackground
-        
         view.addSubview(blurredEffectView)
         blurredEffectView.contentView.addSubview(datePicker)
         view.addSubview(nextButton)
@@ -82,9 +69,7 @@ final class BirthdaySetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        setuppedUser.birthday = datePicker.date
-        let aboutSetupProfileVC = ImageSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
+        delegate?.goNext(with: datePicker.date)
     }
 }
 

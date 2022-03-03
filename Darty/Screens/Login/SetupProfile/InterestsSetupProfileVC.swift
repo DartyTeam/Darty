@@ -56,25 +56,14 @@ final class InterestsSetupProfileVC: UIViewController {
         return text.isEmpty
     }
     
-    private let currentUser: User
-    private let setupedUser: SetuppedUser
-    
     private var filteredInterests: [InterestModel] = []
     
     private var selectedInterests = [Int]()
+
+    // MARK: - Delegate
+    weak var delegate: InterestsSetupProfileDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setupedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -139,30 +128,7 @@ final class InterestsSetupProfileVC: UIViewController {
     }
     
     @objc private func doneButtonTapped() {
-         
-        FirestoreService.shared.saveProfileWith(id: currentUser.uid,
-                                                phone: currentUser.phoneNumber ?? "",
-                                                username: setupedUser.name,
-                                                avatarImage: setupedUser.image,
-                                                description: setupedUser.description,
-                                                sex: setupedUser.sex,
-                                                birthday: setupedUser.birthday!,
-                                                interestsList: selectedInterests,
-                                                city: setupedUser.city!,
-                                                country: setupedUser.country!) { [weak self] (result) in
-            switch result {
-            
-            case .success(let user):
-                self?.showAlert(title: "Успешно", message: "Веселитесь!") {
-                    AuthService.shared.currentUser = user
-                    let tabBarController = TabBarController()
-                    tabBarController.modalPresentationStyle = .fullScreen
-                    self?.present(tabBarController, animated: true, completion: nil)
-                }
-            case .failure(let error):
-                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
-            }
-        }
+        delegate?.goNext(with: selectedInterests)
     }
 }
 

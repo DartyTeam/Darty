@@ -1,15 +1,15 @@
 //
-//  FourthCreateVC.swift
+//  PartyPriceAndGuestsVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 13.07.2021.
 //
 
 import UIKit
-import FirebaseAuth
 
-final class FourthCreateVC: UIViewController {
-    
+final class PartyPriceAndGuestsVC: UIViewController {
+
+    // MARK: - Constants
     private enum Constants {
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
         static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .semibold)
@@ -112,23 +112,12 @@ final class FourthCreateVC: UIViewController {
     }()
     
     // MARK: - Properties
-    private var savedPrice = ""
-    private var savedOther = ""
+    private var savedInfo = SavedInfo()
     
-    private let currentUser: UserModel
-    private var setuppedParty: SetuppedParty
+    // MARK: - Delegate
+    weak var delegate: PartyPriceAndGuestsDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: UserModel, setuppedParty: SetuppedParty) {
-        self.currentUser = currentUser
-        self.setuppedParty = setuppedParty
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -137,7 +126,8 @@ final class FourthCreateVC: UIViewController {
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
@@ -191,36 +181,41 @@ final class FourthCreateVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
+        savedInfo.minAge = Int(minAgeStepper.value)
+        savedInfo.maxGuests = Int(maxGuestsStepper.value)
+
         switch priceTypeSegment.selectedSegmentIndex {
         case 0:
-            setuppedParty.priceType = .free
-            setuppedParty.moneyPrice = nil
-            setuppedParty.anotherPrice = nil
+            savedInfo.priceType = .free
+            savedInfo.moneyPrice = nil
+            savedInfo.anotherPrice = nil
         case 1:
             guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
                 priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
                 return
             }
-            setuppedParty.priceType = .money
-            setuppedParty.moneyPrice = Int(price)
-            setuppedParty.anotherPrice = nil
+            savedInfo.priceType = .money
+            savedInfo.moneyPrice = Int(price)
+            savedInfo.anotherPrice = nil
         case 2:
             guard let price = priceTextField.text, !price.isEmptyOrWhitespaceOrNewLines() else {
                 priceTextField.setError(message: "Либо введите цену, либо переключите не Бесплатно")
                 return
             }
-            setuppedParty.priceType = .another
-            setuppedParty.anotherPrice = price
-            setuppedParty.moneyPrice = nil
+            savedInfo.priceType = .another
+            savedInfo.anotherPrice = price
+            savedInfo.moneyPrice = nil
         default:
             break
         }
-        
-        setuppedParty.minAge = Int(minAgeStepper.value)
-        setuppedParty.maxGuests = Int(maxGuestsStepper.value)
-        
-        let fifthCreateVC = FifthCreateVC(currentUser: currentUser, setuppedParty: setuppedParty)
-        navigationController?.pushViewController(fifthCreateVC, animated: true)
+
+        delegate?.goNext(
+            priceType: savedInfo.priceType,
+            moneyPrice: savedInfo.moneyPrice,
+            anotherPrice: savedInfo.anotherPrice,
+            minAge: savedInfo.minAge,
+            maxGuests: savedInfo.maxGuests
+        )
     }
     
     @objc private func typeChangedAction(_ sender: UISegmentedControl) {
@@ -233,7 +228,7 @@ final class FourthCreateVC: UIViewController {
             }
         case 1:
             priceTextField.keyboardType = .numberPad
-            priceTextField.text = savedPrice
+            priceTextField.text = "\(savedInfo.moneyPrice ?? 0)"
             if priceTextField.isHidden {
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
                     self.priceTextField.isHidden = false
@@ -242,7 +237,7 @@ final class FourthCreateVC: UIViewController {
             }
             priceTextField.becomeFirstResponder()
         case 2:
-            priceTextField.text = savedOther
+            priceTextField.text = savedInfo.anotherPrice
             priceTextField.keyboardType = .default
             if priceTextField.isHidden {
                 DispatchQueue.main.asyncAfter(deadline: .now()) {
@@ -274,10 +269,8 @@ final class FourthCreateVC: UIViewController {
 }
 
 // MARK: - Setup constraints
-extension FourthCreateVC {
-    
+extension PartyPriceAndGuestsVC {
     private func setupConstraints() {
-                    
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
@@ -355,15 +348,14 @@ extension FourthCreateVC {
     }
 }
 
-extension FourthCreateVC: UITextFieldDelegate {
-        
+// MARK: - UITextFieldDelegate
+extension PartyPriceAndGuestsVC: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         if textField.keyboardType == .numberPad {
-            savedPrice = textField.text ?? ""
+            savedInfo.moneyPrice = Int(textField.text ?? "") ?? 0
         } else {
-            savedOther = textField.text ?? ""
+            savedInfo.anotherPrice = textField.text ?? ""
         }
-        print("asiodjaoisdjasd: ", savedPrice, savedOther)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -393,5 +385,15 @@ extension FourthCreateVC: UITextFieldDelegate {
         }
         
         return false
+    }
+}
+
+extension PartyPriceAndGuestsVC {
+    struct SavedInfo {
+        var priceType: PriceType = .free
+        var anotherPrice: String?
+        var moneyPrice: Int?
+        var minAge: Int = 0
+        var maxGuests: Int = 1
     }
 }

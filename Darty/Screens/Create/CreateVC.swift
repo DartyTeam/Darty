@@ -1,5 +1,5 @@
 //
-//  CreateVC.swift
+//  PartyNameVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 19.06.2021.
@@ -8,28 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-struct SetuppedParty {
-    var name: String = ""
-    var description: String = ""
-    var city: String = ""
-    var address: String = ""
-    var userId: String
-    var maxGuests: Int = 1
-    var curGuests: Int = 0
-    var date: Date = Date()
-    var startTime: Date = Date()
-    var endTime: Date = Date()
-    var priceType: PriceType = .free
-    var moneyPrice: Int? = 0
-    var anotherPrice: String? = ""
-    var images: [UIImage] = []
-    var minAge: Int = 10
-    var type: PartyType = .art
-    var latitude: Double = 0.0
-    var longitude: Double = 0.0
-}
-
-final class CreateVC: UIViewController {
+final class PartyNameVC: UIViewController {
     
     private enum Constants {
         static let textPlaceholder = "Наименование"
@@ -67,9 +46,11 @@ final class CreateVC: UIViewController {
         let textView = TextView(isEditable: true, color: .systemPurple)
         return textView
     }()
+
+    // MARK: - Delegate
+    weak var delegate
     
     // MARK: - Properties
-    private let currentUser: UserModel
     private var party: PartyModel?
     
     // MARK: - Lifecycle

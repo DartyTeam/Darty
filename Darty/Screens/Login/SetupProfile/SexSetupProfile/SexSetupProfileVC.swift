@@ -12,17 +12,18 @@ private struct SexButtonModel {
     let sex: Sex
 }
 
-private enum Constants {
-    static let sizeSexButton: CGFloat = UIScreen.main.bounds.height / 8.13
-    static let textFont: UIFont? = .sfProDisplay(ofSize: 18, weight: .semibold)
-    static let infoText = "You may not choose"
-}
-
 import UIKit
 import FirebaseAuth
 
 final class SexSetupProfileVC: UIViewController {
-    
+
+    // MARK: - Constants
+    private enum Constants {
+        static let sizeSexButton: CGFloat = UIScreen.main.bounds.height / 8.13
+        static let textFont: UIFont? = .sfProDisplay(ofSize: 18, weight: .semibold)
+        static let infoText = "You may not choose"
+    }
+
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
         let button = UIButton(title: "Далее 􀰑")
@@ -56,21 +57,11 @@ final class SexSetupProfileVC: UIViewController {
     ]
     
     private var selectedSex: Sex?
-    private let currentUser: User
-    private var setuppedUser: SetuppedUser
+
+    // MARK: - Delegate
+    weak var delegate: SexSetupProfileDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setuppedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigationBar(withColor: .systemBlue, title: "Пол")
@@ -78,19 +69,19 @@ final class SexSetupProfileVC: UIViewController {
         setupConstraints()
         setupSexes()
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         if let image = UIImage(named: "sex.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
             addBackground(image)
         }
-        
         view.backgroundColor = .systemBackground
-        
         view.addSubview(infoLabel)
         view.addSubview(nextButton)
         view.addSubview(sexStackView)
     }
-    
+
+    // MARK: - Functions
     private func setupSexes() {
         for item in sexArray {
             let sexSelector = SexSelector(title: item.title, iconImage: item.iconImage, backgroundColor: item.backgroundColor, elementSize: Constants.sizeSexButton, delegate: self, sex: item.sex)
@@ -104,15 +95,12 @@ final class SexSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        setuppedUser.sex = selectedSex
-        let aboutSetupProfileVC = BirthdaySetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
+        delegate?.goNext(with: selectedSex)
     }
 }
 
 // MARK: - Setup constraints
 extension SexSetupProfileVC {
-    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -134,6 +122,7 @@ extension SexSetupProfileVC {
     }
 }
 
+// MARK: - SexSelectorDelegate
 extension SexSetupProfileVC: SexSelectorDelegate {
     func sexDeselected(_ sex: Sex) {
         if selectedSex == sex {

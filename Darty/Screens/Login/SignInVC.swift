@@ -10,14 +10,15 @@ import FirebaseAuth
 import PhoneNumberKit
 import SPAlert
 
-private enum Constants {
-    static let socialButtonSize: CGFloat = 50
-    static let infoTextFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .regular)
-    static let textFieldFont: UIFont? = .sfProText(ofSize: 25, weight: .medium)
-}
-
 final class SignInVC: UIViewController {
-    
+
+    // MARK: - Constants
+    private enum Constants {
+        static let socialButtonSize: CGFloat = 50
+        static let infoTextFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .regular)
+        static let textFieldFont: UIFont? = .sfProText(ofSize: 25, weight: .medium)
+    }
+
     // MARK: - UI Elements
     private let dartyLogo: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo"))
@@ -69,12 +70,11 @@ final class SignInVC: UIViewController {
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
-       
         view.backgroundColor = .systemBackground
-        
-        setNavigationBar(withColor: .systemPurple, title: "Введите номер", withClear: false)
+        setNavigationBar(withColor: .systemPurple, title: "Введите номер", withClear: true)
         view.addSubview(acceptButton)
         view.addSubview(dartyLogo)
         view.addSubview(warningLabel)
@@ -86,7 +86,7 @@ final class SignInVC: UIViewController {
         NSLayoutConstraint.activate([
             acceptButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             acceptButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            acceptButton.heightAnchor.constraint(equalToConstant: 50),
+            acceptButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
             acceptButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -44)
         ])
         
@@ -129,7 +129,6 @@ final class SignInVC: UIViewController {
         } else {
             print("ERROR_LOG Error get phone number")
         }
-      
     }
     
     @objc private func openCountrySelector() {

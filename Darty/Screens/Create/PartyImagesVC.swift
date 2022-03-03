@@ -1,18 +1,18 @@
 //
-//  FifthCreateVC.swift
+//  PartyImagesVC.swift
 //  Darty
 //
 //  Created by Руслан Садыков on 15.07.2021.
 //
 
 import UIKit
-import FirebaseAuth
 import PhotosUI
 import Agrume
 import SPAlert
 
-final class FifthCreateVC: UIViewController {
-    
+final class PartyImagesVC: UIViewController {
+
+    // MARK: - Constants
     private enum Constants {
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
         static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .semibold)
@@ -35,28 +35,18 @@ final class FifthCreateVC: UIViewController {
         return button
     }()
     
-    // MARK: - Properties
-    private let currentUser: UserModel
-    private var setuppedParty: SetuppedParty
+    // MARK: - Delegate
+    weak var delegate: PartyImagesDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: UserModel, setuppedParty: SetuppedParty) {
-        self.currentUser = currentUser
-        self.setuppedParty = setuppedParty
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavBar()
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupNavBar() {
         setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
         let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
@@ -78,12 +68,7 @@ final class FifthCreateVC: UIViewController {
             showAlert(title: "Необходимо выбрать не менее одного изображения", message: "")
             return
         }
-        
-        setuppedParty.images = images
-        print("asdiojasdoijasd: ", setuppedParty.images)
-        
-        let sixthCreateVC = SelectLocationVC(setuppedParty: setuppedParty)
-        navigationController?.pushViewController(sixthCreateVC, animated: true)
+        delegate?.goNext(with: images)
     }
     
     @objc private func cancleAction() {
@@ -92,7 +77,7 @@ final class FifthCreateVC: UIViewController {
 }
 
 // MARK: - Setup constraints
-extension FifthCreateVC {
+extension PartyImagesVC {
     private func setupConstraints() {
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
@@ -108,7 +93,8 @@ extension FifthCreateVC {
     }
 }
 
-extension FifthCreateVC: MultiSetImagesViewDelegate {
+// MARK: - MultiSetImagesViewDelegate
+extension PartyImagesVC: MultiSetImagesViewDelegate {
     func showFullscreen(_ agrume: Agrume) {
         agrume.show(from: self)
     }

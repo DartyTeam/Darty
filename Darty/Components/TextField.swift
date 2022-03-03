@@ -64,13 +64,14 @@ final class TextField: UITextField {
         self.layer.borderWidth = 1
         self.layer.borderColor = Constants.unselectedBorderColor.cgColor
         self.layer.cornerRadius = 8
+        self.layer.cornerCurve = .continuous
     }
     
     private func setupViews() {
         self.backgroundColor = .systemBackground
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: 40)
+            heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     

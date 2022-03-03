@@ -107,18 +107,9 @@ final class SelectLocationVC: UIViewController {
         $0.searchBar.textField?.clearButtonMode = .whileEditing
         return $0
     }(UISearchController(searchResultsController: results))
-    
-    private var setuppedParty: SetuppedParty
-    
-    init(setuppedParty: SetuppedParty) {
-        self.setuppedParty = setuppedParty
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+
+    weak var delegate: SelectLocationDelegate?
+
     deinit {
         searchTimer?.invalidate()
         localSearch?.cancel()
@@ -410,42 +401,7 @@ extension SelectLocationVC: MKMapViewDelegate {
     }
     
     public func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        startLoading()
-        setuppedParty.address = location?.address ?? ""
-        setuppedParty.latitude = Double((location?.coordinate.latitude)!)
-        setuppedParty.longitude = Double((location?.coordinate.longitude)!)
-        setuppedParty.city = ""
-        FirestoreService.shared.savePartyWith(party: setuppedParty) { [weak self] (result) in
-            switch result {
-            
-            case .success(_):
-                self?.stopLoading()
-                let alertController = UIAlertController(title: "🎉 Ура! Вечеринка создана. Вы можете найти ее в Мои вечеринки", message: "", preferredStyle: .actionSheet)
-                let shareAction = UIAlertAction(title: "Поделиться ссылкой", style: .default) { _ in
-                    let items: [Any] = ["This app is my favorite", URL(string: "https://www.apple.com")!]
-                    let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-                    ac.excludedActivityTypes = [.addToReadingList, .airDrop, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
-                    self?.present(ac, animated: true)
-                }
-                let goAction = UIAlertAction(title: "Перейти к вечеринке", style: .default) { _ in
-                    #warning("Нужно добавить открытие вечеринки и переход в Мои вечеринки")
-                }
-                
-                let doneAction = UIAlertAction(title: "Закрыть", style: .cancel) { _ in
-                    self?.navigationController?.popToRootViewController(animated: true)
-                }
-                
-                alertController.addAction(shareAction)
-                alertController.addAction(goAction)
-                alertController.addAction(doneAction)
-                
-                self?.present(alertController, animated: true, completion: nil)
-                
-            case .failure(let error):
-                self?.stopLoading()
-                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
-            }
-        }
+        delegate?.goNext(address: location?.address ?? "", latitude: Double((location?.coordinate.latitude)!), longitude: Double((location?.coordinate.longitude)!), city: "")
     }
     
     public func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {

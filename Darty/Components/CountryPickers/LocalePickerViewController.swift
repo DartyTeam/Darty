@@ -234,7 +234,6 @@ final class LocalePickerViewController: UIViewController {
 }
 
 // MARK: - UISearchResultsUpdating
-
 extension LocalePickerViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {

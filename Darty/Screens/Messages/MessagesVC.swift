@@ -36,7 +36,6 @@ class MessagesVC: UIViewController {
         
         func description() -> String {
             switch self {
-            
             case .waitingChats:
                 return "Ожидающие чаты"
             case .activeChats:
@@ -79,7 +78,7 @@ class MessagesVC: UIViewController {
     }
     
     private func setupNavBar() {
-        setNavigationBar(withColor:.systemTeal, title: "Сообщения", withClear: false)
+        setNavigationBar(withColor:.systemTeal, title: "Сообщения", withClear: true)
     }
     
     private func setupListeners() {

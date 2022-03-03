@@ -5,7 +5,7 @@
 //  Created by Руслан Садыков on 03.07.2021.
 //
 
-protocol SexSelectorDelegate {
+protocol SexSelectorDelegate: AnyObject {
     func sexSelected(_ sex: Sex)
     func sexDeselected(_ sex: Sex)
 }
@@ -18,11 +18,12 @@ enum Sex: String {
 
 import UIKit
 
-private enum Constants {
-    static let textFont: UIFont? = .sfProDisplay(ofSize: 18, weight: .semibold)
-}
+final class SexSelector: UIView {
 
-class SexSelector: UIView {
+    // MARK: - Constants
+    private enum Constants {
+        static let textFont: UIFont? = .sfProDisplay(ofSize: 18, weight: .semibold)
+    }
     
     // MARK: UI Elements
     private lazy var backView: UIView = {
@@ -88,7 +89,7 @@ class SexSelector: UIView {
         }
     }
     
-    // MARK: - Lifecycle
+    // MARK: - Init
     init(title: String, iconImage: UIImage?, backgroundColor: UIColor, elementSize: CGFloat, delegate: SexSelectorDelegate, sex: Sex) {
         self.elementSize = elementSize
         self.color = backgroundColor
@@ -111,7 +112,8 @@ class SexSelector: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         addSubview(backView)
         backView.addSubview(iconImageView)
@@ -155,8 +157,6 @@ class SexSelector: UIView {
     // MARK: - Handlers
     @objc private func tappedAction() {
         isSelected.toggle()
-        showAnimation {
-            
-        }
+        showAnimation()
     }
 }

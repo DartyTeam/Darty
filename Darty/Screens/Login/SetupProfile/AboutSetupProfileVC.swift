@@ -46,23 +46,11 @@ final class AboutSetupProfileVC: UIViewController {
         textView.usesStandardTextScaling = true
         return textView
     }()
-    
-    // MARK: - Properties
-    private let currentUser: User
-    private var setuppedUser: SetuppedUser
+
+    // MARK: - Delegate
+    weak var delegate: AboutSetupProfileDelegate?
     
     // MARK: - Lifecycle
-    init(currentUser: User, setuppedUser: SetuppedUser) {
-        self.currentUser = currentUser
-        self.setuppedUser = setuppedUser
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -73,14 +61,13 @@ final class AboutSetupProfileVC: UIViewController {
         setupViews()
         setupConstraints()
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
         if let image = UIImage(named: "about.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
             addBackground(image)
         }
-                
         view.backgroundColor = .systemBackground
-        
         view.addSubview(aboutTextView)
         view.addSubview(aboutTitleLabel)
         view.addSubview(nextButton)
@@ -96,9 +83,7 @@ final class AboutSetupProfileVC: UIViewController {
             SPAlert.present(title: "Расскажите о себе", preset: .error)
             return
         }
-        setuppedUser.description = descriptionText
-        let aboutSetupProfileVC = SexSetupProfileVC(currentUser: currentUser, setuppedUser: setuppedUser)
-        navigationController?.pushViewController(aboutSetupProfileVC, animated: true)
+        delegate?.goNext(description: descriptionText)
     }
     
     @objc private func aboutTitleAction() {
@@ -112,7 +97,6 @@ final class AboutSetupProfileVC: UIViewController {
 
 // MARK: - Setup constraints
 extension AboutSetupProfileVC {
-    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

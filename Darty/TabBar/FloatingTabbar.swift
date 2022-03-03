@@ -30,49 +30,40 @@ struct FloatingTabbar : View {
             Spacer(minLength: 0)
             
             HStack{
-                
                 if !self.observableFloatingExpand.expand {
-                    
                     Button(action: {
-                        
                         self.observableFloatingExpand.expand.toggle()
-                        
                     }) {
-                        
                         Image(systemName: "arrow.left")
                             .foregroundColor(.black)
                             .padding()
-//                            .frame(width: 44, height: 44)
+                            .frame(width: 44, height: 44)
                     }
-                }
-                else{
+                } else {
                     
                     Button(action: {
-                        
                         self.selected = 0
                         delegate?.selectedChanged(0)
                         
                     }) {
-                        
                         Image(systemName: (self.selected == 0) ? "flame.fill" : "flame")
                             .foregroundColor(self.selected == 0 ? .orange : .gray)
                             .padding(.horizontal)
-//                            .frame(width: 44, height: 44)
+                            .frame(width: 44, height: 44)
                     }
-                    
+
                     Spacer(minLength: 15)
                     
                     Button(action: {
                         
                         self.selected = 1
                         delegate?.selectedChanged(1)
-                        
+
                     }) {
-                        
                         Image(systemName: (self.selected == 1) ? "plus" : "plus")
                             .foregroundColor(self.selected == 1 ? .purple : .gray)
                             .padding(.horizontal)
-//                            .frame(width: 44, height: 44)
+                            .frame(width: 44, height: 44)
                     }
                     
                     Spacer(minLength: 15)
@@ -86,7 +77,7 @@ struct FloatingTabbar : View {
                         Image(systemName: (self.selected == 2) ? "message.fill" : "message")
                             .foregroundColor(self.selected == 2 ? Color(UIColor.systemTeal) : .gray)
                             .padding(.horizontal)
-//                            .frame(width: 44, height: 44)
+                            .frame(width: 44, height: 44)
                     }
                     
                     Spacer(minLength: 15)
@@ -100,19 +91,34 @@ struct FloatingTabbar : View {
                         Image(systemName: (self.selected == 3) ? "person.fill" : "person")
                             .foregroundColor(self.selected == 3 ? Color(UIColor.systemIndigo) : .gray)
                             .padding(.horizontal)
-//                            .frame(width: 44, height: 44, alignment: .center)
+                            .frame(width: 44, height: 44, alignment: .center)
                     }
                 }
-                
-                
-            }.padding(.vertical,self.observableFloatingExpand.expand ? 20 : 8)
-            .padding(.horizontal,self.observableFloatingExpand.expand ? 35 : 8)
+            }.padding(.vertical, 8)
+            .padding(.horizontal, self.observableFloatingExpand.expand ? 35 : 8)
             .background(Blur(style: .systemUltraThinMaterial))
             .clipShape(Capsule())
             .padding(22)
             .onLongPressGesture {
                 self.observableFloatingExpand.expand.toggle()
             }
+            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                        .onEnded({ value in
+                if value.translation.width < 0 {
+                    // left
+                    self.observableFloatingExpand.expand = true
+                }
+                if value.translation.width > 0 {
+                    // right
+                    self.observableFloatingExpand.expand = false
+                }
+                if value.translation.height < 0 {
+                    // up
+                }
+                if value.translation.height > 0 {
+                    // down
+                }
+            }))
             .animation(.interactiveSpring(response: 0.6, dampingFraction: 0.6, blendDuration: 0.6))
         }
     }
