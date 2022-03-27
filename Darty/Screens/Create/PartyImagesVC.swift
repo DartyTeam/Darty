@@ -20,11 +20,17 @@ final class PartyImagesVC: UIViewController {
         static let countGuestsText = "Кол-во гостей"
         static let minAgeText = "Мин. возраст"
         static let priceText = "Цена за вход"
+        static let maxPhotosForSelect = 5
     }
     
     // MARK: - UI Elements
     private lazy var imagesListView: MultiSetImagesView = {
-        let multiSetImagesView = MultiSetImagesView(maxPhotos: 5, shape: .rect, color: .systemPurple, delegate: self)
+        let multiSetImagesView = MultiSetImagesView(
+            maxPhotos: Constants.maxPhotosForSelect,
+            shape: .rect,
+            color: .systemPurple,
+            delegate: self
+        )
         return multiSetImagesView
     }()
     
@@ -63,7 +69,7 @@ final class PartyImagesVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-        let images = imagesListView.images
+        let images = imagesListView.images.map({ $0.image })
         guard !images.isEmpty else {
             showAlert(title: "Необходимо выбрать не менее одного изображения", message: "")
             return
@@ -98,9 +104,9 @@ extension PartyImagesVC: MultiSetImagesViewDelegate {
     func showFullscreen(_ agrume: Agrume) {
         agrume.show(from: self)
     }
-    
-    func showActionSheet(_ actionSheet: UIAlertController) {
-        present(actionSheet, animated: true, completion: nil)
+
+    func showAlertController(_ alertController: UIAlertController) {
+        present(alertController, animated: true, completion: nil)
     }
     
     func dismissImagePicker() {

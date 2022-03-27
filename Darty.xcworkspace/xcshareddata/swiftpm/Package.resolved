@@ -1,16 +1,59 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "SFSymbols",
-        "repositoryURL": "https://github.com/ivanvorobei/SFSymbols",
-        "state": {
-          "branch": null,
-          "revision": "784d07d0d0d044fd122dfb25c3c15117a2e3f43f",
-          "version": "1.0.3"
-        }
+  "pins" : [
+    {
+      "identity" : "realm-core",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-core",
+      "state" : {
+        "revision" : "dcd3788f75bafb0cc397d145e1651aab3ad4bf0e",
+        "version" : "11.12.0"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "realm-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/realm/realm-swift.git",
+      "state" : {
+        "revision" : "628cf20632d65d3a3e90ae8aaf52bce596d7ad8f",
+        "version" : "10.24.2"
+      }
+    },
+    {
+      "identity" : "skeletonview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Juanpe/SkeletonView.git",
+      "state" : {
+        "revision" : "9e61ff3a85a3780a2cdfceae0257ad32fa8ae4d3",
+        "version" : "1.29.2"
+      }
+    },
+    {
+      "identity" : "spalert",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ivanvorobei/SPAlert",
+      "state" : {
+        "revision" : "0df499e9f5dc43790ac65f227821acfa7b05b168",
+        "version" : "4.2.0"
+      }
+    },
+    {
+      "identity" : "spindicator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ivanvorobei/SPIndicator",
+      "state" : {
+        "revision" : "17fc8e08b5428e9553f5dea7ebc8c201513a745c",
+        "version" : "1.6.4"
+      }
+    },
+    {
+      "identity" : "spsafesymbols",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparrowcode/SPSafeSymbols",
+      "state" : {
+        "revision" : "9af06f7d21b2b2ad83ce2216506c0ff4ff0c3809",
+        "version" : "1.0.5"
+      }
+    }
+  ],
+  "version" : 2
 }

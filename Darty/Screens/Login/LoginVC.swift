@@ -10,25 +10,28 @@ import GoogleSignIn
 import FBSDKLoginKit
 import FirebaseAuth
 import Firebase
+import AVFoundation
+import SPAlert
 
 final class LoginVC: UIViewController {
 
     // MARK: - Constants
     private enum Constants {
-        static let socialButtonSize: CGFloat = 50
+        static let socialButtonSize: CGFloat = 56
         static let textFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
+        static let dartyLogoTextWidth: CGFloat = 82
     }
 
     // MARK: - UI Elements
     private let dartyLogo: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo.text"))
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
     private let signInButton: UIButton = {
         let button = UIButton(title: "Sign In")
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
         return button
@@ -67,6 +70,17 @@ final class LoginVC: UIViewController {
         return button
     }()
 
+    private var videoPlayer: AVPlayer? {
+        return self.videoPlayerLayer?.player
+    }
+
+    private let videoView = UIView()
+    private let topBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(hexString: "#5D011B")
+        return view
+    }()
+
     // MARK: - Delegates
     weak var coordinator: AuthCoordinator?
     
@@ -75,6 +89,39 @@ final class LoginVC: UIViewController {
         super.viewDidLoad()
         setupViews()
         setupConstraints()
+        videoPlayer?.play()
+        let longPressGestureRegonizer = UILongPressGestureRecognizer(target: self, action: #selector(panOnScreen(_:)))
+        longPressGestureRegonizer.minimumPressDuration = 0.5
+        view.addGestureRecognizer(longPressGestureRegonizer)
+        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: videoPlayerLayer?.player?.currentItem, queue: nil) { notification in
+            guard self.isLongPressOnScreen else { return }
+            self.replayView()
+        }
+    }
+
+    private func replayView() {
+        self.videoPlayer?.seek(to: CMTime.zero)
+        self.videoPlayer?.play()
+    }
+
+    private func rewindVideo() {
+        videoPlayer?.rate = -1.0
+        videoPlayer?.play()
+    }
+
+    var isLongPressOnScreen = false
+
+    @objc private func panOnScreen(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            isLongPressOnScreen = true
+            replayView()
+        case .ended:
+            isLongPressOnScreen = false
+            rewindVideo()
+        default:
+            break
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -82,12 +129,31 @@ final class LoginVC: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
+    let videoPath = Bundle.main.path(forResource: "MainAnimation", ofType:"mp4")
+
+    private lazy var videoPlayerLayer: AVPlayerLayer? = {
+        guard let videoPath = videoPath else {
+            return nil
+        }
+        let url = URL(fileURLWithPath: videoPath)
+        let player = AVPlayer(url: url)
+        let playerLayer = AVPlayerLayer(player: player)
+        playerLayer.frame = self.view.bounds
+        videoView.layer.addSublayer(playerLayer)
+        return playerLayer
+    }()
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard videoPlayerLayer?.frame != videoView.bounds else { return }
+        videoPlayerLayer?.frame = videoView.bounds
+    }
+
     // MARK: - Setup views
     private func setupViews() {
-        if let image = UIImage(named: "login.background") {
-            addBackground(image)
-        }
-       
+        view.backgroundColor = UIColor(hexString: "#4A0217")
+        view.addSubview(topBackgroundView)
+        view.addSubview(videoView)
         view.addSubview(signInButton)
         view.addSubview(dartyLogo)
         view.addSubview(continueWithSocLabel)
@@ -97,22 +163,34 @@ final class LoginVC: UIViewController {
     }
     
     private func setupConstraints() {
+        topBackgroundView.snp.makeConstraints { make in
+            make.top.left.right.equalToSuperview()
+            make.height.equalTo(56)
+        }
+
         NSLayoutConstraint.activate([
             signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             signInButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
-            signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -183)
+            signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -150)
         ])
-        
-        NSLayoutConstraint.activate([
-            dartyLogo.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
-            dartyLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        ])
+
+        videoView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(signInButton.snp.bottom).inset(UIButton.defaultButtonHeight / 2)
+        }
+
+        dartyLogo.snp.makeConstraints { make in
+            make.top.equalTo(videoView.snp.top).offset(30)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(Constants.dartyLogoTextWidth)
+        }
         
         NSLayoutConstraint.activate([
             appleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
             appleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
+            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
             appleButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
         
@@ -131,7 +209,7 @@ final class LoginVC: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -32),
+            continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -20),
             continueWithSocLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
@@ -146,18 +224,26 @@ final class LoginVC: UIViewController {
     }
 
     private func startSetupProfile(for user: User) {
-        showAlert(title: "Успешно", message: "Осталось заполнить профиль") { [weak self] in
-            self?.view.isUserInteractionEnabled = true
-            self?.coordinator?.startSetupProfile(for: user)
+        SPAlert.present(
+            title: "Успешно",
+            message: "Осталось заполнить профиль",
+            preset: .custom(UIImage(.face.smiling))
+        ) {
+            self.view.isUserInteractionEnabled = true
+            self.coordinator?.startSetupProfile(for: user)
         }
     }
 
     private func didSuccessfullLogin(with user: UserModel) {
-        UIApplication.topViewController()?.showAlert(title: "Успешно", message: "Вы авторизованы", completion: { [weak self] in
-            self?.view.isUserInteractionEnabled = true
+        SPAlert.present(
+            title: "Успешно",
+            message: "Вы авторизованы",
+            preset: .custom(UIImage(.face.smiling))
+        ) {
+            self.view.isUserInteractionEnabled = true
             AuthService.shared.currentUser = user
-            self?.coordinator?.changeToMainFlow()
-        })
+            self.coordinator?.changeToMainFlow()
+        }
     }
 }
 

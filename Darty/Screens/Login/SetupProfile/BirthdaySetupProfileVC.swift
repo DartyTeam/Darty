@@ -81,7 +81,7 @@ extension BirthdaySetupProfileVC {
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: 50)
+            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
         ])
         
         NSLayoutConstraint.activate([

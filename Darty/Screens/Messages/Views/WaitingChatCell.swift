@@ -20,7 +20,7 @@ final class WaitingChatCell: UICollectionViewCell, SelfConfiguringCell {
     
     func configure<U>(with value: U) where U : Hashable {
         guard let chat: RecentChatModel = value as? RecentChatModel else { return }
-        friendImageView.sd_setImage(with: URL(string: chat.avatarLink), completed: nil)
+        friendImageView.setImage(stringUrl: chat.avatarLink)
     }
     
     override init(frame: CGRect) {

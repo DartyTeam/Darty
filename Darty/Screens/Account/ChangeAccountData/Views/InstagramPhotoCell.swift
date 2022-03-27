@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 final class InstagramPhotoCell: UICollectionViewCell {
     
@@ -36,7 +35,7 @@ final class InstagramPhotoCell: UICollectionViewCell {
     }
     
     func configure(with imageUrl: URL) {
-        imageView.sd_setImage(with: imageUrl, completed: nil)
+        imageView.setImage(url: imageUrl)
     }
     
     required init?(coder: NSCoder) {

@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import SDWebImage
 import MapKit
+import SkeletonView
 
 class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
@@ -104,14 +104,11 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = Constants.cornerRadius
         imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        imageView.layer.cornerCurve = .continuous
         imageView.maskToBounds = true
+        imageView.isSkeletonable = true
+        imageView.skeletonCornerRadius = Float(imageView.layer.cornerRadius)
         return imageView
-    }()
-    
-    private let infoLabel: UILabel = {
-        let label = UILabel()
-        label.font = Constants.paramFont
-        return label
     }()
 
     private let redView: UIView = {
@@ -127,11 +124,27 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         return label
     }()
 
+    private let infoView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 10
+        return view
+    }()
+
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.font = Constants.paramFont
+        return label
+    }()
+
+    // MARK: - Properties
+    private var lon: Double?
+    private var lat: Double?
+
     // MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.layer.cornerRadius = Constants.cornerRadius
-        self.layer.cornerCurve = .continuous
+        setupCornerRadius()
         setupShadows()
         setupViews()
         setupConstraints()
@@ -139,6 +152,15 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        mapImageView.image = nil
+        mapImageView.showSkeleton()
+        mapImageView.layoutSubviews()
+        infoLabel.text?.removeAll()
+        infoView.isHidden = true
     }
     
     func configure<U>(with value: U) where U : Hashable {
@@ -150,10 +172,8 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         FirestoreService.shared.getUser(by: party.userId) { [weak self] (result) in
             switch result {
             case .success(let user):
-                if user.avatarStringURL != "" {
-                    self?.userImageView.sd_setImage(with: URL(string: user.avatarStringURL), completed: { image, error, cacheType, url in
-                        self?.userImageView.focusOnFaces = true
-                    })
+                if !user.avatarStringURL.isEmpty {
+                    self?.userImageView.setImage(stringUrl: user.avatarStringURL)
                 }
                 self?.userNameLabel.text = user.username
                 self?.userRatingLabel.text = "00000000"
@@ -177,12 +197,17 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         } else if party.priceType == PriceType.another.rawValue {
             priceLabel.text = party.anotherPrice
         }
-        
         minAgeLabel.text = "\(party.minAge)+"
+        lon = party.location.longitude
+        lat = party.location.latitude
+        setupMapImageViewFor(latitude: party.location.latitude, longitude: party.location.longitude)
+    }
+
+    private func setupMapImageViewFor(latitude: Double, longitude: Double) {
         let mapSnapshotOptions = MKMapSnapshotter.Options()
 
         // Set the region of the map that is rendered.
-        let location = CLLocationCoordinate2DMake(party.location.latitude, party.location.longitude) // Apple HQ
+        let location = CLLocationCoordinate2DMake(latitude, longitude) // Apple HQ
         let region = MKCoordinateRegion(center: location, latitudinalMeters: 1000, longitudinalMeters: 1000)
         mapSnapshotOptions.region = region
 
@@ -220,6 +245,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         let snapShotter = MKMapSnapshotter(options: mapSnapshotOptions)
         snapShotter.start { snapshot, error in
             self.mapImageView.image = snapshot?.image
+            self.mapImageView.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.3))
         }
     }
     
@@ -230,34 +256,51 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     func setRequests(count: Int) {
         infoLabel.text = count.requests()
+        infoView.isHidden = false
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setupShadows()
+        mapImageView.image = nil
+        guard let lat = lat, let lon = lon else { return }
+        setupMapImageViewFor(latitude: lat, longitude: lon)
+    }
+
+    private func setupCornerRadius() {
+        contentView.layer.cornerRadius = Constants.cornerRadius
+        contentView.layer.cornerCurve = .continuous
+        contentView.layer.masksToBounds = true
     }
     
     private func setupShadows() {
-        layer.shadowColor = UIColor.systemGray6.withAlphaComponent(0.7).cgColor
+        layer.shadowColor = isDarkMode ? UIColor.white.withAlphaComponent(0.3).cgColor : UIColor.black.withAlphaComponent(0.7).cgColor
         layer.shadowRadius = 15
         layer.shadowOpacity = 0.5
-        layer.shadowOffset = CGSize(width: -5, height: 10)
-        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
+        layer.shadowOffset = CGSize(width: 0, height: 8)
+        layer.masksToBounds = false
+        layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: self.contentView.layer.cornerRadius).cgPath
     }
     
     private func setupViews() {
-        backgroundColor = .systemBackground
-        addSubview(mapImageView)
-        addSubview(dateLabel)
-        addSubview(timeLabel)
-        addSubview(userNameLabel)
-        addSubview(userRatingLabel)
-        addSubview(userImageView)
-        addSubview(titleLabel)
-        addSubview(priceView)
+        contentView.backgroundColor = SkeletonAppearance.default.tintColor
+        contentView.addSubview(mapImageView)
+        contentView.addSubview(dateLabel)
+        contentView.addSubview(timeLabel)
+        contentView.addSubview(userNameLabel)
+        contentView.addSubview(userRatingLabel)
+        contentView.addSubview(userImageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(priceView)
         priceView.addSubview(priceLabel)
-        addSubview(typeView)
+        contentView.addSubview(typeView)
         typeView.addSubview(typeLabel)
-        addSubview(minAgeView)
+        contentView.addSubview(minAgeView)
         minAgeView.addSubview(minAgeLabel)
-        addSubview(infoLabel)
-        addSubview(redView)
-        addSubview(rejectedLabel)
+        contentView.addSubview(infoView)
+        infoView.addSubview(infoLabel)
+        contentView.addSubview(redView)
+        contentView.addSubview(rejectedLabel)
     }
 }
 
@@ -330,9 +373,14 @@ extension PartyCell {
             make.top.bottom.equalToSuperview().inset(5)
         }
         
+        infoView.snp.makeConstraints { make in
+            make.bottom.equalTo(typeView.snp.top).offset(-7)
+            make.right.equalToSuperview().offset(-7)
+        }
+
         infoLabel.snp.makeConstraints { make in
-            make.bottom.equalTo(mapImageView.snp.bottom).offset(-12)
-            make.left.equalToSuperview().offset(8)
+            make.left.right.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(5)
         }
 
         redView.snp.makeConstraints { make in

@@ -83,18 +83,24 @@ final class CreateCoordinator: Coordinator {
         lastVC?.startLoading()
         FirestoreService.shared.savePartyWith(party: partyInfo) { [weak self] (result) in
             switch result {
-            case .success(_):
+            case .success(let party):
                 DispatchQueue.main.async {
                     lastVC?.stopLoading()
                     let alertController = UIAlertController(title: "🎉 Ура! Вечеринка создана. Вы можете найти ее в Мои вечеринки", message: "", preferredStyle: .actionSheet)
                     let shareAction = UIAlertAction(title: "Поделиться ссылкой", style: .default) { _ in
+                        #warning("Поменять ссылку")
                         let items: [Any] = ["This app is my favorite", URL(string: "https://www.apple.com")!]
                         let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
                         ac.excludedActivityTypes = [.addToReadingList, .airDrop, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
                         self?.navigationController.present(ac, animated: true)
                     }
                     let goAction = UIAlertAction(title: "Перейти к вечеринке", style: .default) { _ in
-                        #warning("Нужно добавить открытие вечеринки и переход в Мои вечеринки")
+                        self?.navigationController.popToRootViewController(animated: false)
+                        self?.navigationController.setIsTabBarHidden(false)
+                        self?.navigationController.tabBarController?.changeSelectedIndexFor(tabItem: .parties)
+                        let partiesVC = self?.navigationController.tabBarController?.getControllerFor(tabItem: .parties) as? PartiesVC
+                        partiesVC?.changeSelectedPartyList(type: .my)
+                        partiesVC?.openAbout(party: party)
                     }
                     let doneAction = UIAlertAction(title: "Закрыть", style: .cancel) { _ in
                         self?.navigationController.popToRootViewController(animated: true)

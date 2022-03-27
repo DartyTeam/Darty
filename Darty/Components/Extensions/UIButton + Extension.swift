@@ -48,7 +48,7 @@ extension UIButton {
     }
     
     func addBlurEffect() {
-        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .light))
+        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
         blur.isUserInteractionEnabled = false
         self.insertSubview(blur, at: 0)
         blur.snp.makeConstraints { make in

@@ -6,14 +6,17 @@
 //
 
 import UIKit
+import PhotosUI
 
 final class SetAddImagesViewCell: UICollectionViewCell {
             
     // MARK: - UI Elements
     private lazy var setImageView: SetImageView = {
-        let setImageView = SetImageView(delegate: nil, maxPhotos: 1, color: .systemBlue)
+        let setImageView = SetImageView(delegate: nil, color: .systemBlue)
         return setImageView
     }()
+
+    private var imagePicker: PHPickerViewController!
     
     // MARK: - Properties
     private var color: UIColor = .systemBlue {
@@ -32,10 +35,9 @@ final class SetAddImagesViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupCell(delegate: SetImageDelegate, maxPhotos: Int, shape: ShapeImageView, color: UIColor) {
-        
+    func setupCell(delegate: SetImageDelegate, shape: ShapeImageView, color: UIColor, phpicker: PHPickerViewController) {
+        setImageView.setup(phpicker: phpicker)
         setImageView.delegate = delegate
-        setImageView.maxPhotos = maxPhotos
         setImageView.color = color
         self.color = color
 
@@ -58,7 +60,7 @@ final class SetAddImagesViewCell: UICollectionViewCell {
     private func setupConstraints() {
         setImageView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(self.frame.size.width - 40)
+            make.height.equalTo(self.frame.size.width)
             make.centerY.equalToSuperview()
         }
 

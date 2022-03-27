@@ -7,6 +7,7 @@
 
 import UIKit
 import ComplimentaryGradientView
+import Hero
 
 final class PhotosUserVC: UIViewController {
     
@@ -32,10 +33,14 @@ final class PhotosUserVC: UIViewController {
     
     // MARK: - Properties
     private var imageStringUrl: String
+    private let preloadedUserImage: UIImage?
+    private let isNeedAnimatedShowImage: Bool
     
     // MARK: - Lifecycle
-    init(image: String) {
+    init(image: String, preloadedUserImage: UIImage? = nil, isNeedAnimatedShowImage: Bool = true) {
         self.imageStringUrl = image
+        self.preloadedUserImage = preloadedUserImage
+        self.isNeedAnimatedShowImage = isNeedAnimatedShowImage
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -45,19 +50,26 @@ final class PhotosUserVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        guard let imageUrl = URL(string: imageStringUrl) else { return }
-        StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
-            switch result {
-            case .success(let image):
-                self?.imageView.image = image
-                self?.imageView.focusOnFaces = true
-                self?.complimentaryGradientView.image = self?.imageView.image
-            case .failure(let error):
-                print("ERROR_LOG: ", error.localizedDescription)
-            }
-        }
+        imageView.image = preloadedUserImage
+        setupGradientAndFocusWith(image: preloadedUserImage)
         setupViews()
         setupConstraints()
+        setupHero()
+        imageView.setImage(stringUrl: imageStringUrl) { image in
+            self.setupGradientAndFocusWith(image: image)
+        }
+    }
+
+    private func setupGradientAndFocusWith(image: UIImage?) {
+        imageView.focusOnFaces = true
+        complimentaryGradientView.image = imageView.image
+    }
+
+    private func setupHero() {
+        self.hero.isEnabled = true
+        complimentaryGradientView.hero.modifiers = [.translate(y: 600)]
+        guard isNeedAnimatedShowImage else { return }
+        imageView.hero.id = GlobalConstants.userImageHeroId
     }
     
     private func setupViews() {

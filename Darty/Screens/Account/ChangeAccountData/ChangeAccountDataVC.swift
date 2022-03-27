@@ -52,9 +52,17 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     private let infoUserVC: ChangeAccountDataInfoViewVC
   
     // MARK: - Init
-    init() {
-        photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
+    init(preloadedUserImage: UIImage?,
+         isNeedAnimatedShowImage: Bool = true,
+         coordinatorDelegate: AccountChangeInfoCoordinatorDelegate? = nil) {
+        photosUserVC = PhotosUserVC(
+            image: userData.avatarStringURL,
+            preloadedUserImage: preloadedUserImage,
+            isNeedAnimatedShowImage: isNeedAnimatedShowImage
+        )
         infoUserVC = ChangeAccountDataInfoViewVC(userData: userData, accentColor: .systemIndigo)
+        print("asdioasjdiasjdaisodjasoidjaosidj: ", coordinatorDelegate)
+        infoUserVC.delegate = coordinatorDelegate
         super.init(style: .rigid)
     }
     
@@ -69,11 +77,11 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         self.viewControllers = [photosUserVC, infoUserVC]
         self.delegate = self
-        
+
         drivingScrollView = (viewControllers.last as? ChangeAccountDataInfoViewVC)?.scrollView
         setupViews()
         setupConstraints()
-        moveOverlay(toNotchAt: 0, animated: true)
+        moveOverlay(toNotchAt: 0, animated: false)
         setIsTabBarHidden(true)
     }
     
@@ -106,14 +114,14 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     
     private func setupConstraints() {
         photoButton.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-            make.right.equalToSuperview().offset(-16)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(-2)
+            make.right.equalToSuperview().offset(-8)
             make.size.equalTo(44)
         }
         if !isBeingPresented {
             backButton.snp.makeConstraints { make in
-                make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-                make.left.equalToSuperview().offset(16)
+                make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(-2)
+                make.left.equalToSuperview().offset(4)
                 make.size.equalTo(44)
             }
         }
@@ -220,12 +228,10 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         startLoading()
         StorageService.shared.upload(photo: image) { [weak self] (result) in
             switch result {
-
             case .success(let url):
                 AuthService.shared.currentUser.avatarStringURL = url.absoluteString
                 FirestoreService.shared.updateUserInformation(userData: AuthService.shared.currentUser) { [weak self] result in
                     switch result {
-                    
                     case .success():
                         DispatchQueue.main.async {
                             self?.stopLoading()

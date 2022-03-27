@@ -25,6 +25,14 @@ enum PriceType: String, CaseIterable {
         }
     }
 
+    static var allCasesForSegmentedControl: [String] {
+        var array = [String]()
+        for item in self.allCases {
+            array.append(item.rawValue)
+        }
+        return array
+    }
+
 //    var description: String {
 //        get {
 //            switch self {

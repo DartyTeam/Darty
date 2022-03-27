@@ -190,13 +190,13 @@ extension CityAndCountrySetupProfileVC {
         
         nextButton.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(50)
+            make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-44)
         }
         
         retryButton.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(50)
+            make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalTo(nextButton.snp.top).offset(-32)
         }
     }

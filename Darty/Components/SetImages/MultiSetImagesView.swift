@@ -12,7 +12,7 @@ import PhotosUI
 import Agrume
 
 protocol MultiSetImagesViewDelegate: AnyObject {
-    func showActionSheet(_ actionSheet: UIAlertController)
+    func showAlertController(_ alertController: UIAlertController)
     func showCamera(_ imagePicker: UIImagePickerController)
     func showImagePicker(_ imagePicker: PHPickerViewController)
     func dismissImagePicker()
@@ -25,6 +25,11 @@ enum ShapeImageView {
     case rect
 }
 
+struct UniqueImage {
+    let id: String
+    let image: UIImage
+}
+
 final class MultiSetImagesView: UIView {
     
     // MARK: - Constants
@@ -34,7 +39,20 @@ final class MultiSetImagesView: UIView {
         static let leftRightInsets: CGFloat = 20
     }
     
-    // MARK: - UI Elements    
+    // MARK: - UI Elements
+    private lazy var configuration: PHPickerConfiguration = {
+        let photoLibrary = PHPhotoLibrary.shared()
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = maxPhotos
+        configuration.filter = .any(of: [.images])
+        return configuration
+    }()
+
+    private lazy var imagePicker: PHPickerViewController = {
+        let picker = PHPickerViewController(configuration: configuration)
+        return picker
+    }()
+
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -51,7 +69,7 @@ final class MultiSetImagesView: UIView {
     }()
     
     // MARK: - Properties
-    var images: [UIImage] = []
+    var images: [UniqueImage] = []
     var numberOfItemInPage: CGFloat = 1
     var isPagingEnabled = true {
         didSet {
@@ -66,7 +84,7 @@ final class MultiSetImagesView: UIView {
     private var cellFrame: CGRect = CGRect.zero
     
     // MARK: - Lifecycle
-    init(maxPhotos: Int, shape: ShapeImageView, color: UIColor, delegate: MultiSetImagesViewDelegate? = nil) {
+    init(maxPhotos: Int = 1, shape: ShapeImageView, color: UIColor, delegate: MultiSetImagesViewDelegate? = nil) {
         self.delegate = delegate
         self.maxPhotos = maxPhotos
         self.shape = shape
@@ -106,15 +124,20 @@ final class MultiSetImagesView: UIView {
         sender.view?.showAnimation { [weak self] in
             // Create an array of images.
             var images: [UIImage] = []
-            self?.images.forEach { image in
-                images.append(image)
+            self?.images.forEach { item in
+                images.append(item.image)
             }
 
             let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
 //            button.tintColor = .systemOra
             
             // In case of an array of [UIImage]:
-            let agrume = Agrume(images: images, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            let agrume = Agrume(
+                images: images,
+                startIndex: sender.view?.tag ?? 0,
+                background: .blurred(.systemUltraThinMaterial),
+                dismissal: .withPanAndButton(.standard, button)
+            )
             // Or an array of [URL]:
             // let agrume = Agrume(urls: urls, startIndex: indexPath.item, background: .blurred(.light))
 
@@ -180,17 +203,16 @@ extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-   
         if indexPath.row == images.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetAddImagesViewCell.reuseIdentifier, for: indexPath) as! SetAddImagesViewCell
-            cell.setupCell(delegate: self, maxPhotos: (maxPhotos - images.count), shape: shape, color: color)
+            cell.setupCell(delegate: self, shape: shape, color: color, phpicker: imagePicker)
             cellFrame = cell.frame
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetImageViewCell.reuseIdentifier, for: indexPath) as! SetImageViewCell
             cell.deleteButton.tag = indexPath.item
             cell.deleteButton.addTarget(self, action: #selector(deleteAction(_:)), for: .touchDown)
-            cell.setupCell(image: images[indexPath.row], shape: shape, color: color)
+            cell.setupCell(image: images[indexPath.row].image, shape: shape, color: color)
             cell.tag = indexPath.row
             let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullscreenAction))
             tapRecognizer.numberOfTapsRequired = 1
@@ -219,8 +241,12 @@ extension MultiSetImagesView: UIViewControllerTransitioningDelegate {
 }
 
 extension MultiSetImagesView: SetImageDelegate {
-    func showActionSheet(_ actionSheet: UIAlertController) {
-        delegate?.showActionSheet(actionSheet)
+    func clearImages() {
+        images.removeAll()
+    }
+
+    func showAlertController(_ alertController: UIAlertController) {
+        delegate?.showAlertController(alertController)
     }
     
     func showCamera(_ imagePicker: UIImagePickerController) {
@@ -230,16 +256,15 @@ extension MultiSetImagesView: SetImageDelegate {
     func showImagePicker(_ imagePicker: PHPickerViewController) {
         delegate?.showImagePicker(imagePicker)
     }
-    
-    func imagesDidSet(_ images: [UIImage]) {
-        for image in images {
-            self.images.append(image)
-        }
+
+    func didSet(image: UniqueImage) {
+        images.append(image)
         collectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .left, animated: true)
         collectionView.performBatchUpdates({
                             let indexSet = IndexSet(integersIn: 0...0)
                             collectionView.reloadSections(indexSet)
                         }, completion: nil)
+        self.collectionView.reloadData()
     }
     
     func dismissImagePicker() {

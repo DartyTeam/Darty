@@ -127,6 +127,7 @@ final class PartyNameAndDescriptionVC: UIViewController {
             aboutTextView.setError(message: "Описание не может быть пустым")
             return
         }
+        view.endEditing(true)
         delegate?.goNext(with: name, and: about)
     }
 }

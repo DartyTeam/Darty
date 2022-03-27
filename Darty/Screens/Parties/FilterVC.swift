@@ -34,6 +34,14 @@ enum QuerySign: String, CaseIterable {
             return "="
         }
     }
+
+    static var allCasesForSegmentedControl: [String] {
+        var array = [String]()
+        for item in self.allCases {
+            array.append(item.segmentTitle)
+        }
+        return array
+    }
 }
 
 protocol FilterVCDelegate {
@@ -76,6 +84,14 @@ final class FilterManager {
                 return 2
             }
         }
+
+        static var allCasesForSegmentedControl: [String] {
+            var array = [String]()
+            for item in self.allCases {
+                array.append(item.rawValue)
+            }
+            return array
+        }
     }
 
     enum AscendingType: String, CaseIterable {
@@ -89,6 +105,14 @@ final class FilterManager {
             case .desc:
                 return 1
             }
+        }
+
+        static var allCasesForSegmentedControl: [String] {
+            var array = [String]()
+            for item in self.allCases {
+                array.append(item.rawValue)
+            }
+            return array
         }
     }
 }
@@ -210,7 +234,7 @@ final class FilterVC: UIViewController {
     }()
     
     private lazy var dateSegmentControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: [QuerySign.allCases])
+        let segmentedControl = UISegmentedControl(items: QuerySign.allCasesForSegmentedControl)
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any], for: .normal)
         segmentedControl.addTarget(self, action: #selector(dateSegmentChanged), for: .valueChanged)
@@ -226,7 +250,7 @@ final class FilterVC: UIViewController {
     }()
     
     private lazy var priceTypeSegment: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: [PriceType.allCases])
+        let segmentedControl = UISegmentedControl(items: PriceType.allCasesForSegmentedControl)
         if let priceTypeIndex = filterParams.priceType?.index {
             segmentedControl.selectedSegmentIndex = priceTypeIndex
         }
@@ -263,7 +287,7 @@ final class FilterVC: UIViewController {
     }()
     
     private lazy var ascSegment: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: [FilterManager.AscendingType.allCases])
+        let segmentedControl = UISegmentedControl(items: FilterManager.AscendingType.allCasesForSegmentedControl)
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
         segmentedControl.selectedSegmentIndex = filterParams.ascendingType.index
@@ -315,6 +339,16 @@ final class FilterVC: UIViewController {
         typeView.addSubview(typeLabel)
         typeView.addSubview(typeBackgroundView)
         typeBackgroundView.addSubview(typeTextField)
+
+
+
+
+
+
+
+
+
+
 
         let priceView = UIView()
         priceView.addSubview(priceTypeLabel)

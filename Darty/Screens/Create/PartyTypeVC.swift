@@ -111,7 +111,6 @@ extension PartyTypeVC: UIPickerViewDataSource, UIPickerViewDelegate {
         return PartyType.allCases[row].rawValue
     }
     
-    
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         pickedType = PartyType.allCases[row]
     }
@@ -119,7 +118,7 @@ extension PartyTypeVC: UIPickerViewDataSource, UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let label = (view as? UILabel) ?? UILabel()
         
-        label.textColor = .black
+//        label.textColor = .black
         label.textAlignment = .center
         label.font = .sfProDisplay(ofSize: 18, weight: .semibold)
         

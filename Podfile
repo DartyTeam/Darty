@@ -17,8 +17,7 @@ target 'Darty' do
   pod 'FBSDKLoginKit'
   
   pod 'MessageKit'
-  
-  pod 'SDWebImage', '~> 5.0'
+
   pod 'Kingfisher'
   
   pod 'SnapKit'
@@ -26,20 +25,17 @@ target 'Darty' do
   pod 'ConcentricOnboarding'
   pod 'FittedSheets'
   pod 'SPConfetti'
-  pod 'SPAlert'
-  pod 'SPIndicator'
   pod 'rubber-range-picker'
   pod 'OverlayContainer'
   pod 'ComplimentaryGradientView'
   pod 'Agrume'
   pod 'lottie-ios'
-  pod 'RealmSwift'
   
   pod 'PhoneNumberKit', '~> 3.3'
 
-  
-#pod 'Hero'
-#pod 'SkeletonView'
+  # Не работают нормально через SPM
+  pod 'Hero'
+  pod "Magnetic"
 end
 
 

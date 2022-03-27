@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 final class UserCell: UICollectionViewCell {
     
@@ -46,9 +45,7 @@ final class UserCell: UICollectionViewCell {
     }
     
     func configure(with user: UserModel) {
-        userImageView.sd_setImage(with: URL(string: user.avatarStringURL), completed: { [weak self] image, error, cacheType, url in
-            self?.userImageView.focusOnFaces = true
-        })
+        userImageView.setImage(stringUrl: user.avatarStringURL)
         usernameLabel.text = user.username
         userRatingLabel.text = "0.0 *"
     }

@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
     
@@ -87,9 +86,7 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
         self.user = user
         
         if user.avatarStringURL != "" {
-            userImageView.sd_setImage(with: URL(string: user.avatarStringURL), completed: { [weak self] image, error, cacheType, url in
-                self?.userImageView.focusOnFaces = true
-            })
+            userImageView.setImage(stringUrl: user.avatarStringURL)
         }
         
         usernameLabel.text = user.username

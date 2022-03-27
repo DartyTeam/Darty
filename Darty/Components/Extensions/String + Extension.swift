@@ -8,16 +8,24 @@
 import UIKit
 
 extension String {
-    func textToImage(bgColor: UIColor = .clear) -> UIImage? {
+    func textToImage(bgColor: UIColor = .clear, needMoreSmallText: Bool = false) -> UIImage? {
         let nsString = (self as NSString)
-        let font = UIFont.systemFont(ofSize: 1024) // you can change your font size here
+        let fontSize: CGFloat = 1024
+        let font = UIFont.systemFont(ofSize: fontSize) // you can change your font size here
         let stringAttributes = [NSAttributedString.Key.font: font]
         let imageSize = nsString.size(withAttributes: stringAttributes)
-
-        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0) //  begin image context
+        let changedWidth = imageSize.width * (needMoreSmallText ? 1.5 : 1)
+        let changedHeight = imageSize.height * (needMoreSmallText ? 1.5 : 1)
+        let changedImageSize = CGSize(width: changedWidth, height:  changedHeight)
+        UIGraphicsBeginImageContextWithOptions(changedImageSize, false, 0) //  begin image context
         bgColor.set() // clear background
-        UIRectFill(CGRect(origin: CGPoint(), size: imageSize)) // set rect size
-        nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes) // draw text within rect
+        UIRectFill(CGRect(origin: CGPoint(), size: changedImageSize)) // set rect size Это цветной фон
+        if needMoreSmallText {
+            nsString.draw(at: CGPoint(x: changedWidth / 6, y: changedHeight / 6), withAttributes: stringAttributes) // draw text within rect
+        } else {
+            nsString.draw(at: CGPoint.zero, withAttributes: stringAttributes)
+        }
+
         let image = UIGraphicsGetImageFromCurrentImageContext() // create image from context
         UIGraphicsEndImageContext() //  end image context
 

@@ -205,6 +205,9 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     
     private var userData: UserModel
     private var accentColor: UIColor
+
+    // MARK: - Delegate
+    weak var delegate: AccountChangeInfoCoordinatorDelegate?
     
     // MARK: - Init
     init(userData: UserModel, accentColor: UIColor) {
@@ -222,6 +225,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(reloadInterests), name: GlobalConstants.changedUserInterestsNotification.name, object: nil)
         addHideKeyboardOnTapAround()
+        setupHero()
         setupUser()
         setupViews()
         setupConstraints()
@@ -232,6 +236,12 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.numberOfTouchesRequired = 1
         scrollView.addGestureRecognizer(tapRecognizer)
+    }
+
+    private func setupHero() {
+        self.hero.isEnabled = true
+        blurEffectView.hero.modifiers = [.translate(y: 600)]
+        blurEffectView.contentView.hero.modifiers = blurEffectView.hero.modifiers
     }
     
     private func setupUser() {
@@ -414,8 +424,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }
     
     @objc private func changeInterestsOpen() {
-        let changeAccountInterests = ChangeAccountInteretsVC()
-        navigationController?.pushViewController(changeAccountInterests, animated: true)
+        delegate?.openChangeInterests()
     }
     
     @objc private func changedBirthday() {
@@ -428,15 +437,13 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
             self.startLoading()
         }
         FirestoreService.shared.updateUserInformation(userData: AuthService.shared.currentUser) { [weak self] result in
-            switch result {
-            
-            case .success():
-                DispatchQueue.main.async {
-                    self?.stopLoading()
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self?.stopLoading()
+            DispatchQueue.main.async {
+                self?.stopLoading()
+                switch result {
+                case .success():
+                    print("Successfull update user information")
+                case .failure(let error):
+                    print("ERROR_LOG Error update user information")
                     SPAlert.present(title: error.localizedDescription, preset: .error)
                 }
             }
@@ -485,13 +492,19 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
             
             let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
             
-            let agrume = Agrume(urls: self.instagramPhotoUrls,
-                                startIndex: sender.view?.tag ?? 0,
-                                background: .blurred(.light),
-                                dismissal: .withPhysicsAndButton(button))
+            let agrume = Agrume(
+                urls: self.instagramPhotoUrls,
+                startIndex: sender.view?.tag ?? 0,
+                background: .blurred(.light),
+                dismissal: .withPanAndButton(.standard, button)
+            )
 
             agrume.didScroll = { [unowned self] index in
-                self.instagramPhotosCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+                self.instagramPhotosCollectionView.scrollToItem(
+                    at: IndexPath(item: index, section: 0),
+                    at: [],
+                    animated: false
+                )
             }
             
             let helper = AgrumeHelper.shared.makeHelper()

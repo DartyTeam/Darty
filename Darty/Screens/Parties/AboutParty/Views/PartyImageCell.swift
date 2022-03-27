@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SDWebImage
 
 final class PartyImageCell: UICollectionViewCell {
     
@@ -38,7 +37,7 @@ final class PartyImageCell: UICollectionViewCell {
     }
     
     func configure(with imageUrl: URL) {
-        partyImageView.sd_setImage(with: imageUrl, completed: nil)
+        partyImageView.setImage(url: imageUrl)
     }
     
     required init?(coder: NSCoder) {

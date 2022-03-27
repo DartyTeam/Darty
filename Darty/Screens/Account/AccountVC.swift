@@ -114,7 +114,7 @@ final class AccountVC: UIViewController {
         button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(shareAccount), for: .touchUpInside)
-        button.backgroundColor = .systemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         return button
     }()
     
@@ -131,7 +131,7 @@ final class AccountVC: UIViewController {
         button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(logoutAction), for: .touchUpInside)
-        button.backgroundColor = .systemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         button.setTitleColor(.systemRed, for: UIControl.State())
         button.titleLabel?.font = Constants.navigationBarButtonsFont
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
@@ -150,7 +150,7 @@ final class AccountVC: UIViewController {
         button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(changeInfoAccount), for: .touchUpInside)
-        button.backgroundColor = .systemGroupedBackground
+        button.backgroundColor = .secondarySystemBackground
         return button
     }()
     
@@ -220,8 +220,8 @@ final class AccountVC: UIViewController {
     
     private let buyDartsView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGroupedBackground
-        view.layer.cornerRadius = 12
+        view.backgroundColor = .secondarySystemBackground
+        view.layer.cornerRadius = 15
         view.layer.cornerCurve = .continuous
 
         let iconConfing = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 32, weight: .medium))
@@ -258,8 +258,8 @@ final class AccountVC: UIViewController {
     
     private let donateView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGroupedBackground
-        view.layer.cornerRadius = 12
+        view.backgroundColor = .secondarySystemBackground
+        view.layer.cornerRadius = 15
         view.layer.cornerCurve = .continuous
 
         let iconConfing = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 32, weight: .medium))
@@ -304,7 +304,7 @@ final class AccountVC: UIViewController {
     
     private let subscribeView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .secondarySystemBackground
         view.layer.cornerRadius = 15
         view.layer.cornerCurve = .continuous
         return view
@@ -460,11 +460,15 @@ final class AccountVC: UIViewController {
     // MARK: - Properties
     private var themeMode: ThemeChangeMode = .auto
     private var isAfterTappedToSegmentedControl = false
-    
+
+    // MARK: - Delegate
+    weak var delegate: AccountCoordinatorDelegate?
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(setupUserInfo), name: GlobalConstants.changedUserDataNotification.name, object: nil)
+        setupHero()
         setupUserInfo()
         setupViews()
         setupConstraints()
@@ -665,6 +669,10 @@ final class AccountVC: UIViewController {
             make.height.equalTo(Constants.settingButtonsHeight)
         }
     }
+
+    private func setupHero() {
+        userAvatarImageView.hero.id = GlobalConstants.userImageHeroId
+    }
     
     // MARK: - Handlers
     @objc private func logoutAction() {
@@ -680,7 +688,6 @@ final class AccountVC: UIViewController {
                 print("Error signing out: \(error.localizedDescription)")
             }
         }))
-        
         present(ac, animated: true, completion: nil)
     }
     
@@ -702,8 +709,7 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func changeInfoAccount() {
-        let changeAccountDataVC = ChangeAccountDataVC()
-        navigationController?.pushViewController(changeAccountDataVC, animated: true)
+        delegate?.openChangeInfo(preloadedUserImage: userAvatarImageView.image)
     }
     
     @objc private func segmentChanged(_ sender: UISegmentedControl) {
@@ -742,13 +748,11 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func changePhone() {
-        let changePhoneVC = ChangePhoneVC()
-        navigationController?.pushViewController(changePhoneVC, animated: true)
+        delegate?.openChangePhone()
     }
     
     @objc private func contactWithUsAction() {
-        let contactWithUsVC = ContactWithUsVC()
-        navigationController?.pushViewController(contactWithUsVC, animated: true)
+        delegate?.openContactsWithUs()
     }
     
     @objc private func openAboutUser(_ sender: UITapGestureRecognizer) {
@@ -757,8 +761,7 @@ final class AccountVC: UIViewController {
             return
         }
         sender.view?.showAnimation {
-            let aboutUserVC = AboutUserVC(userData: userData)
-            self.navigationController?.pushViewController(aboutUserVC, animated: true)
+            self.delegate?.openAbout(userData: userData, preloadedUserImage: self.userAvatarImageView.image)
         }
     }
 }

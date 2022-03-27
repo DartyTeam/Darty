@@ -151,7 +151,7 @@ final class TextField: UITextField {
     
     private func changeToBlack() {
         UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
-            self.floatingLabel.textColor = .black
+            self.floatingLabel.textColor = .label
             self.floatingLabel.text = self.savedPlaceholder
         }
         self.animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)

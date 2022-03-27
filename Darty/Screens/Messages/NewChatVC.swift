@@ -17,12 +17,11 @@ class NewChatVC: MessagesViewController {
     
     private enum Constants {
         static let inputBarButtonsSize: CGSize = CGSize(width: 48, height: 48)
-        
         static let numberOfMessages = 12
-        
         static let maxPhotosForChoose = 5
-        
         static let avatarSize = CGSize(width: 34, height: 34)
+
+        static let messagePlaceholder = "Сообщение..."
     }
     
     // MARK: - UI Elements
@@ -133,10 +132,10 @@ class NewChatVC: MessagesViewController {
     // MARK: - Lifecicle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setIsTabBarHidden(true)
         if let imageUrl = URL(string: recipientData.avatarStringURL) {
             StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
                 switch result {
-                
                 case .success(let image):
                     self?.recipientImage = image
                     self?.avatarImageButton.imageView?.image = image
@@ -145,8 +144,7 @@ class NewChatVC: MessagesViewController {
                 }
             }
         }
-        
-        setIsTabBarHidden(true)
+
         createTypingObserver()
         configureMessageCollectionView()
         configureMessageInputBar()
@@ -165,7 +163,6 @@ class NewChatVC: MessagesViewController {
         configureNavBar()
         FirestoreService.shared.resetRecentCounter(chatRoomId: chatId) { result in
             switch result {
-            
             case .success(_):
                 print("Succesfull reset recent counter")
             case .failure(let error):
@@ -176,10 +173,8 @@ class NewChatVC: MessagesViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
         FirestoreService.shared.resetRecentCounter(chatRoomId: chatId) { result in
             switch result {
-            
             case .success(_):
                 print("Succesfull reset recent counter")
             case .failure(let error):
@@ -374,7 +369,6 @@ class NewChatVC: MessagesViewController {
     }
    
     private func insertMessages() {
-
         maxMessageNumber = allLocalMessages.count - displayingMessagesCount
         minMessageNumber = maxMessageNumber - Constants.numberOfMessages
         
@@ -388,7 +382,6 @@ class NewChatVC: MessagesViewController {
     }
     
     private func insertMessage(_ localMessage: LocalMessage) {
-        
         if localMessage.senderId != AuthService.shared.currentUser?.id {
             markMessageAsRead(localMessage)
         }
@@ -437,17 +430,18 @@ class NewChatVC: MessagesViewController {
         messageInputBar.inputTextView.placeholder = "Отправка..."
         OutgoingMessage.send(chatId: chatId, text: text, photo: photo, video: video, audio: audio, audioDuration: audioDuration, location: location, memberIds: [AuthService.shared.currentUser!.id, recipientId]) { [weak self] result in
             switch result {
-            
             case .success():
-                self?.messageInputBar.sendButton.stopAnimating()
-                self?.messageInputBar.inputTextView.placeholder = "Сообщение..."
-                self?.updateMicButtonStatus(show: true)
+                self?.updateInputBarAfterMessageSend()
             case .failure(_):
-                self?.messageInputBar.sendButton.stopAnimating()
-                self?.messageInputBar.inputTextView.placeholder = "Сообщение..."
-                self?.updateMicButtonStatus(show: true)
+                self?.updateInputBarAfterMessageSend()
             }
         }
+    }
+
+    private func updateInputBarAfterMessageSend() {
+        messageInputBar.sendButton.stopAnimating()
+        messageInputBar.inputTextView.placeholder = Constants.messagePlaceholder
+        updateMicButtonStatus(show: true)
     }
     
     @objc private func callAction() {

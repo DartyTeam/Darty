@@ -61,7 +61,7 @@ final class SetImageViewCell: UICollectionViewCell {
     private func setupConstraints() {
         imageView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(self.frame.size.width - 40)
+            make.height.equalTo(self.frame.size.width)
             make.centerY.equalToSuperview()
         }
 

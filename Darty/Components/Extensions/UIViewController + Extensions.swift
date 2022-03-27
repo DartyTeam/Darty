@@ -47,7 +47,6 @@ extension UIViewController {
     }
     
     func addBackground(_ image: UIImage) {
-        
         let width = UIScreen.main.bounds.size.width
         let height = UIScreen.main.bounds.size.height
         
@@ -60,11 +59,8 @@ extension UIViewController {
     }
     
     func configure<T: SelfConfiguringCell, P: Hashable>(collectionView: UICollectionView, cellType: T.Type, with value: P, for indexPath: IndexPath) -> T {
-        
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellType.reuseId, for: indexPath) as? T else { fatalError("Unable to dequeue \(cellType)")}
-        
         cell.configure(with: value)
-        
         return cell
     }
     
@@ -92,5 +88,13 @@ extension UIViewController {
     var alertController: UIAlertController? {
         guard let alert = UIApplication.topViewController() as? UIAlertController else { return nil }
         return alert
+    }
+
+    var isDarkMode: Bool {
+        if #available(iOS 13.0, *) {
+            return self.traitCollection.userInterfaceStyle == .dark
+        } else {
+            return false
+        }
     }
 }

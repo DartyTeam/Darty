@@ -22,7 +22,7 @@ final class ImageSetupProfileVC: UIViewController {
     }()
     
     private lazy var setImageView: MultiSetImagesView = {
-        let setImageView = MultiSetImagesView(maxPhotos: 1, shape: .round, color: .systemBlue, delegate: self)
+        let setImageView = MultiSetImagesView(shape: .round, color: .systemBlue, delegate: self)
         setImageView.translatesAutoresizingMaskIntoConstraints = false
         return setImageView
     }()
@@ -51,7 +51,7 @@ final class ImageSetupProfileVC: UIViewController {
     
     // MARK: - Handlers
     @objc private func nextButtonTapped() {
-        guard let userImage = setImageView.images.first else {
+        guard let userImage = setImageView.images.first?.image else {
             showAlert(title: "Выберите изображение", message: "")
             return
         }
@@ -67,7 +67,7 @@ extension ImageSetupProfileVC {
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: 50)
+            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
         ])
         
         setImageView.snp.makeConstraints { make in
@@ -95,9 +95,9 @@ extension ImageSetupProfileVC: MultiSetImagesViewDelegate {
     func showError(_ error: String) {
         showAlert(title: "Ошибка", message: error)
     }
-    
-    func showActionSheet(_ actionSheet: UIAlertController) {
-        present(actionSheet, animated: true)
+
+    func showAlertController(_ alertController: UIAlertController) {
+        present(alertController, animated: true)
     }
     
     func dismissImagePicker() {

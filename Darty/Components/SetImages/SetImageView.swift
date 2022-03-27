@@ -8,12 +8,14 @@
 import UIKit
 import AVFoundation
 import PhotosUI
+import SPAlert
 
 protocol SetImageDelegate {
-    func showActionSheet(_ actionSheet: UIAlertController)
+    func showAlertController(_ alertController: UIAlertController)
     func showCamera(_ imagePicker: UIImagePickerController)
     func showImagePicker(_ imagePicker: PHPickerViewController)
-    func imagesDidSet(_ images: [UIImage])
+    func didSet(image: UniqueImage)
+    func clearImages()
     func dismissImagePicker()
     func showError(_ error: String)
 }
@@ -21,20 +23,7 @@ protocol SetImageDelegate {
 final class SetImageView: BlurEffectView {
     
     // MARK: - UI Elements
-    private lazy var configuration: PHPickerConfiguration = {
-        var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = maxPhotos
-        configuration.filter = .images
-        return configuration
-    }()
-    
-    private lazy var imagePicker: PHPickerViewController = {
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        return picker
-    }()
-    
-    var images: [UIImage]?
+    private var phpicker: PHPickerViewController?
     
     let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -49,7 +38,6 @@ final class SetImageView: BlurEffectView {
     
     // MARK: - Properties
     var delegate: SetImageDelegate?
-    var maxPhotos: Int!
     var color: UIColor! {
         didSet {
             self.plusIcon.image = self.plusIcon.image?.withTintColor(color, renderingMode: .alwaysOriginal)
@@ -57,14 +45,11 @@ final class SetImageView: BlurEffectView {
     }
     
     // MARK: - Lifecycle
-    init(delegate: SetImageDelegate? = nil, maxPhotos: Int, color: UIColor) {
+    init(delegate: SetImageDelegate? = nil, color: UIColor) {
         self.delegate = delegate
-        self.maxPhotos = maxPhotos
         self.color = color
         super.init()
-        
         plusIcon.image = plusIcon.image?.withTintColor(color, renderingMode: .alwaysOriginal)
-        
         setupView()
         setupConstraints()
         addTap()
@@ -73,6 +58,11 @@ final class SetImageView: BlurEffectView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func setup(phpicker: PHPickerViewController) {
+        phpicker.delegate = self
+        self.phpicker = phpicker
     }
 
     // MARK: - Setup
@@ -105,10 +95,11 @@ final class SetImageView: BlurEffectView {
 
     // MARK: - Functions
     private func selectPhoto() {
-                
-        let actionSheet = UIAlertController(title: nil,
-                                            message: nil,
-                                            preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
         
         let cameraIcon = UIImage(systemName: "camera")
         let camera = UIAlertAction(title: "Камера", style: .default) { _ in
@@ -128,20 +119,11 @@ final class SetImageView: BlurEffectView {
         
         let cancel = UIAlertAction(title: "Отмена", style: .cancel)
         actionSheet.addAction(cancel)
-        self.delegate?.showActionSheet(actionSheet)
-    }
-    
-    private func setImages(_ images: [UIImage]) {
-        for image in images {
-            self.images?.append(image)
-        }
-        delegate?.imagesDidSet(images)
+        self.delegate?.showAlertController(actionSheet)
     }
     
     func chooseImagePicker(source: UIImagePickerController.SourceType) {
-        
         if source == .camera {
-            
             AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
                 if response {
                     if UIImagePickerController.isSourceTypeAvailable(source) {
@@ -149,14 +131,40 @@ final class SetImageView: BlurEffectView {
                         imagePicker.delegate = self
                         imagePicker.allowsEditing = true
                         imagePicker.sourceType = source
-                        self.delegate?.showCamera(imagePicker)
+                        DispatchQueue.main.async {
+                            self.delegate?.showCamera(imagePicker)
+                        }
                     }
                 } else {
-                    
+                    let alertController = UIAlertController(style: .alert, title: "Нет доступа к камере", message: "Необходимо пройти в настройки и включить доступ")
+                    let settingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { _ in
+                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                            return
+                        }
+                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                print("Settings opened: \(success)") // Prints true
+                            })
+                        }
+                    }
+                    alertController.addAction(settingsAction)
+                    let cancelAction = UIAlertAction(title: "Отмена", style: .default, handler: nil)
+                    alertController.addAction(cancelAction)
+                    DispatchQueue.main.async {
+                        self.delegate?.showAlertController(alertController)
+                    }
                 }
             }
         } else {
-            delegate?.showImagePicker(imagePicker)
+            guard let phpicker = phpicker else {
+                SPAlert.present(
+                    title: "Ошибка",
+                    message: "Не удалось получить доступ к Галерее",
+                    preset: .error
+                )
+                return
+            }
+            delegate?.showImagePicker(phpicker)
         }
     }
 }
@@ -166,21 +174,16 @@ extension SetImageView: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         guard !results.isEmpty else { return }
-        
-        var images: [UIImage] = []
-        
-        for (i, item) in results.enumerated() {
-            if item.itemProvider.canLoadObject(ofClass: UIImage.self) {
-                item.itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
-                    DispatchQueue.main.async {
-                        if let image = image as? UIImage {
-                            images.append(image)
-                            if i == results.count - 1 {
-                                self.delegate?.imagesDidSet(images)
-                                print("asidojaosidjioasjodiajosdjoasdojasodji: ", images.count)
-                            }
-                        }
-                    }
+        delegate?.clearImages()
+        for (_, item) in results.enumerated() {
+            guard item.itemProvider.canLoadObject(ofClass: UIImage.self) else { return }
+            item.itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
+                guard let image = image as? UIImage else { return }
+                DispatchQueue.main.async {
+                    self.delegate?.didSet(image: UniqueImage(
+                        id: item.assetIdentifier ?? UUID().uuidString,
+                        image: image)
+                    )
                 }
             }
         }
@@ -193,7 +196,7 @@ extension SetImageView: UIImagePickerControllerDelegate, UINavigationControllerD
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         if let image = info[.editedImage] as? UIImage {
-            setImages([image])
+            delegate?.didSet(image: UniqueImage(id: UUID().uuidString, image: image))
         } else {
             delegate?.showError("Ошибка получени изображения с камеры")
         }

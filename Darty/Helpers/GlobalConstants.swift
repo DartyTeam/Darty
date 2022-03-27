@@ -98,6 +98,8 @@ enum GlobalConstants {
     
     static let changedUserDataNotification = Notification(name: Notification.Name("changedUserData"))
     static let changedUserInterestsNotification = Notification(name: Notification.Name("changedUserInterests"))
+
+    static let userImageHeroId = "ironMan"
 }
 
 enum Vibration {

@@ -30,7 +30,6 @@ extension UIView {
 }
 
 extension UIView {
-    
     /**
      Simply zooming in of a view: set view scale to 0 and zoom to Identity on 'duration' time interval.
      
@@ -324,7 +323,7 @@ extension UIView {
 public extension UIView {
     
     /// Size of view.
-    public var size: CGSize {
+    var size: CGSize {
         get {
             return self.frame.size
         }
@@ -335,7 +334,7 @@ public extension UIView {
     }
     
     /// Width of view.
-    public var width: CGFloat {
+    var width: CGFloat {
         get {
             return self.frame.size.width
         }
@@ -345,7 +344,7 @@ public extension UIView {
     }
     
     /// Height of view.
-    public var height: CGFloat {
+    var height: CGFloat {
         get {
             return self.frame.size.height
         }
@@ -370,5 +369,15 @@ extension UIView {
         }
         getSubview(view: self)
         return all
+    }
+}
+
+extension UIView {
+    var isDarkMode: Bool {
+        if #available(iOS 13.0, *) {
+            return self.traitCollection.userInterfaceStyle == .dark
+        } else {
+            return false
+        }
     }
 }

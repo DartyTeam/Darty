@@ -8,6 +8,7 @@
 import UIKit
 import SPAlert
 import Agrume
+import Hero
 
 protocol AboutUserPartyRequestDelegate {
     func userDidDecline(_ user: UserModel)
@@ -226,6 +227,7 @@ final class InfoUserVC: UIViewController {
     private var accentColor: UIColor
     private var message: String? = nil
     private var chatData: RecentChatModel?
+    private var preloadedUserImage: UIImage?
     
     // MARK: - Lifecycle
     init(userData: UserModel, accentColor: UIColor, message: String) {
@@ -236,7 +238,7 @@ final class InfoUserVC: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(userData: UserModel, accentColor: UIColor) {
+    init(userData: UserModel, accentColor: UIColor, preloadedUserImage: UIImage?) {
         self.userData = userData
         self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
         self.accentColor = accentColor
@@ -261,6 +263,13 @@ final class InfoUserVC: UIViewController {
         setupUser()
         setupViews()
         setupConstraints()
+        setupHero()
+    }
+
+    private func setupHero() {
+        self.hero.isEnabled = true
+        blurEffectView.hero.modifiers = [.translate(y: 600)]
+        blurEffectView.contentView.hero.modifiers = blurEffectView.hero.modifiers
     }
     
     private func addHideKeyboardOnTapAround() {
@@ -480,13 +489,12 @@ final class InfoUserVC: UIViewController {
     }
     
     @objc private func changeAction() {
-        let changeAccountDataVC = ChangeAccountDataVC()
+        let changeAccountDataVC = ChangeAccountDataVC(preloadedUserImage: preloadedUserImage, isNeedAnimatedShowImage: false)
         navigationController?.pushViewController(changeAccountDataVC, animated: true)
     }
     
     @objc private func sendMessageAction() {
         guard let message = messageTextField.text, !message.isEmptyOrWhitespaceOrNewLines() else { return }
-        
         startLoading()
         FirestoreService.shared.createWaitingChat(message: message, receiver: userData) { [weak self] (result) in
             switch result {
@@ -519,10 +527,19 @@ final class InfoUserVC: UIViewController {
             
             let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
             
-            let agrume = Agrume(urls: self.instagramPhotoUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+            let agrume = Agrume(
+                urls: self.instagramPhotoUrls,
+                startIndex: sender.view?.tag ?? 0,
+                background: .blurred(.light),
+                dismissal: .withPanAndButton(.standard, button)
+            )
             
             agrume.didScroll = { [unowned self] index in
-                self.instagramPhotosCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+                self.instagramPhotosCollectionView.scrollToItem(
+                    at: IndexPath(item: index, section: 0),
+                    at: [],
+                    animated: false
+                )
             }
             
             let helper = AgrumeHelper.shared.makeHelper()

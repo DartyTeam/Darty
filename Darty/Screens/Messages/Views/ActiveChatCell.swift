@@ -6,12 +6,13 @@
 //
 
 import UIKit
-import SDWebImage
 
 final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
-    
+
+    // MARK: - ReuseId
     static var reuseId: String = reuseIdentifier
-    
+
+    // MARK: - Constants
     private enum Constants {
         static let countLabelFont: UIFont? = .sfProRounded(ofSize: 10, weight: .medium)
         static let usernameFont: UIFont? = .sfProRounded(ofSize: 14, weight: .semibold)
@@ -67,11 +68,18 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
         label.textColor = Constants.lastMessageColor
         return label
     }()
-    
+
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
         setupConstraints()
+    }
+
+    // MARK: - Lifecicle
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setupShadows()
     }
     
     func configure<U>(with value: U) where U : Hashable {
@@ -80,7 +88,6 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
         if let imageUrl = URL(string: chat.avatarLink) {
             StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
                 switch result {
-
                 case .success(let image):
                     self?.userImageView.image = image
                     self?.userImageView.focusOnFaces = true
@@ -124,14 +131,17 @@ final class ActiveChatCell: UICollectionViewCell, SelfConfiguringCell {
         layer.cornerRadius = Constants.cellHeight / 2
         clipsToBounds = true
         layer.masksToBounds = false
-        layer.shadowColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
-                layer.shadowRadius = 10
-                layer.shadowOpacity = 1
-                layer.shadowOffset = CGSize(width: 0, height: 4)
+        setupShadows()
+    }
 
-//           layer.shadowPath = UIBezierPath(rect: bounds).cgPath
-//           layer.shouldRasterize = true
-//           layer.rasterizationScale = UIScreen.main.scale
+    private func setupShadows() {
+        layer.shadowColor = isDarkMode ?  UIColor.white.withAlphaComponent(0.2).cgColor : UIColor(red: 0, green: 0, blue: 0, alpha: 0.1).cgColor
+        layer.shadowRadius = 10
+        layer.shadowOpacity = 1
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: self.layer.cornerRadius).cgPath
+        //           layer.shouldRasterize = true
+        //           layer.rasterizationScale = UIScreen.main.scale
     }
 }
 

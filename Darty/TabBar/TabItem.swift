@@ -19,14 +19,10 @@ enum TabItem: String, CaseIterable {
         switch self {
         case .parties:
             return PartiesVC(currentUser: AuthService.shared.currentUser!)
-        case .create:
-            let navController = UINavigationController()
-            
-            return navController
         case .messages:
             return MessagesVC(currentUser: AuthService.shared.currentUser!)
-        case .account:
-            return AccountVC()
+        default:
+            return UINavigationController()
         }
     }
 
@@ -39,7 +35,7 @@ enum TabItem: String, CaseIterable {
         case .messages:
             return CreateCoordinator(navigationController: UINavigationController())
         case .account:
-            return CreateCoordinator(navigationController: UINavigationController())
+            return AccountCoordinator(navigationController: UINavigationController())
         }
     }
     
@@ -79,6 +75,19 @@ enum TabItem: String, CaseIterable {
             return .systemTeal
         case .account:
             return .systemIndigo
+        }
+    }
+
+    var index: Int {
+        switch self {
+        case .parties:
+            return 0
+        case .create:
+            return 1
+        case .messages:
+            return 2
+        case .account:
+            return 3
         }
     }
     

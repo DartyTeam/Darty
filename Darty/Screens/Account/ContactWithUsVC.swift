@@ -137,8 +137,8 @@ final class ContactWithUsVC: UIViewController {
     func configuredMailComposeViewController() -> MFMailComposeViewController {
         let mailComposeVC = MFMailComposeViewController()
         mailComposeVC.mailComposeDelegate = self
-        for (i, image) in attachImagesView.images.enumerated() {
-            mailComposeVC.addAttachmentData(image.jpegData(compressionQuality: CGFloat(1.0))!, mimeType: "image/jpeg", fileName:  "image\(i).jpeg")
+        for (i, imageItem) in attachImagesView.images.enumerated() {
+            mailComposeVC.addAttachmentData(imageItem.image.jpegData(compressionQuality: CGFloat(1.0))!, mimeType: "image/jpeg", fileName:  "image\(i).jpeg")
         }
         
         mailComposeVC.setToRecipients(["s.ru5c55an.n@gmail.com"])
@@ -175,9 +175,8 @@ extension ContactWithUsVC: MultiSetImagesViewDelegate {
     func showFullscreen(_ agrume: Agrume) {
         agrume.show(from: self)
     }
-    
-    func showActionSheet(_ actionSheet: UIAlertController) {
-        present(actionSheet, animated: true, completion: nil)
+    func showAlertController(_ alertController: UIAlertController) {
+        present(alertController, animated: true, completion: nil)
     }
     
     func dismissImagePicker() {

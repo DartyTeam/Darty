@@ -34,12 +34,16 @@ final class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
 }
 
 final class InterestCell: UICollectionViewCell {
-        
+
+    // MARK: - Constants
     private enum Constants {
         static let font = UIFont.sfCompactDisplay(ofSize: 16, weight: .medium)
         static let textColor = UIColor.black.withAlphaComponent(0.5)
+        static let selectedColor: UIColor = .systemPurple.withAlphaComponent(0.5)
+        static let deselectedColor: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.25)
     }
-    
+
+    // MARK: - UI Elements
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -47,39 +51,51 @@ final class InterestCell: UICollectionViewCell {
 //        label.textColor = Constants.textColor
         return label
     }()
-    
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                backgroundColor = .systemPurple.withAlphaComponent(0.5)
-            } else {
-                backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.25)
-            }
-        }
-    }
-    
+
     private let emojiIcon: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Constants.font
         return label
     }()
-    
+
+    // MARK: - Properties
+    override var isSelected: Bool {
+        didSet {
+            backgroundColor = isSelected ? Constants.selectedColor : Constants.deselectedColor
+        }
+    }
+
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-                
         setupViews()
         setupConstraints()
     }
-    
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Lifecycle
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layer.cornerRadius = self.layer.bounds.height / 2
+    }
+
+    // MARK: - Setup
+    func setupCell(title: String, emoji: String) {
+        titleLabel.text = title
+        emojiIcon.text = emoji
+    }
+
     private func setupViews() {
-        self.backgroundColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.25)
+        self.backgroundColor = Constants.deselectedColor
         addSubview(emojiIcon)
         addSubview(titleLabel)
     }
     
     private func setupConstraints() {
-        
         NSLayoutConstraint.activate([
             emojiIcon.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             emojiIcon.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -91,20 +107,5 @@ final class InterestCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: emojiIcon.trailingAnchor, constant: 8),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
         ])
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        self.layer.cornerRadius = self.layer.bounds.height / 2
-    }
-    
-    func setupCell(title: String, emoji: String) {
-        titleLabel.text = title
-        emojiIcon.text = emoji
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }

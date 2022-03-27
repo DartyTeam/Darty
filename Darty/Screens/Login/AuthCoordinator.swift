@@ -26,6 +26,11 @@ protocol BirthdaySetupProfileDelegate: AnyObject {
 
 protocol InterestsSetupProfileDelegate: AnyObject {
     func goNext(with interestsList: [Int])
+    func showSearch(with interestsList: [Int], selectionDelegate: SearchInterestsSetupProfileSelectionDelegate)
+}
+
+protocol SearchInterestsSetupProfileDelegate: AnyObject {
+    func goNext(with interestsList: [Int])
 }
 
 protocol CityAndCountrySetupProfileDelegate: AnyObject {
@@ -111,9 +116,16 @@ final class AuthCoordinator: Coordinator {
     }
 
     private func openInterests() {
-        let interestsVC = InterestsSetupProfileVC()
+        let interestsVC = InterestsSetupProfile()
         interestsVC.delegate = self
         navigationController.pushViewController(interestsVC, animated: true)
+    }
+
+    private func openSearchInterests(with interests: [Int], selectionDelegate: SearchInterestsSetupProfileSelectionDelegate) {
+        let searchInterestsVC = SearchInterestsSetupProfileVC(selectedIntersests: interests)
+        searchInterestsVC.delegate = self
+        searchInterestsVC.selectionDelegate = selectionDelegate
+        navigationController.pushViewController(searchInterestsVC, animated: true)
     }
 
     private func saveUserInfo() {
@@ -190,10 +202,14 @@ extension AuthCoordinator: CityAndCountrySetupProfileDelegate {
 }
 
 // MARK: - InterestsSetupProfileDelegate
-extension AuthCoordinator: InterestsSetupProfileDelegate {
+extension AuthCoordinator: InterestsSetupProfileDelegate, SearchInterestsSetupProfileDelegate {
     func goNext(with interestsList: [Int]) {
         userInfo.interests = interestsList
         saveUserInfo()
+    }
+
+    func showSearch(with interestsList: [Int], selectionDelegate: SearchInterestsSetupProfileSelectionDelegate) {
+        openSearchInterests(with: interestsList, selectionDelegate: selectionDelegate)
     }
 }
 

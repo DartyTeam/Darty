@@ -9,6 +9,8 @@ import UIKit
 import Agrume
 import SPAlert
 import FittedSheets
+import SPSafeSymbols
+import Hero
 
 enum AboutPartyVCType {
     case search
@@ -31,6 +33,10 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         
         static let locationTitleText = "Местоположение"
         static let themeTitleText = "Тематика"
+        static let guestsText = "Приглашенные гости"
+        static let emptyGuestsText = "Пока нет приглашенных гостей"
+        static let locationButtonText = "Показать на карте"
+        static let imagesText = "Изображения"
         
         static let sectionInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
         
@@ -110,11 +116,11 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     
     private let locationButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Показать на карте", for: .normal)
+        button.setTitle(Constants.locationButtonText, for: .normal)
         let mapIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 14, weight: .semibold))
         let mapIcon = UIImage(systemName: "map", withConfiguration: mapIconConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
         button.setImage(mapIcon, for: .normal)
-        button.backgroundColor = #colorLiteral(red: 0.8823529412, green: 0.8823529412, blue: 0.8941176471, alpha: 1)
+        button.backgroundColor = .secondarySystemBackground
         button.layer.cornerRadius = 16
         button.tintColor = .systemOrange
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
@@ -126,7 +132,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private let imagesTitleLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.contentLabelsFont
-        label.text = "Изображения"
+        label.text = Constants.imagesText
         return label
     }()
     
@@ -146,7 +152,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private let guestsTitleLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.contentLabelsFont
-        label.text = "Приглашенные гости"
+        label.text = Constants.emptyGuestsText
         return label
     }()
     
@@ -162,6 +168,8 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         collectionView.showsHorizontalScrollIndicator = false
         return collectionView
     }()
+
+    private let guestsStackView = UIStackView(axis: .vertical, spacing: 16)
     
     private let ownerImageView: UIImageView = {
         let imageView = UIImageView()
@@ -169,6 +177,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = .systemGray
+        imageView.hero.id = GlobalConstants.userImageHeroId
         return imageView
     }()
     
@@ -214,6 +223,9 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private var approvedUsers: [UserModel] = [] {
         didSet {
             DispatchQueue.main.async {
+                self.guestsCollectionView.isHidden = self.approvedUsers.isEmpty
+                let count = self.approvedUsers.count
+                self.guestsTitleLabel.text = self.approvedUsers.isEmpty ? Constants.emptyGuestsText : Constants.guestsText + " \(count) / \(self.party.maxGuests)"
                 self.guestsCollectionView.reloadData()
             }
         }
@@ -235,9 +247,8 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         expandTabBar(false)
-     
+
         getApprovedGuests()
         
         setupParty()
@@ -251,8 +262,8 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupNavigationBar()
         setIsTabBarHidden(false)
-        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     func partyRequestsDidChange(_ partyRequests: [PartyRequestModel]) {
@@ -271,18 +282,13 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     private func getApprovedGuests() {
+        approvedUsers.removeAll()
         FirestoreService.shared.getApprovedGuestsId(party: self.party) { [weak self] result in
-            
             switch result {
-            
             case .success(let usersId):
-                
                 for userId in usersId {
-                    
                     FirestoreService.shared.getUser(by: userId) { result in
-                        
                         switch result {
-                        
                         case .success(let user):
                             self?.approvedUsers.append(user)
                         case .failure(let error):
@@ -290,7 +296,6 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
                         }
                     }
                 }
-                    
             case .failure(let error):
                 if error as? PartyError == PartyError.noApprovedGuests {
                     print(error.localizedDescription)
@@ -313,20 +318,14 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         themeLabel.text = party.type
         imagesTitleLabel.text = "Изображения " + String(party.imageUrlStrings.count)
         partyDescriptionLabel.text = party.description
-        
         getOwnerData()
     }
     
     private func getOwnerData() {
         FirestoreService.shared.getUser(by: party.userId) { [weak self] result in
             switch result {
-            
             case .success(let user):
-                if let imageUrl = URL(string: user.avatarStringURL) {
-                    self?.ownerImageView.sd_setImage(with: imageUrl, completed: { image, error, cacheType, url in
-                        self?.ownerImageView.focusOnFaces = true
-                    })
-                }
+                self?.ownerImageView.setImage(stringUrl: user.avatarStringURL)
                 self?.ownerNameLabel.text = user.username
                 self?.ownerRatingLabel.text = "0.0 *"
                 self?.ownerData = user
@@ -347,8 +346,19 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private func setupNavigationBar() {
         setNavigationBar(withColor: .systemOrange, title: party.name, withClear: false)
         let shareIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let shareBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up", withConfiguration: shareIconConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(shareAction))
+        let shareBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "square.and.arrow.up",
+                           withConfiguration: shareIconConfig
+                          )?.withTintColor(
+                            .systemOrange,
+                            renderingMode: .alwaysOriginal
+                          ),
+            style: .plain,
+            target: self,
+            action: #selector(shareAction)
+        )
         navigationItem.rightBarButtonItem = shareBarButtonItem
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     private func setupViews() {
@@ -363,8 +373,9 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         scrollView.addSubview(locationButton)
         scrollView.addSubview(imagesTitleLabel)
         scrollView.addSubview(imagesCollectionView)
-        scrollView.addSubview(guestsTitleLabel)
-        scrollView.addSubview(guestsCollectionView)
+        scrollView.addSubview(guestsStackView)
+        guestsStackView.addArrangedSubview(guestsTitleLabel)
+        guestsStackView.addArrangedSubview(guestsCollectionView)
         scrollView.addSubview(ownerImageView)
         scrollView.addSubview(ownerNameLabel)
         scrollView.addSubview(ownerRatingLabel)
@@ -424,21 +435,23 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             make.left.right.equalToSuperview()
             make.height.equalTo(96)
         }
-        
-        guestsTitleLabel.snp.makeConstraints { make in
+
+        guestsStackView.snp.makeConstraints { make in
             make.top.equalTo(imagesCollectionView.snp.bottom).offset(32)
+            make.left.right.equalToSuperview()
+            make.width.equalTo(view.frame.size.width) // С помощью этого мы делаем scroll view на всю ширину
+        }
+
+        guestsTitleLabel.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(20)
         }
         
         guestsCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(guestsTitleLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview()
             make.height.equalTo(56)
-            make.width.equalTo(view.frame.size.width) // С помощью этого мы делаем scroll view на всю ширину
         }
         
         ownerImageView.snp.makeConstraints { make in
-            make.top.equalTo(guestsCollectionView.snp.bottom).offset(32)
+            make.top.equalTo(guestsStackView.snp.bottom).offset(32)
             make.left.equalToSuperview().offset(26)
             make.size.equalTo(Constants.ownerImageSize)
         }
@@ -514,7 +527,6 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
                 actionButton.backgroundColor = .systemYellow
                 actionButton.isEnabled = false
             }
-           
         case .archive:
             break
         }
@@ -523,7 +535,9 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     // MARK: - Handlers
     @objc private func showAboutOwner() {
         guard let ownerData = ownerData else { return }
-        let aboutUserVC = AboutUserVC(userData: ownerData)
+        let aboutUserVC = AboutUserVC(userData: ownerData, preloadedUserImage: ownerImageView.image)
+        navigationController?.hero.isEnabled = true
+        navigationController?.hero.navigationAnimationType = .none
         navigationController?.pushViewController(aboutUserVC, animated: true)
     }
     
@@ -540,7 +554,30 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func shareAction() {
-        
+        var endTimeString = ""
+        if let endTime = party.endTime {
+            endTimeString = DateFormatter.HHmm.string(from: endTime)
+        }
+        let text = "Приходи на вечеринку \n\"\(party.name)\"!\n\(party.description)\nДата: \(DateFormatter.ddMMMM.string(from: party.date))\nВремя: \(DateFormatter.HHmm.string(from: party.startTime)) \(endTimeString.isEmpty ? "" : "до \(endTimeString)")\nТематика: \(party.type.dropLast())\nМесто: \(party.address)\nПриглашено \(approvedUsers.count) из \(party.maxGuests)\nДля людей старше \(party.minAge)"
+        let items: [Any] = [text]
+        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        ac.excludedActivityTypes = [.addToReadingList, .airDrop, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
+        ac.completionWithItemsHandler = { activity, completed, items, error in
+            guard completed else { return }
+            switch activity {
+            case .some(.copyToPasteboard):
+                SPAlert.present(
+                    title: "Информация о вечеринке скопирована в буфер обмена",
+                    preset: .custom(UIImage(.doc.onClipboardFill)),
+                    haptic: .success
+                )
+            case .some(_):
+                SPAlert.present(title: "Спасибо что поделились вечеринкой", preset: .heart)
+            case .none:
+                break
+            }
+        }
+        navigationController?.present(ac, animated: true)
     }
     
     func showMessageVC() {
@@ -610,7 +647,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     @objc private func cancelPartyAction() {
         let alertController = UIAlertController(title: "Вы уверены?", message: "Ваша вечеринка с записанными гостями будет безвозвратно удалена", preferredStyle: .actionSheet)
         let okAction = UIAlertAction(title: "Да, отменить", style: .destructive) { (_) in
-            #warning("Нужно добавить функционал отмены вечеринки")
+#warning("Нужно добавить функционал отмены вечеринки")
         }
         let dismissAction = UIAlertAction(title: "Нет, оставить", style: .cancel) { _ in
             
@@ -631,11 +668,16 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             }
 
             let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-    //            button.tintColor = .systemOra
+            //            button.tintColor = .systemOra
             
             // In case of an array of [URLs]:
-            #warning("Может нужно при получении изобрважений по ссылке в collection view записывать их в массив images и сюда пихать этот массив")
-            let agrume = Agrume(urls: imageUrls, startIndex: sender.view?.tag ?? 0, background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
+#warning("Может нужно при получении изобрважений по ссылке в collection view записывать их в массив images и сюда пихать этот массив")
+            let agrume = Agrume(
+                urls: imageUrls,
+                startIndex: sender.view?.tag ?? 0,
+                background: .blurred(.systemUltraThinMaterial),
+                dismissal: .withPanAndButton(.standard, button)
+            )
 
             agrume.didScroll = { [unowned self] index in
                 self?.imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)

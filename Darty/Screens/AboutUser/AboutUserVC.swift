@@ -19,6 +19,7 @@ enum OverlayNotch: Int, CaseIterable {
 
 import UIKit
 import OverlayContainer
+import Hero
 
 // MARK: - OverlayContainer
 final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewControllerDelegate {
@@ -75,11 +76,11 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         super.init(style: .rigid)
     }
     
-    init(userData: UserModel) {
+    init(userData: UserModel, preloadedUserImage: UIImage? = nil) {
         self.userData = userData
         self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
-        photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
-        infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange)
+        photosUserVC = PhotosUserVC(image: userData.avatarStringURL, preloadedUserImage: preloadedUserImage)
+        infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange, preloadedUserImage: preloadedUserImage)
         super.init(style: .rigid)
     }
     
@@ -107,7 +108,7 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         setupNavigationBar()
         setupViews()
         setupConstraints()
-        moveOverlay(toNotchAt: 0, animated: true)
+        moveOverlay(toNotchAt: 0, animated: false)
         setIsTabBarHidden(true)
     }
     
@@ -135,19 +136,18 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
             view.addSubview(backButton)
         }
         view.addSubview(shareButton)
-      
     }
     
     private func setupConstraints() {
         shareButton.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-            make.right.equalToSuperview().offset(-16)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(-2)
+            make.right.equalToSuperview().offset(-8)
             make.size.equalTo(44)
         }
         if !isBeingPresented {
             backButton.snp.makeConstraints { make in
-                make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(12)
-                make.left.equalToSuperview().offset(16)
+                make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(-2)
+                make.left.equalToSuperview().offset(4)
                 make.size.equalTo(44)
             }
         }

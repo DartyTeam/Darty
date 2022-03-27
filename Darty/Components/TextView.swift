@@ -28,7 +28,7 @@ class TextView: UIView {
 
     private var floatingLabel: UILabel!
 
-    private var activeBorderColor: UIColor = UIColor.blue
+    private var activeBorderColor: UIColor = .blue
     
     var delegate: TextViewDelegate?
 
@@ -154,7 +154,7 @@ extension TextView: UITextViewDelegate {
         addFloatingLabel()
         if textView.textColor == .placeholderText {
             textView.text = nil
-            textView.textColor = .black
+            textView.textColor = .label
             text = ""
         }
     }
@@ -171,7 +171,7 @@ extension TextView: UITextViewDelegate {
             textView.textColor = .placeholderText
             text = ""
         } else {
-            floatingLabel.textColor = .black
+            floatingLabel.textColor = .label
             text = textView.text
         }
     }
