@@ -34,6 +34,10 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         static let instagramTitleLabelText = "Мои фото в Instagram"
         
         static let playlistTitleLabelText = "Плейлист"
+
+        static let changeInterestsButtonTitle = "Выбрать интересы"
+        static let connectInstagramButtonTitle = "Подключить Instagram"
+        static let connectAppleMusicButtonTitle = "Подключить Apple Music"
     }
     
     // MARK: - UI Elements
@@ -123,7 +127,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }()
     
     private let changeInterestsButton: UIButton = {
-        let button = UIButton(title: "Выбрать интересы")
+        let button = UIButton(title: Constants.changeInterestsButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(changeInterestsOpen), for: .touchUpInside)
         return button
@@ -138,7 +142,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }()
     
     private let connectInstagramButton: UIButton = {
-        let button = UIButton(title: "Подключить Instagram")
+        let button = UIButton(title: Constants.connectInstagramButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(connectInstagram), for: .touchUpInside)
         return button
@@ -182,7 +186,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }()
     
     private let connectAppleMusicButton: UIButton = {
-        let button = UIButton(title: "Подключить Apple Music")
+        let button = UIButton(title: Constants.connectAppleMusicButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(connectAppleMusic), for: .touchUpInside)
         return button
@@ -207,7 +211,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     private var accentColor: UIColor
 
     // MARK: - Delegate
-    weak var delegate: AccountChangeInfoCoordinatorDelegate?
+    weak var coordinator: AccountCoordinator?
     
     // MARK: - Init
     init(userData: UserModel, accentColor: UIColor) {
@@ -223,7 +227,6 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadInterests), name: GlobalConstants.changedUserInterestsNotification.name, object: nil)
         addHideKeyboardOnTapAround()
         setupHero()
         setupUser()
@@ -274,9 +277,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         blurEffectView.frame = view.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.insertSubview(blurEffectView, at: 0)
-        blurEffectView.contentView.addSubview(arrowDirectionImageView)
         blurEffectView.contentView.addSubview(scrollView)
-        
+        scrollView.addSubview(arrowDirectionImageView)
         scrollView.addSubview(nameTextField)
         scrollView.addSubview(aboutTextView)
         scrollView.addSubview(birthdayTitleLabel)
@@ -398,13 +400,6 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         self.view.endEditing(true)
     }
     
-    @objc private func reloadInterests() {
-        DispatchQueue.main.async() {
-            self.interestsCollectionView.reloadSections([0])
-        }
-        updateUserDataInFirestore()
-    }
-    
     @objc private func sexChangedAction(_ sender: UISegmentedControl) {
         
         switch sender.selectedSegmentIndex {
@@ -424,7 +419,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }
     
     @objc private func changeInterestsOpen() {
-        delegate?.openChangeInterests()
+        coordinator?.openChangeInterests()
     }
     
     @objc private func changedBirthday() {
@@ -582,12 +577,13 @@ extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource, UICollectionV
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == interestsCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: InterestCell.reuseIdentifier,
+                for: indexPath
+            ) as! InterestCell
             let interest = GlobalConstants.interestsArray[AuthService.shared.currentUser.interestsList[indexPath.row]]
-            
             cell.setupCell(title: interest.title, emoji: interest.emoji)
             cell.isSelected = true
-            
             return cell
         } else if collectionView == instagramPhotosCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InstagramPhotoCell.reuseIdentifier, for: indexPath) as! InstagramPhotoCell
@@ -598,7 +594,6 @@ extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource, UICollectionV
             cell.addGestureRecognizer(tapGestureRecognizer)
             return cell
         } else {
-            
             return UICollectionViewCell()
         }
     }
@@ -616,5 +611,15 @@ extension ChangeAccountDataInfoViewVC: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return Constants.spacingInterest
+    }
+}
+
+// MARK: - SearchInterestsSetupProfileDelegate
+extension ChangeAccountDataInfoViewVC: SearchInterestsSetupProfileDelegate {
+    func mainButtonTapepd(with interestsList: [Int]) {
+        AuthService.shared.currentUser.interestsList = interestsList
+        interestsCollectionView.reloadSections([0])
+        updateUserDataInFirestore()
+        coordinator?.popVC()
     }
 }

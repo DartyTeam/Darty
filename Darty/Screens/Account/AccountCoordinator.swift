@@ -9,18 +9,18 @@ import UIKit
 
 protocol AccountCoordinatorDelegate: AnyObject {
     func openAbout(userData: UserModel, preloadedUserImage: UIImage?)
-    func openChangeInfo(preloadedUserImage: UIImage?)
+    func openChangeInfo(preloadedUserImage: UIImage?, isNeedAnimatedShowImage: Bool)
     func openContactsWithUs()
     func openChangePhone()
-}
-
-protocol AccountChangeInfoCoordinatorDelegate: AnyObject {
     func openChangeInterests()
+    func popVC()
 }
 
 final class AccountCoordinator: Coordinator {
     var childCoordinators = [Coordinator]()
     var navigationController: UINavigationController
+
+    private var changeAccountDataVC: ChangeAccountDataVC?
 
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -42,14 +42,23 @@ final class AccountCoordinator: Coordinator {
 
 extension AccountCoordinator: AccountCoordinatorDelegate {
     func openAbout(userData: UserModel, preloadedUserImage: UIImage?) {
-        let aboutUserVC = AboutUserVC(userData: userData, preloadedUserImage: preloadedUserImage)
+        let aboutUserVC = AboutUserVC(
+            userData: userData,
+            preloadedUserImage: preloadedUserImage,
+            coordinatorDelegate: self
+        )
         isEnabledAnimationNavigation = false
         navigationController.pushViewController(aboutUserVC, animated: true)
     }
 
-    func openChangeInfo(preloadedUserImage: UIImage?) {
-        let changeAccountDataVC = ChangeAccountDataVC(preloadedUserImage: preloadedUserImage, coordinatorDelegate: self)
+    func openChangeInfo(preloadedUserImage: UIImage?, isNeedAnimatedShowImage: Bool = true) {
+        changeAccountDataVC = ChangeAccountDataVC(
+            preloadedUserImage: preloadedUserImage,
+            isNeedAnimatedShowImage: isNeedAnimatedShowImage,
+            coordinatorDelegate: self
+        )
         isEnabledAnimationNavigation = false
+        guard let changeAccountDataVC = changeAccountDataVC else { return }
         navigationController.pushViewController(changeAccountDataVC, animated: true)
     }
 
@@ -64,12 +73,17 @@ extension AccountCoordinator: AccountCoordinatorDelegate {
         isEnabledAnimationNavigation = false
         navigationController.pushViewController(changePhoneVC, animated: true)
     }
-}
 
-extension AccountCoordinator: AccountChangeInfoCoordinatorDelegate {
+    func popVC() {
+        navigationController.popViewController(animated: true)
+    }
+
     func openChangeInterests() {
-        let changeAccountInterestsVC = SearchInterestsSetupProfileVC(selectedIntersests: AuthService.shared.currentUser.interestsList)
-        print("asdokasdopkasdopaksdopaskd")
+        let changeAccountInterestsVC = SearchInterestsSetupProfileVC(
+            selectedIntersests: AuthService.shared.currentUser.interestsList,
+            mainButtonTitleType: .save
+        )
+        changeAccountInterestsVC.delegate = changeAccountDataVC?.infoUserVC
         isEnabledAnimationNavigation = true
         navigationController.pushViewController(changeAccountInterestsVC, animated: true)
     }

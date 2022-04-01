@@ -30,7 +30,7 @@ protocol InterestsSetupProfileDelegate: AnyObject {
 }
 
 protocol SearchInterestsSetupProfileDelegate: AnyObject {
-    func goNext(with interestsList: [Int])
+    func mainButtonTapepd(with interestsList: [Int])
 }
 
 protocol CityAndCountrySetupProfileDelegate: AnyObject {
@@ -41,12 +41,21 @@ protocol ImageSetupProfileDelegate: AnyObject {
     func goNext(with image: UIImage)
 }
 
+protocol AuthCoordinatorDelegate: AnyObject {
+    func didAuthorized(with user: UserModel)
+}
+
 final class AuthCoordinator: Coordinator {
+    // MARK: - Properties
     var childCoordinators = [Coordinator]()
     var navigationController: UINavigationController
     private var user: User!
     private var userInfo = UserInfo()
 
+    // MARK: - Delegate
+    weak var delegate: AuthCoordinatorDelegate?
+
+    // MARK: - Init
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
@@ -72,10 +81,8 @@ final class AuthCoordinator: Coordinator {
         navigationController.pushViewController(signInVC, animated: true)
     }
 
-    func changeToMainFlow() {
-        let tabBarController = TabBarController()
-        tabBarController.modalPresentationStyle = .fullScreen
-        navigationController.present(tabBarController, animated: true, completion: nil)
+    func changeToMainFlow(with user: UserModel) {
+        delegate?.didAuthorized(with: user)
     }
 
     func startSetupProfile(for user: User) {
@@ -122,7 +129,10 @@ final class AuthCoordinator: Coordinator {
     }
 
     private func openSearchInterests(with interests: [Int], selectionDelegate: SearchInterestsSetupProfileSelectionDelegate) {
-        let searchInterestsVC = SearchInterestsSetupProfileVC(selectedIntersests: interests)
+        let searchInterestsVC = SearchInterestsSetupProfileVC(
+            selectedIntersests: interests,
+            mainButtonTitleType: .done
+        )
         searchInterestsVC.delegate = self
         searchInterestsVC.selectionDelegate = selectionDelegate
         navigationController.pushViewController(searchInterestsVC, animated: true)
@@ -142,8 +152,7 @@ final class AuthCoordinator: Coordinator {
             switch result {
             case .success(let user):
                 self?.navigationController.showAlert(title: "Успешно", message: "Веселитесь!") {
-                    AuthService.shared.currentUser = user
-                    self?.changeToMainFlow()
+                    self?.changeToMainFlow(with: user)
                 }
             case .failure(let error):
                 self?.navigationController.showAlert(title: "Ошибка", message: error.localizedDescription)
@@ -201,11 +210,15 @@ extension AuthCoordinator: CityAndCountrySetupProfileDelegate {
     }
 }
 
-// MARK: - InterestsSetupProfileDelegate
+// MARK: - InterestsSetupProfileDelegate, SearchInterestsSetupProfileDelegate
 extension AuthCoordinator: InterestsSetupProfileDelegate, SearchInterestsSetupProfileDelegate {
     func goNext(with interestsList: [Int]) {
         userInfo.interests = interestsList
         saveUserInfo()
+    }
+
+    func mainButtonTapepd(with interestsList: [Int]) {
+        goNext(with: interestsList)
     }
 
     func showSearch(with interestsList: [Int], selectionDelegate: SearchInterestsSetupProfileSelectionDelegate) {

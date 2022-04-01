@@ -105,7 +105,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         imageView.layer.cornerRadius = Constants.cornerRadius
         imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         imageView.layer.cornerCurve = .continuous
-        imageView.maskToBounds = true
+        imageView.layer.masksToBounds = true
         imageView.isSkeletonable = true
         imageView.skeletonCornerRadius = Float(imageView.layer.cornerRadius)
         return imageView
@@ -215,7 +215,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         mapSnapshotOptions.scale = UIScreen.main.scale
 
         // Set the size of the image output.
-        mapSnapshotOptions.size = mapImageView.size
+        mapSnapshotOptions.size = mapImageView.bounds.size
 
         // Show buildings and Points of Interest on the snapshot
         mapSnapshotOptions.showsBuildings = true

@@ -50,8 +50,9 @@ struct RecentChatModel: Hashable, Decodable {
         self.avatarLink = avatarLink
     }
     
-    init?(document: QueryDocumentSnapshot) {
-        let data = document.data()
+    init?(document: DocumentSnapshot) {
+        guard let data = document.data() else { return nil }
+        
         guard let id = data["id"] as? String,
         let chatRoomId = data["chatRoomId"] as? String,
         let senderId = data["senderId"] as? String,

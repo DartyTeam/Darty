@@ -955,4 +955,20 @@ class FirestoreService {
             messagesRef.document(userId).collection(message.chatRoomId).document(message.id).updateData(values)
         }
     }
+
+    // MARK: - Get chat by id
+    func getRecentChat(by id: String, completion: @escaping (Result<RecentChatModel, Error>) -> Void) {
+        let recentChatRef = recentChatsRef.document(id)
+        recentChatRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                guard let recentChat = RecentChatModel(document: document) else {
+                    completion(.failure(ChatErrors.errorMakeRecentChatModel))
+                    return
+                }
+                completion(.success(recentChat))
+            } else {
+                completion(.failure(ChatErrors.noDocForRecent))
+            }
+        }
+    }
 }

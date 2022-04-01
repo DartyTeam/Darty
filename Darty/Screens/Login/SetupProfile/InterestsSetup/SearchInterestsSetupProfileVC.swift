@@ -5,23 +5,30 @@
 //  Created by Руслан Садыков on 05.07.2021.
 //
 
-import UIKit
-import FirebaseAuth
-
 protocol SearchInterestsSetupProfileSelectionDelegate: AnyObject {
     func selected(interests: [Int])
 }
+
+enum MainButtonType {
+    case done
+    case save
+}
+
+import UIKit
+import FirebaseAuth
 
 final class SearchInterestsSetupProfileVC: UIViewController {
         
     // MARK: - Constants
     private enum Constants {
         static let interestsCollectionViewInsets = UIEdgeInsets(top: 32, left: 20, bottom: 128, right: 20)
+        static let mainButtonDoneTitle = "Готово 􀆅"
+        static let mainButtonSaveTitle = "Сохранить 􀆅"
     }
     
     // MARK: - UI Elements
     private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Готово 􀆅")
+        let button = UIButton(title: "")
         button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
@@ -46,7 +53,7 @@ final class SearchInterestsSetupProfileVC: UIViewController {
         let blurEffectView = BlurEffectView()
         blurEffectView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         blurEffectView.layer.cornerRadius = 30
-        blurEffectView.maskToBounds = true
+        blurEffectView.layer.masksToBounds = true
         return blurEffectView
     }()
     
@@ -71,8 +78,14 @@ final class SearchInterestsSetupProfileVC: UIViewController {
     weak var selectionDelegate: SearchInterestsSetupProfileSelectionDelegate?
 
     // MARK: - Init
-    init(selectedIntersests: [Int]) {
+    init(selectedIntersests: [Int], mainButtonTitleType: MainButtonType) {
         super.init(nibName: nil, bundle: nil)
+        switch mainButtonTitleType {
+        case .done:
+            nextButton.setTitle(Constants.mainButtonDoneTitle, for: UIControl.State())
+        case .save:
+            nextButton.setTitle(Constants.mainButtonSaveTitle, for: UIControl.State())
+        }
         self.selectedInterests = selectedIntersests
     }
 
@@ -99,6 +112,13 @@ final class SearchInterestsSetupProfileVC: UIViewController {
         setupSearchBar()
         setupViews()
         setupConstraints()
+        for interest in selectedInterests {
+            interestsCollectionView.selectItem(
+                at: IndexPath(item: interest, section: 0),
+                animated: false,
+                scrollPosition: .centeredVertically
+            )
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -173,7 +193,7 @@ final class SearchInterestsSetupProfileVC: UIViewController {
     }
     
     @objc private func doneButtonTapped() {
-        delegate?.goNext(with: selectedInterests)
+        delegate?.mainButtonTapepd(with: selectedInterests)
     }
 }
 
@@ -190,7 +210,7 @@ extension SearchInterestsSetupProfileVC {
             make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
-        
+
         interestsCollectionView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -216,28 +236,16 @@ extension SearchInterestsSetupProfileVC: UISearchResultsUpdating {
 
 extension SearchInterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if isFiltering {
-            return filteredInterests.count
-        }
-        return GlobalConstants.interestsArray.count
+        return isFiltering ? filteredInterests.count : GlobalConstants.interestsArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
-        if isFiltering {
-            cell.setupCell(title: filteredInterests[indexPath.row].title, emoji: filteredInterests[indexPath.row].emoji)
-            if selectedInterests.contains(filteredInterests[indexPath.row].id) {
-                cell.isSelected = true
-                collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
-            }
-            return cell
-        }
-        
-        cell.setupCell(title: GlobalConstants.interestsArray[indexPath.row].title, emoji: GlobalConstants.interestsArray[indexPath.row].emoji)
-        if selectedInterests.contains(GlobalConstants.interestsArray[indexPath.row].id) {
-            cell.isSelected = true
-            collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
-        }
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: InterestCell.reuseIdentifier,
+            for: indexPath
+        ) as! InterestCell
+        let interest = isFiltering ? filteredInterests[indexPath.row] : GlobalConstants.interestsArray[indexPath.row]
+        cell.setupCell(title: interest.title, emoji: interest.emoji)
         return cell
     }
     

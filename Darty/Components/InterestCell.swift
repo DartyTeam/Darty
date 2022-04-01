@@ -90,7 +90,7 @@ final class InterestCell: UICollectionViewCell {
     }
 
     private func setupViews() {
-        self.backgroundColor = Constants.deselectedColor
+        backgroundColor = Constants.deselectedColor
         addSubview(emojiIcon)
         addSubview(titleLabel)
     }

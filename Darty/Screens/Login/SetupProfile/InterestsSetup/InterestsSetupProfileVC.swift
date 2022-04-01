@@ -32,7 +32,7 @@ final class InterestsSetupProfile: UIViewController {
         let blurEffectView = BlurEffectView(style: .systemUltraThinMaterial)
         blurEffectView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         blurEffectView.layer.cornerRadius = 30
-        blurEffectView.maskToBounds = true
+        blurEffectView.layer.masksToBounds = true
         return blurEffectView
     }()
 

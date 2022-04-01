@@ -45,7 +45,6 @@
 		4432939627A466D1005ACD19 /* CreateCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4432939527A466D1005ACD19 /* CreateCoordinator.swift */; };
 		44351A6E27E5FABC00BF51BF /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 44351A6D27E5FABC00BF51BF /* Realm */; };
 		44351A7027E5FABC00BF51BF /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 44351A6F27E5FABC00BF51BF /* RealmSwift */; };
-		443B949326E924B600EEA3C2 /* ChangeAccountInteretsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 443B949226E924B600EEA3C2 /* ChangeAccountInteretsVC.swift */; };
 		443B949526E9434C00EEA3C2 /* StoreReviewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 443B949426E9434C00EEA3C2 /* StoreReviewHelper.swift */; };
 		443C414D27E60662008EAF87 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 443C414C27E60662008EAF87 /* SkeletonView */; };
 		443C414F27E609C9008EAF87 /* KingfisherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 443C414E27E609C9008EAF87 /* KingfisherManager.swift */; };
@@ -117,6 +116,7 @@
 		4491D52C26B8666400D3E98A /* ContactWithUsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4491D52B26B8666300D3E98A /* ContactWithUsVC.swift */; };
 		4493999C27A46CAE0035C69F /* AuthCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4493999B27A46CAE0035C69F /* AuthCoordinator.swift */; };
 		449399A227A487970035C69F /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449399A127A487970035C69F /* Coordinator.swift */; };
+		449FDC6A27F4DC5000B65664 /* DeeplinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449FDC6927F4DC5000B65664 /* DeeplinkManager.swift */; };
 		44A171F12690CBC300C154A0 /* SF-Pro-Text-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */; };
 		44A171F22690CBC300C154A0 /* SF-Pro-Text-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */; };
 		44A171F32690CBC300C154A0 /* SF-Pro-Text-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 44A171EF2690CBC200C154A0 /* SF-Pro-Text-Semibold.otf */; };
@@ -220,7 +220,6 @@
 		4430DF70268F1E900016F2A7 /* SF-Pro-Rounded-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Rounded-Regular.otf"; sourceTree = "<group>"; };
 		4430DF71268F1E910016F2A7 /* SF-Pro-Display-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Display-Medium.otf"; sourceTree = "<group>"; };
 		4432939527A466D1005ACD19 /* CreateCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCoordinator.swift; sourceTree = "<group>"; };
-		443B949226E924B600EEA3C2 /* ChangeAccountInteretsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeAccountInteretsVC.swift; sourceTree = "<group>"; };
 		443B949426E9434C00EEA3C2 /* StoreReviewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreReviewHelper.swift; sourceTree = "<group>"; };
 		443C414E27E609C9008EAF87 /* KingfisherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherManager.swift; sourceTree = "<group>"; };
 		443CFCE327E74CCA0047905A /* MainAnimation.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = MainAnimation.mp4; sourceTree = "<group>"; };
@@ -293,6 +292,7 @@
 		4491D52B26B8666300D3E98A /* ContactWithUsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactWithUsVC.swift; sourceTree = "<group>"; };
 		4493999B27A46CAE0035C69F /* AuthCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthCoordinator.swift; sourceTree = "<group>"; };
 		449399A127A487970035C69F /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		449FDC6927F4DC5000B65664 /* DeeplinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkManager.swift; sourceTree = "<group>"; };
 		44A171ED2690CBC200C154A0 /* SF-Pro-Text-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Medium.otf"; sourceTree = "<group>"; };
 		44A171EE2690CBC200C154A0 /* SF-Pro-Text-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Bold.otf"; sourceTree = "<group>"; };
 		44A171EF2690CBC200C154A0 /* SF-Pro-Text-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SF-Pro-Text-Semibold.otf"; sourceTree = "<group>"; };
@@ -381,7 +381,6 @@
 				445411B926ED198600D7A5D4 /* Views */,
 				4400479126E80C7B00BDF8F1 /* ChangeAccountDataVC.swift */,
 				4400479426E8151300BDF8F1 /* ChangeAccountDataInfoViewVC.swift */,
-				443B949226E924B600EEA3C2 /* ChangeAccountInteretsVC.swift */,
 			);
 			path = ChangeAccountData;
 			sourceTree = "<group>";
@@ -535,6 +534,7 @@
 		446A3476267E4E4600528501 /* Darty */ = {
 			isa = PBXGroup;
 			children = (
+				446A349D267E58A100528501 /* Base */,
 				445411B526ED027900D7A5D4 /* InstagramAPI */,
 				44D44AEE268BAB8100EFE76F /* Darty.entitlements */,
 				446A3485267E4E4A00528501 /* Info.plist */,
@@ -546,7 +546,6 @@
 				446A34A5267E58F700528501 /* TabBar */,
 				446A349F267E58C100528501 /* Screens */,
 				446A349E267E58B400528501 /* Assets */,
-				446A349D267E58A100528501 /* Base */,
 			);
 			path = Darty;
 			sourceTree = "<group>";
@@ -912,6 +911,7 @@
 				44E1812526D99970006D1853 /* CacheManager.swift */,
 				443B949426E9434C00EEA3C2 /* StoreReviewHelper.swift */,
 				443C414E27E609C9008EAF87 /* KingfisherManager.swift */,
+				449FDC6927F4DC5000B65664 /* DeeplinkManager.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1118,7 +1118,6 @@
 				446A3496267E54B600528501 /* MessagesVC.swift in Sources */,
 				449399A227A487970035C69F /* Coordinator.swift in Sources */,
 				44C639C0269CED5400D5CFD5 /* PartyPriceAndGuestsVC.swift in Sources */,
-				443B949326E924B600EEA3C2 /* ChangeAccountInteretsVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
 				446A34A9267E5B2100528501 /* BottomLineTextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
@@ -1141,6 +1140,7 @@
 				4408BCDB26B1C8B5006C48AE /* PartyRequestModel.swift in Sources */,
 				44E82E3726938C25000E3D35 /* SearchInterestsSetupProfileVC.swift in Sources */,
 				441BF7EA268FE1AA00114BF4 /* Validators.swift in Sources */,
+				449FDC6A27F4DC5000B65664 /* DeeplinkManager.swift in Sources */,
 				44A171FB2690CC9400C154A0 /* String + Extension.swift in Sources */,
 				44FB27C1269F9F2200028602 /* PartyImagesVC.swift in Sources */,
 				446A3492267E549500528501 /* PartiesVC.swift in Sources */,

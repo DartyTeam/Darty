@@ -28,7 +28,8 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     private let shareButton: UIButton = {
         let button = UIButton(type: .system)
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .bold))
-        let shareIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
+        let shareIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?
+            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
         button.setImage(shareIcon, for: UIControl.State())
         button.layer.cornerRadius = 22
         button.clipsToBounds = true
@@ -40,7 +41,8 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     private let backButton: UIButton = {
         let button = UIButton(type: .system)
         let configIcon = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .bold))
-        let backIcon = UIImage(systemName: "chevron.backward", withConfiguration: configIcon)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
+        let backIcon = UIImage(systemName: "chevron.backward", withConfiguration: configIcon)?
+            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
         button.setImage(backIcon, for: UIControl.State())
         button.layer.cornerRadius = 22
         button.clipsToBounds = true
@@ -48,14 +50,15 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         button.addBlurEffect()
         return button
     }()
-    
-    var partyRequestDelegate: AboutUserPartyRequestDelegate? {
+
+    // MARK: - Delegate
+    weak var partyRequestDelegate: AboutUserPartyRequestDelegate? {
         didSet {
             infoUserVC.partyRequestDelegate = partyRequestDelegate
         }
     }
     
-    var chatRequestDelegate: AboutUserChatRequestDelegate? {
+    weak var chatRequestDelegate: AboutUserChatRequestDelegate? {
         didSet {
             infoUserVC.chatRequestDelegate = chatRequestDelegate
         }
@@ -76,11 +79,12 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         super.init(style: .rigid)
     }
     
-    init(userData: UserModel, preloadedUserImage: UIImage? = nil) {
+    init(userData: UserModel, preloadedUserImage: UIImage? = nil, coordinatorDelegate: AccountCoordinatorDelegate? = nil) {
         self.userData = userData
         self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
         photosUserVC = PhotosUserVC(image: userData.avatarStringURL, preloadedUserImage: preloadedUserImage)
         infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange, preloadedUserImage: preloadedUserImage)
+        infoUserVC.coordinatorDelegate = coordinatorDelegate
         super.init(style: .rigid)
     }
     

@@ -23,37 +23,17 @@ class MapManager {
     
     // Установка маркера вечеринки
     func setupPartymark(party: PartyModel, mapView: MKMapView) {
-        
-       // guard let location = party.location else { return }
-        #warning("Вместо геокодера адреса можно использовать имеющиеся координаты")
-        let location = party.address
-        
-        let geocoder = CLGeocoder()
-        geocoder.geocodeAddressString(location) { (partymarks, error) in
-            
-            // Если объект error не содержит nil
-            if let error = error {
-                print(error)
-                return
-            }
-            
-            guard let partymarks = partymarks else { return }
-            
-            let partymark = partymarks.first
-            
-            let annotation = MKPointAnnotation()
-            
-            annotation.title = party.name
-            annotation.subtitle = party.type
-            
-            guard let partymarkLocation = partymark?.location else { return }
-            
-            annotation.coordinate = partymarkLocation.coordinate
-            self.destinationCoordinate = partymarkLocation.coordinate
-            
-            mapView.showAnnotations([annotation], animated: true)
-            mapView.selectAnnotation(annotation, animated: true)
-        }
+        let annotation = MKPointAnnotation()
+        annotation.title = party.name
+        annotation.subtitle = "\(party.type.dropLast())"
+        let partymarkLocation = CLLocationCoordinate2D(
+            latitude: party.location.latitude,
+            longitude: party.location.longitude
+        )
+        annotation.coordinate = partymarkLocation
+        self.destinationCoordinate = partymarkLocation
+        mapView.showAnnotations([annotation], animated: true)
+        mapView.selectAnnotation(annotation, animated: true)
     }
     
     // Установка маркера вечеринки
@@ -137,7 +117,7 @@ class MapManager {
     }
     
     // Построение маршрута от местоположения пользователя до заведения
-    func getDirection(for mapView: MKMapView, previousLocation: (CLLocation) -> (), getTimeAndDistance: @escaping (String) -> ()) {
+    func getDirection(for mapView: MKMapView, previousLocation: @escaping (CLLocation) -> (), getTimeAndDistance: @escaping (String) -> ()) {
         
         guard let location = locationManager.location?.coordinate else {
             alertDelegate?.showAlert(title: "Ошибка", message: "Не удалость определить ваше местоположение")
@@ -145,39 +125,40 @@ class MapManager {
         }
         
         locationManager.startUpdatingLocation() // Постоянное отслеживание местоположения пользователя
-        previousLocation(CLLocation(latitude: location.latitude, longitude: location.longitude))
-        
+
         guard let request = createDirectionsRequest(from: location) else {
             alertDelegate?.showAlert(title: "Ошибка", message: "Место назначения не найдено")
             return
         }
-        
+
         let directions = MKDirections(request: request)
         resetMapView(mapView: mapView, withNew: directions)
-        
+
         directions.calculate { (response, error) in
-            
+
             if let error = error {
                 print("ERROR_LOG Error in calculate directions: ", error)
                 self.alertDelegate?.showDirectionsError(error.localizedDescription)
                 return
             }
-            
+
             guard let response = response else {
                 self.alertDelegate?.showAlert(title: "Ошибка", message: "Маршрут не доступен")
                 return
             }
-            
+
+            previousLocation(CLLocation(latitude: location.latitude, longitude: location.longitude))
+
             for route in response.routes {
                 mapView.addOverlay(route.polyline)
                 mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
-                
+
                 let distance = String(format: "%.1f",route.distance / 1000)
                 let timeInterval = String(format: "%", route.expectedTravelTime / 60)
-                
+
                 let timeAndDistance = "Расстояние до места: \(distance) км.\n Время в пути: \(timeInterval) м."
-                
-                DispatchQueue.main.asyncAfter(deadline: .now()+2) {
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     getTimeAndDistance(timeAndDistance)
                 }
             }

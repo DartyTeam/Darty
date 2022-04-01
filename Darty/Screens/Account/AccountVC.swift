@@ -680,9 +680,8 @@ final class AccountVC: UIViewController {
         ac.addAction(UIAlertAction(title: "Отмена", style: .cancel, handler: nil))
         ac.addAction(UIAlertAction(title: "Да", style: .destructive, handler: { (_) in
             do {
-                let navController = UINavigationController(rootViewController: LoginVC())
-                navController.setNavigationBarHidden(true, animated: false)
-                UIApplication.shared.keyWindow?.rootViewController = navController
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.appCoordinator?.openAuthFlow()
                 try Auth.auth().signOut()
             } catch {
                 print("Error signing out: \(error.localizedDescription)")
@@ -709,7 +708,7 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func changeInfoAccount() {
-        delegate?.openChangeInfo(preloadedUserImage: userAvatarImageView.image)
+        delegate?.openChangeInfo(preloadedUserImage: userAvatarImageView.image, isNeedAnimatedShowImage: true)
     }
     
     @objc private func segmentChanged(_ sender: UISegmentedControl) {
@@ -774,11 +773,9 @@ extension AccountVC: UIScrollViewDelegate {
             let pageWidth : CGFloat = scrollView.frame.size.width
             let fractionalPage = Float(scrollView.contentOffset.x / pageWidth)
             let page = lroundf(fractionalPage)
-
             if previousPage != page {
                 previousPage = page
-                }
-
+            }
             segmentedControl.selectedSegmentIndex = previousPage
         }
     }

@@ -36,19 +36,21 @@ enum PartyListType: String, CaseIterable {
         return array
     }
 
-    static subscript(_ index: Int) -> PartyListType? {
-        switch index {
-        case 0:
-            return .search
-        case 1:
-            return .approved
-        case 2:
-            return .waiting
-        case 3:
-            return .my
-        default:
-            return nil
+    var index: Int {
+        switch self {
+        case .search:
+            return 0
+        case .approved:
+            return 1
+        case .waiting:
+            return 2
+        case .my:
+            return 3
         }
+    }
+
+    static subscript(_ index: Int) -> PartyListType? {
+        return PartyListType.allCases.first(where: { $0.index == index })
     }
 }
 
@@ -297,7 +299,7 @@ final class PartiesVC: UIViewController {
     }
 
     func changeSelectedPartyList(type: PartyListType) {
-        segmentedPartiesPages.selectedSegmentIndex = type.hashValue
+        segmentedPartiesPages.selectedSegmentIndex = type.index
         segmentedPartiesPages.sendActions(for: .valueChanged)
     }
     

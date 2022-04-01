@@ -89,6 +89,7 @@ extension StorageErrors: LocalizedError {
 
 enum ChatErrors {
     case noDocForRecent
+    case errorMakeRecentChatModel
 }
 
 extension ChatErrors: LocalizedError {
@@ -96,6 +97,8 @@ extension ChatErrors: LocalizedError {
         switch self {
         case .noDocForRecent:
             return NSLocalizedString("Не документов для чата в базе данных", comment: "")
+        case .errorMakeRecentChatModel:
+            return NSLocalizedString("Ошибка получения модели чата из документа в Firebase", comment: "")
         }
     }
 }

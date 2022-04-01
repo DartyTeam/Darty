@@ -32,7 +32,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ivanvorobei/SPAlert",
       "state" : {
-        "revision" : "0df499e9f5dc43790ac65f227821acfa7b05b168",
+        "revision" : "5fd3e2923d26f0f0b40f0e6c10fca458a61a73c4",
         "version" : "4.2.0"
       }
     },
@@ -41,7 +41,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ivanvorobei/SPIndicator",
       "state" : {
-        "revision" : "17fc8e08b5428e9553f5dea7ebc8c201513a745c",
+        "revision" : "43600857729d9efff046dc6673e6f94e095882c7",
         "version" : "1.6.4"
       }
     },
@@ -50,7 +50,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparrowcode/SPSafeSymbols",
       "state" : {
-        "revision" : "9af06f7d21b2b2ad83ce2216506c0ff4ff0c3809",
+        "revision" : "efd5d659c1c1e7ee501873c8524f95ba2293c666",
         "version" : "1.0.5"
       }
     }

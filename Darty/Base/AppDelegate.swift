@@ -30,45 +30,87 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //        GIDSignIn.sharedInstance.clientID = FirebaseApp.app()?.options.clientID
         
         StoreReviewHelper.incrementAppOpenedCount()
+
+        // Firestore configure
+        let settings = FirestoreSettings()
+        // Set offline mode
+        settings.isPersistenceEnabled = true
+        // Set cache size
+        settings.cacheSizeBytes = 1073741824
+        let db = Firestore.firestore()
+        db.settings = settings
+
         return true
     }
-    
-    func application( _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-        // FacebookSDK
-        ApplicationDelegate.shared.application( app, open: url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String, annotation: options[UIApplication.OpenURLOptionsKey.annotation] )
-        
-        // GoogleSDK
-        return GIDSignIn.sharedInstance.handle(url)
+
+    func application(_ application: UIApplication,
+                     configurationForConnecting connectingSceneSession: UISceneSession,
+                     options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+
+        if let shortcutItem = options.shortcutItem {
+            DeeplinkManager.shared.handleShortcut(item: shortcutItem)
+        }
+        let configuration = UISceneConfiguration(
+            name: connectingSceneSession.configuration.name,
+            sessionRole: connectingSceneSession.role
+        )
+        configuration.delegateClass = SceneDelegate.self
+        return configuration
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
         // user is offline
-        FirestoreService.shared.setOnline(status: false) { result in
-            switch result {
-            case .success():
-                print("Successful set user status to offline")
-            case .failure(let error):
-                print("ERROR_LOG Error set user status to online: ", error.localizedDescription)
-            }
-        }
+        changeOnlineStatus(to: false)
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
+        DeeplinkManager.shared.checkDeepLink(with: appCoordinator!)
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        FirestoreService.shared.setOnline(status: true) { result in
-            switch result {
-            case .success():
-                print("Successful set user status to online")
-            case .failure(let error):
-                print("ERROR_LOG Error set user status to online: ", error.localizedDescription)
+        changeOnlineStatus(to: true)
+    }
+
+    // MARK: Shortcuts
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        completionHandler(DeeplinkManager.shared.handleShortcut(item: shortcutItem))
+    }
+
+    // MARK: Deeplinks
+    func application( _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+        if DeeplinkManager.shared.handleDeeplink(url: url) {
+            return true
+        }
+        
+        // FacebookSDK
+        ApplicationDelegate.shared.application( app, open: url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String, annotation: options[UIApplication.OpenURLOptionsKey.annotation] )
+
+        // GoogleSDK
+        return GIDSignIn.sharedInstance.handle(url)
+    }
+
+    // MARK: Universal Links
+    private func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            if let url = userActivity.webpageURL {
+                return DeeplinkManager.shared.handleDeeplink(url: url)
             }
         }
+        return false
+    }
+
+    // MARK: - First launch after install for older iOS version
+    func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool{
+        return DeeplinkManager.shared.handleDeeplink(url: url)
+    }
+
+    // MARK: - Notifications
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        DeeplinkManager.shared.handleRemoteNotification(userInfo)
     }
 }
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
     
@@ -80,6 +122,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 appDelegate.appCoordinator = AppCoordinator(window: window!)
             }
         }
+
+        // either one will work
+        guard let url = connectionOptions.urlContexts.first?.url ?? connectionOptions.userActivities.first?.webpageURL
+        else { return }
+        DeeplinkManager.shared.handleDeeplink(url: url)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -87,12 +134,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
+        DeeplinkManager.shared.handleDeeplink(url: url)
+
         ApplicationDelegate.shared.application(
             UIApplication.shared,
             open: url,
             sourceApplication: nil,
             annotation: [UIApplication.OpenURLOptionsKey.annotation]
         )
+    }
+
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            if let url = userActivity.webpageURL {
+                DeeplinkManager.shared.handleDeeplink(url: url)
+            }
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -105,11 +162,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        changeOnlineStatus(to: true)
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+              let appCoordinator = appDelegate.appCoordinator
+        else { return }
+        DeeplinkManager.shared.checkDeepLink(with: appCoordinator)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
+
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        changeOnlineStatus(to: false)
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
@@ -121,5 +185,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+    }
+
+    // MARK: Shortcuts
+    func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        completionHandler(DeeplinkManager.shared.handleShortcut(item: shortcutItem))
+    }
+}
+
+fileprivate func changeOnlineStatus(to online: Bool) {
+    FirestoreService.shared.setOnline(status: true) { result in
+        switch result {
+        case .success():
+            print("Successful set user status to online")
+        case .failure(let error):
+            print("ERROR_LOG Error set user status to online: ", error.localizedDescription)
+        }
     }
 }

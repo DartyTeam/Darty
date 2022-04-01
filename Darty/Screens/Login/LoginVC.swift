@@ -182,7 +182,7 @@ final class LoginVC: UIViewController {
         }
 
         dartyLogo.snp.makeConstraints { make in
-            make.top.equalTo(videoView.snp.top).offset(30)
+            make.top.equalTo(videoView.snp.top).offset(21)
             make.centerX.equalToSuperview()
             make.width.equalTo(Constants.dartyLogoTextWidth)
         }
@@ -227,7 +227,8 @@ final class LoginVC: UIViewController {
         SPAlert.present(
             title: "Успешно",
             message: "Осталось заполнить профиль",
-            preset: .custom(UIImage(.face.smiling))
+            preset: .custom(UIImage(.face.smiling)),
+            haptic: .success
         ) {
             self.view.isUserInteractionEnabled = true
             self.coordinator?.startSetupProfile(for: user)
@@ -238,11 +239,12 @@ final class LoginVC: UIViewController {
         SPAlert.present(
             title: "Успешно",
             message: "Вы авторизованы",
-            preset: .custom(UIImage(.face.smiling))
+            preset: .custom(UIImage(.face.smiling)),
+            haptic: .success
         ) {
             self.view.isUserInteractionEnabled = true
-            AuthService.shared.currentUser = user
-            self.coordinator?.changeToMainFlow()
+            print("asidjasiodjaiosdjaiosdjaisodjasoidjaosid: ", self.coordinator)
+            self.coordinator?.changeToMainFlow(with: user)
         }
     }
 }

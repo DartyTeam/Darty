@@ -2,7 +2,7 @@
 import UIKit
 import SwiftUI
 
-class TabBarController: UITabBarController, UITabBarControllerDelegate {
+final class TabBarController: UITabBarController, UITabBarControllerDelegate {
 
     private var observableFloatingConfig: ObservableFloatingExpandAndSelectedIndex = ObservableFloatingExpandAndSelectedIndex()
 
@@ -30,7 +30,7 @@ class TabBarController: UITabBarController, UITabBarControllerDelegate {
     }()
 
     private var createCoordinator: Coordinator!
-    private var accountCoordinator: Coordinator!
+    var accountCoordinator: Coordinator!
 
     init() {
         super.init(nibName: nil, bundle: nil)

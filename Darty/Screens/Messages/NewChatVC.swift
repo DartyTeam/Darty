@@ -638,9 +638,7 @@ class NewChatVC: MessagesViewController {
     
     // MARK: - Select photos
     func chooseImagePicker(source: UIImagePickerController.SourceType) {
-        
         if source == .camera {
-            
             AVCaptureDevice.requestAccess(for: AVMediaType.video) { [weak self] response in
                 if response {
                     if UIImagePickerController.isSourceTypeAvailable(source) {
@@ -651,7 +649,23 @@ class NewChatVC: MessagesViewController {
                         self?.present(imagePicker, animated: true, completion: nil)
                     }
                 } else {
-                    
+                    let alertController = UIAlertController(style: .alert, title: "Нет доступа к камере", message: "Необходимо пройти в настройки и включить доступ")
+                    let settingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { _ in
+                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                            return
+                        }
+                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                print("Settings opened: \(success)") // Prints true
+                            })
+                        }
+                    }
+                    alertController.addAction(settingsAction)
+                    let cancelAction = UIAlertAction(title: "Отмена", style: .default, handler: nil)
+                    alertController.addAction(cancelAction)
+                    DispatchQueue.main.async {
+                        self?.present(alertController, animated: true)
+                    }
                 }
             }
         } else {

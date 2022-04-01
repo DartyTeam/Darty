@@ -49,20 +49,19 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     // MARK: - Properties
     private let userData: UserModel = AuthService.shared.currentUser!
     private let photosUserVC: PhotosUserVC
-    private let infoUserVC: ChangeAccountDataInfoViewVC
+    let infoUserVC: ChangeAccountDataInfoViewVC
   
     // MARK: - Init
     init(preloadedUserImage: UIImage?,
          isNeedAnimatedShowImage: Bool = true,
-         coordinatorDelegate: AccountChangeInfoCoordinatorDelegate? = nil) {
+         coordinatorDelegate: AccountCoordinator? = nil) {
         photosUserVC = PhotosUserVC(
             image: userData.avatarStringURL,
             preloadedUserImage: preloadedUserImage,
             isNeedAnimatedShowImage: isNeedAnimatedShowImage
         )
         infoUserVC = ChangeAccountDataInfoViewVC(userData: userData, accentColor: .systemIndigo)
-        print("asdioasjdiasjdaisodjasoidjaosidj: ", coordinatorDelegate)
-        infoUserVC.delegate = coordinatorDelegate
+        infoUserVC.coordinator = coordinatorDelegate
         super.init(style: .rigid)
     }
     
@@ -77,7 +76,6 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         self.viewControllers = [photosUserVC, infoUserVC]
         self.delegate = self
-
         drivingScrollView = (viewControllers.last as? ChangeAccountDataInfoViewVC)?.scrollView
         setupViews()
         setupConstraints()
@@ -175,7 +173,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
                                             message: nil,
                                             preferredStyle: .actionSheet)
         
-        let cameraIcon = UIImage(systemName: "camera")
+        let cameraIcon = UIImage(.camera)
         let camera = UIAlertAction(title: "Камера", style: .default) { _ in
             self.chooseImagePicker(source: .camera)
         }
@@ -183,7 +181,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         camera.setValue(CATextLayerAlignmentMode.left, forKey: "titleTextAlignment")
         actionSheet.addAction(camera)
         
-        let photoIcon = UIImage(systemName: "photo")
+        let photoIcon = UIImage(.photo)
         let photo = UIAlertAction(title: "Фото", style: .default) { _ in
             self.chooseImagePicker(source: .photoLibrary)
         }
@@ -208,7 +206,23 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
                         self.present(imagePicker, animated: true, completion: nil)
                     }
                 } else {
-                    
+                    let alertController = UIAlertController(style: .alert, title: "Нет доступа к камере", message: "Необходимо пройти в настройки и включить доступ")
+                    let settingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { _ in
+                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                            return
+                        }
+                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                print("Settings opened: \(success)") // Prints true
+                            })
+                        }
+                    }
+                    alertController.addAction(settingsAction)
+                    let cancelAction = UIAlertAction(title: "Отмена", style: .default, handler: nil)
+                    alertController.addAction(cancelAction)
+                    DispatchQueue.main.async {
+                        self.present(alertController, animated: true)
+                    }
                 }
             }
         } else {
@@ -255,12 +269,11 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     }
 }
 
-// MARK: - IImagePickerControllerDelegate, UINavigationControllerDelegat (Work with image)
+// MARK: - UImagePickerControllerDelegate, UINavigationControllerDelegat (Work with image)
 extension ChangeAccountDataVC: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
         guard !results.isEmpty else { return }
-        
         if results.first?.itemProvider.canLoadObject(ofClass: UIImage.self) ?? false {
             results.first?.itemProvider.loadObject(ofClass: UIImage.self) { (image, error) in
                 DispatchQueue.main.async {
@@ -277,13 +290,11 @@ extension ChangeAccountDataVC: PHPickerViewControllerDelegate {
 extension ChangeAccountDataVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
         if let image = info[.editedImage] as? UIImage {
             self.changeUserImage(to: image)
         } else {
             SPAlert.present(title: "Ошибка получени изображения с камеры", preset: .error)
         }
-        
         dismiss(animated: true, completion: nil)
     }
 }

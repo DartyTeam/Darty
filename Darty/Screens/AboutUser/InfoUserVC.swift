@@ -10,12 +10,12 @@ import SPAlert
 import Agrume
 import Hero
 
-protocol AboutUserPartyRequestDelegate {
+protocol AboutUserPartyRequestDelegate: AnyObject {
     func userDidDecline(_ user: UserModel)
     func userDidAccept(_ user: UserModel)
 }
 
-protocol AboutUserChatRequestDelegate {
+protocol AboutUserChatRequestDelegate: AnyObject {
     func userDidDecline(_ chat: RecentChatModel)
     func userDidAccept(_ chat: RecentChatModel, user: UserModel)
 }
@@ -209,6 +209,7 @@ final class InfoUserVC: UIViewController {
     // MARK: - Delegate
     var partyRequestDelegate: AboutUserPartyRequestDelegate?
     var chatRequestDelegate: AboutUserChatRequestDelegate?
+    weak var coordinatorDelegate: AccountCoordinatorDelegate?
     
     // MARK: - Properties
     private var instagramApi = InstagramApi.shared
@@ -306,9 +307,9 @@ final class InfoUserVC: UIViewController {
         blurEffectView.frame = view.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.insertSubview(blurEffectView, at: 0)
-        blurEffectView.contentView.addSubview(arrowDirectionImageView)
         blurEffectView.contentView.addSubview(scrollView)
-        
+
+        scrollView.addSubview(arrowDirectionImageView)
         scrollView.addSubview(nameAgeStackView)
         scrollView.addSubview(userRatingLabel)
         scrollView.addSubview(descriptionTitleLabel)
@@ -489,8 +490,7 @@ final class InfoUserVC: UIViewController {
     }
     
     @objc private func changeAction() {
-        let changeAccountDataVC = ChangeAccountDataVC(preloadedUserImage: preloadedUserImage, isNeedAnimatedShowImage: false)
-        navigationController?.pushViewController(changeAccountDataVC, animated: true)
+        coordinatorDelegate?.openChangeInfo(preloadedUserImage: preloadedUserImage, isNeedAnimatedShowImage: false)
     }
     
     @objc private func sendMessageAction() {
@@ -632,17 +632,12 @@ extension InfoUserVC: UICollectionViewDataSource {
             cell.addGestureRecognizer(tapGestureRecognizer)
             return cell
         } else {
-            
-            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
             let interest = GlobalConstants.interestsArray[userData.interestsList[indexPath.row]]
-            
             cell.setupCell(title: interest.title, emoji: interest.emoji)
-            
             if AuthService.shared.currentUser?.interestsList.contains(userData.interestsList[indexPath.row]) ?? false {
                 cell.isSelected = true
             }
-            
             return cell
         }
     }
