@@ -21,7 +21,8 @@ protocol AboutUserChatRequestDelegate: AnyObject {
 }
 
 final class InfoUserVC: UIViewController {
-    
+
+    // MARK: - Constants
     private enum Constants {
         static let textColor: UIColor = .white
         static let nameFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .medium)
@@ -63,6 +64,7 @@ final class InfoUserVC: UIViewController {
         let label = UILabel()
         label.font = Constants.nameFont
         label.textColor = Constants.textColor
+        label.isSkeletonable = true
         return label
     }()
     
@@ -70,6 +72,7 @@ final class InfoUserVC: UIViewController {
         let label = UILabel()
         label.font = Constants.nameFont
         label.textColor = Constants.textColor
+        label.isSkeletonable = true
         return label
     }()
     
@@ -77,6 +80,7 @@ final class InfoUserVC: UIViewController {
         let label = UILabel()
         label.font = Constants.ratingFont
         label.textColor = Constants.textColor
+        label.isSkeletonable = true
         return label
     }()
     
@@ -110,6 +114,7 @@ final class InfoUserVC: UIViewController {
         label.font = Constants.descriptoonTextFont
         label.textColor = Constants.textColor
         label.numberOfLines = 0
+        label.isSkeletonable = true
         return label
     }()
     
@@ -133,6 +138,7 @@ final class InfoUserVC: UIViewController {
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.allowsSelection = false
+        collectionView.isSkeletonable = true
         return collectionView
     }()
     
@@ -152,6 +158,7 @@ final class InfoUserVC: UIViewController {
         label.font = Constants.messageTextFont
         label.textColor = Constants.textColor
         label.numberOfLines = 0
+        label.isSkeletonable = true
         return label
     }()
     
@@ -203,6 +210,7 @@ final class InfoUserVC: UIViewController {
         collectionView.dataSource = self
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.allowsSelection = false
+        collectionView.isSkeletonable = true
         return collectionView
     }()
     
@@ -222,15 +230,14 @@ final class InfoUserVC: UIViewController {
         }
     }
     private var instagramPhotoUrls: [URL] = []
-    
-    private var userData: UserModel
+    private var userData: UserModel!
     private var type: AboutUserVCType
     private var accentColor: UIColor
     private var message: String? = nil
     private var chatData: RecentChatModel?
     private var preloadedUserImage: UIImage?
     
-    // MARK: - Lifecycle
+    // MARK: - Init
     init(userData: UserModel, accentColor: UIColor, message: String) {
         self.userData = userData
         self.type = .partyRequest
@@ -238,16 +245,30 @@ final class InfoUserVC: UIViewController {
         self.message = message
         super.init(nibName: nil, bundle: nil)
     }
+
+    init(userId: String, accentColor: UIColor, message: String) {
+        self.type = .partyRequest
+        self.accentColor = accentColor
+        self.message = message
+        super.init(nibName: nil, bundle: nil)
+    }
     
+    init(userId: String, accentColor: UIColor, preloadedUserImage: UIImage?) {
+        self.type = userId == AuthService.shared.currentUser.id ? .myInfo : .info
+        self.accentColor = accentColor
+        self.preloadedUserImage = preloadedUserImage
+        super.init(nibName: nil, bundle: nil)
+    }
+
     init(userData: UserModel, accentColor: UIColor, preloadedUserImage: UIImage?) {
         self.userData = userData
         self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
         self.accentColor = accentColor
+        self.preloadedUserImage = preloadedUserImage
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(chatData: RecentChatModel, userData: UserModel, accentColor: UIColor) {
-        self.userData = userData
+    init(userId: String, chatData: RecentChatModel, accentColor: UIColor) {
         self.type = .messageRequest
         self.accentColor = accentColor
         self.chatData = chatData
@@ -258,10 +279,14 @@ final class InfoUserVC: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let userData = userData {
+            setupWith(userData: userData)
+        }
         addHideKeyboardOnTapAround()
-        setupUser()
         setupViews()
         setupConstraints()
         setupHero()
@@ -280,7 +305,8 @@ final class InfoUserVC: UIViewController {
         scrollView.addGestureRecognizer(tapRecognizer)
     }
     
-    private func setupUser() {
+    private func setupWith(userData: UserModel) {
+        self.userData = userData
         nameLabel.text = userData.username
         descriptionTextLabel.text = userData.description
         
@@ -294,9 +320,35 @@ final class InfoUserVC: UIViewController {
         messageTextLabel.text = message
         
         print("asdjaiosdjasdoiaoisdjasiodasd: ", userData.instagramId)
-        if userData.instagramId != nil, UserDefaults.standard.instagramAccessToken != nil {
+        if let instagramId = userData.instagramId, UserDefaults.standard.instagramAccessToken != nil {
+            scrollView.addSubview(instagramTitleLable)
+            scrollView.addSubview(instagramPhotosCollectionView)
+            scrollView.addSubview(connectInstagramButton)
+            interestsCollectionView.snp.remakeConstraints { make in
+                make.top.equalTo(interestsTitleLable.snp.bottom)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(54)
+                make.width.equalTo(view.frame.size.width)
+            }
+            instagramTitleLable.snp.makeConstraints { make in
+                make.top.equalTo(interestsCollectionView.snp.bottom).offset(24)
+                make.left.equalToSuperview().offset(26)
+            }
+
+            instagramPhotosCollectionView.snp.makeConstraints { make in
+                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(64)
+            }
+
+            connectInstagramButton.snp.makeConstraints { make in
+                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+                make.height.equalTo(44)
+                make.left.right.equalToSuperview().inset(20)
+                make.bottom.equalToSuperview().offset(-96)
+            }
             connectInstagramButton.isHidden = true
-            getInstaPhotos()
+            getInstaPhotos(with: instagramId)
         }
     }
     
@@ -327,12 +379,6 @@ final class InfoUserVC: UIViewController {
             scrollView.addSubview(messageTextLabel)
             scrollView.addSubview(acceptButton)
             scrollView.addSubview(declineButton)
-        }
-        
-        if userData.instagramId != nil {
-            scrollView.addSubview(instagramTitleLable)
-            scrollView.addSubview(instagramPhotosCollectionView)
-            scrollView.addSubview(connectInstagramButton)
         }
     }
     
@@ -428,29 +474,7 @@ final class InfoUserVC: UIViewController {
             make.left.right.equalToSuperview()
             make.height.equalTo(54)
             make.width.equalTo(view.frame.size.width)
-            if userData.instagramId == nil {
-                make.bottom.equalToSuperview().offset(-96)
-            }
-        }
-        
-        if userData.instagramId != nil {
-            instagramTitleLable.snp.makeConstraints { make in
-                make.top.equalTo(interestsCollectionView.snp.bottom).offset(24)
-                make.left.equalToSuperview().offset(26)
-            }
-            
-            instagramPhotosCollectionView.snp.makeConstraints { make in
-                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
-                make.left.right.equalToSuperview()
-                make.height.equalTo(64)
-            }
-            
-            connectInstagramButton.snp.makeConstraints { make in
-                make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
-                make.height.equalTo(44)
-                make.left.right.equalToSuperview().inset(20)
-                make.bottom.equalToSuperview().offset(-96)
-            }
+            make.bottom.equalToSuperview().offset(-96)
         }
     }
     
@@ -549,9 +573,9 @@ final class InfoUserVC: UIViewController {
         }
     }
     
-    private func getInstaPhotos() {
-        if let accessToken = UserDefaults.standard.instagramAccessToken, let userId = userData.instagramId {
-            self.instagramApi.getMediaData(for: userId, accessToken: accessToken, completion: { [weak self] instagramMediaData in
+    private func getInstaPhotos(with instagramId: String) {
+        if let accessToken = UserDefaults.standard.instagramAccessToken {
+            self.instagramApi.getMediaData(for: instagramId, accessToken: accessToken, completion: { [weak self] instagramMediaData in
                 print("asdioajidaiosjdiasjoidjaisjoidas")
                 if let error = instagramMediaData.error {
                     DispatchQueue.main.async {
@@ -576,6 +600,7 @@ final class InfoUserVC: UIViewController {
     }
 }
 
+// MARK: - InstaAuthDelegate
 extension InfoUserVC: InstaAuthDelegate {
     func didGetUserData(_ instaUser: InstagramTestUser) {
         startLoading()
@@ -596,12 +621,13 @@ extension InfoUserVC: InstaAuthDelegate {
                 }
                 self.instagramUser = user
                 UserDefaults.standard.instagramAccessToken = instaLongTermAccessToken.accessToken
-                self.getInstaPhotos()
+                self.getInstaPhotos(with: self.userData.instagramId ?? "\(user.id)")
             }
         }
     }
 }
 
+// MARK: - UITextFieldDelegate
 extension InfoUserVC: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
@@ -643,6 +669,7 @@ extension InfoUserVC: UICollectionViewDataSource {
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
 extension InfoUserVC: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return Constants.sectionInsets

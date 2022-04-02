@@ -37,24 +37,20 @@ extension NewChatVC: MessagesDataSource {
         return nil
     }
     
-    // Mark: - Cell bottom label
+    // MARK: - Cell bottom label
     func cellBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if isFromCurrentSender(message: message) {
-            let message = mkMessages[indexPath.section]
-            let status = indexPath.section == mkMessages.count - 1 ? message.status + " " + DateFormatter.HHmm.string(from: message.readDate) : ""
-            
-            return NSAttributedString(string: status, attributes: [.font : UIFont.sfProRounded(ofSize: 10, weight: .semibold), .foregroundColor : UIColor.darkGray])
-        }
-        
-        return nil
+        guard isFromCurrentSender(message: message) else { return nil }
+        let message = mkMessages[indexPath.section]
+        let status = indexPath.section == mkMessages.count - 1 ? message.status + " " + DateFormatter.HHmm.string(from: message.readDate) : ""
+        return NSAttributedString(string: status, attributes: [
+            .font: UIFont.sfProRounded(ofSize: 10, weight: .semibold),
+            .foregroundColor: UIColor.darkGray
+        ])
     }
     
     // MARK: - Message bottom label
     func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        if indexPath.section != mkMessages.count - 1 {
-            return NSAttributedString(string: DateFormatter.HHmm.string(from: message.sentDate), attributes: [.font : UIFont.sfProRounded(ofSize: 10, weight: .bold), .foregroundColor : UIColor.darkGray])
-        }
-        
-        return nil
+        guard indexPath.section != mkMessages.count - 1 else { return nil }
+        return NSAttributedString(string: DateFormatter.HHmm.string(from: message.sentDate), attributes: [.font : UIFont.sfProRounded(ofSize: 10, weight: .bold), .foregroundColor : UIColor.darkGray])
     }
 }

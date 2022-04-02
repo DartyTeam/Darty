@@ -20,6 +20,7 @@ enum OverlayNotch: Int, CaseIterable {
 import UIKit
 import OverlayContainer
 import Hero
+import SPAlert
 
 // MARK: - OverlayContainer
 final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewControllerDelegate {
@@ -66,35 +67,54 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     
     // MARK: - Properties
     private let type: AboutUserVCType
-    private let userData: UserModel
+    private var userId: String?
     private let photosUserVC: PhotosUserVC
     private let infoUserVC: InfoUserVC
   
     // MARK: - Lifecycle
+    init(userId: String, message: String) {
+        self.userId = userId
+        self.type = .partyRequest
+        photosUserVC = PhotosUserVC()
+        infoUserVC = InfoUserVC(userId: userId, accentColor: .systemOrange, message: message)
+        super.init(style: .rigid)
+    }
+
     init(userData: UserModel, message: String) {
-        self.userData = userData
         self.type = .partyRequest
         photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
         infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange, message: message)
         super.init(style: .rigid)
     }
     
-    init(userData: UserModel, preloadedUserImage: UIImage? = nil, coordinatorDelegate: AccountCoordinatorDelegate? = nil) {
-        self.userData = userData
+    init(userId: String,
+         preloadedUserImage: UIImage? = nil,
+         coordinatorDelegate: AccountCoordinatorDelegate? = nil) {
+        self.userId = userId
+        self.type = userId == AuthService.shared.currentUser.id ? .myInfo : .info
+        photosUserVC = PhotosUserVC(preloadedUserImage: preloadedUserImage)
+        infoUserVC = InfoUserVC(userId: userId, accentColor: .systemOrange, preloadedUserImage: preloadedUserImage)
+        infoUserVC.coordinatorDelegate = coordinatorDelegate
+        super.init(style: .rigid)
+    }
+
+    init(userData: UserModel,
+         preloadedUserImage: UIImage? = nil,
+         coordinatorDelegate: AccountCoordinatorDelegate? = nil) {
         self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
-        photosUserVC = PhotosUserVC(image: userData.avatarStringURL, preloadedUserImage: preloadedUserImage)
+        photosUserVC = PhotosUserVC(preloadedUserImage: preloadedUserImage)
         infoUserVC = InfoUserVC(userData: userData, accentColor: .systemOrange, preloadedUserImage: preloadedUserImage)
         infoUserVC.coordinatorDelegate = coordinatorDelegate
         super.init(style: .rigid)
     }
     
     private var chatData: RecentChatModel? = nil
-    init(chatData: RecentChatModel, userData: UserModel) {
+    init(userId: String, chatData: RecentChatModel) {
+        self.userId = userId
         self.chatData = chatData
         self.type = .messageRequest
-        self.userData = userData
-        photosUserVC = PhotosUserVC(image: userData.avatarStringURL)
-        infoUserVC = InfoUserVC(chatData: chatData, userData: userData, accentColor: .systemOrange)
+        photosUserVC = PhotosUserVC()
+        infoUserVC = InfoUserVC(userId: userId, chatData: chatData, accentColor: .systemOrange)
         super.init(style: .rigid)
     }
     
@@ -105,6 +125,9 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let userId = userId {
+            fetchUserBy(id: userId)
+        }
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         viewControllers = [photosUserVC, infoUserVC]
@@ -121,7 +144,9 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
         return (viewControllers.last as? InfoUserVC)?.scrollView
     }
     
-    func overlayContainerViewController(_ containerViewController: OverlayContainerViewController, willMoveOverlay overlayViewController: UIViewController, toNotchAt index: Int) {
+    func overlayContainerViewController(_ containerViewController: OverlayContainerViewController,
+                                        willMoveOverlay overlayViewController: UIViewController,
+                                        toNotchAt index: Int) {
         let arrow = (viewControllers.last as? InfoUserVC)?.arrowDirectionImageView
         let notch = OverlayNotch(rawValue: index)
         switch notch {
@@ -182,6 +207,17 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     }
     
     // MARK: - Handlers
+    private func fetchUserBy(id: String) {
+        FirestoreService.shared.getUser(by: id) { result in
+            switch result {
+            case .success(let user):
+                self.photosUserVC.setupWith(imageStringUrl: user.id)
+            case .failure(let error):
+                SPAlert.present(title: error.localizedDescription, preset: .error)
+            }
+        }
+    }
+
     @objc private func keyboardWillHide(notification: NSNotification) {
         moveOverlay(toNotchAt: .minimum)
         drivingScrollView?.isScrollEnabled = true

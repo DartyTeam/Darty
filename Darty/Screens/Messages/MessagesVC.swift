@@ -87,21 +87,11 @@ class MessagesVC: UIViewController {
             switch result {
             case .success(let chats):
                 if let waitingChats = self?.waitingChats, waitingChats != [], waitingChats.count <= chats.count {
-                    if let userId = chats.last?.senderId {
-                        FirestoreService.shared.getUser(by: userId) { result in
-                            switch result {
-                            
-                            case .success(let userData):
-                                print("Successful get user data: ", userData)
-                                guard let chatData = chats.last else { return }
-                                let aboutUserVC = AboutUserVC(chatData: chatData, userData: userData)
-                                aboutUserVC.chatRequestDelegate = self
-                                self?.present(aboutUserVC, animated: true, completion: nil)
-                            case .failure(let error):
-                                print("ERROR_LOG Error get user data: ", error.localizedDescription)
-                            }
-                        }
-                    }
+                    guard let chatData = chats.last else { return }
+                    let userId = chatData.senderId
+                    let aboutUserVC =  AboutUserVC(userId: userId, chatData: chatData)
+                    aboutUserVC.chatRequestDelegate = self
+                    self?.present(aboutUserVC, animated: true, completion: nil)
                 }
                 self?.waitingChats = chats
                 self?.reloadData(with: nil)
@@ -204,30 +194,21 @@ class MessagesVC: UIViewController {
     }
     
     func open(chat: RecentChatModel) {
-        FirestoreService.shared.getUser(by: chat.receiverId) { [weak self] result in
+        FirestoreService.shared.recreateChat(chatRoomId: chat.chatRoomId, memberIds: chat.memberIds) { result in
             switch result {
-            case .success(let userData):
-                FirestoreService.shared.recreateChat(chatRoomId: chat.chatRoomId, memberIds: chat.memberIds) { result in
-                    switch result {
-                    case .success(_):
-                        break
-                    case .failure(let error):
-                        SPAlert.present(title: error.localizedDescription, preset: .error)
-                        print("ERROR_LOG Error recreate chat \(chat.chatRoomId): ", error.localizedDescription)
-                    }
-                }
-                let privateChatVC = NewChatVC(
-                    chatId: chat.chatRoomId,
-                    recipientId: chat.receiverId,
-                    recipientData: userData
-                )
-                privateChatVC.hidesBottomBarWhenPushed = true
-                self?.navigationController?.pushViewController(privateChatVC, animated: true)
+            case .success(_):
+                break
             case .failure(let error):
-                print("ERROR_LOG Eror get user data with id \(chat.receiverId): ", error.localizedDescription)
-                SPAlert.present(title: "Не удалось получить данные пользователя", preset: .error)
+                SPAlert.present(title: error.localizedDescription, preset: .error)
+                print("ERROR_LOG Error recreate chat \(chat.chatRoomId): ", error.localizedDescription)
             }
         }
+        let privateChatVC = NewChatVC(
+            chatId: chat.chatRoomId,
+            recipientId: chat.receiverId
+        )
+        privateChatVC.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(privateChatVC, animated: true)
     }
 
     private func getSectionFor(index: Int) -> Section {
@@ -369,17 +350,9 @@ extension MessagesVC: UICollectionViewDelegate {
         let section = getSectionFor(index: indexPath.section)
         switch section {
         case .waitingChats:
-            FirestoreService.shared.getUser(by: chat.senderId) { [weak self] result in
-                switch result {
-                case .success(let userData):
-                    let aboutUserVC = AboutUserVC(chatData: chat, userData: userData)
-                    aboutUserVC.chatRequestDelegate = self
-                    self?.present(aboutUserVC, animated: true, completion: nil)
-                case .failure(let error):
-                    print("ERROR_LOG Eror get user data with id \(chat.receiverName): ", error.localizedDescription)
-                    SPAlert.present(title: "Не удалось получить данные пользователя", preset: .error)
-                }
-            }
+            let aboutUserVC = AboutUserVC(userId: chat.senderId, chatData: chat)
+            aboutUserVC.chatRequestDelegate = self
+            present(aboutUserVC, animated: true, completion: nil)
         case .activeChats:
             open(chat: chat)
         }

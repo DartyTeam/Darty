@@ -14,7 +14,8 @@ import PhotosUI
 import SPAlert
     
 class NewChatVC: MessagesViewController {
-    
+
+    // MARK: - Constants
     private enum Constants {
         static let inputBarButtonsSize: CGSize = CGSize(width: 48, height: 48)
         static let numberOfMessages = 12
@@ -22,6 +23,7 @@ class NewChatVC: MessagesViewController {
         static let avatarSize = CGSize(width: 34, height: 34)
 
         static let messagePlaceholder = "Сообщение..."
+        static let boldIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .medium))
     }
     
     // MARK: - UI Elements
@@ -43,14 +45,23 @@ class NewChatVC: MessagesViewController {
         return UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
     }()
     
-    private lazy var avatarImageButton: UIButton = {
-        let button = UIButton(frame: CGRect(x: 5, y: 3, width: Constants.avatarSize.width, height: Constants.avatarSize.height))
-        button.setImage(recipientImage, for: UIControl.State())
-        button.contentMode = .scaleAspectFill
-        button.clipsToBounds = true
-        button.layer.cornerRadius = Constants.avatarSize.height / 2
-        button.addTarget(self, action: #selector(openRecipientAccountInfo), for: .touchUpInside)
-        return button
+    private lazy var avatarImageView: UIImageView = {
+        let imageView = UIImageView(frame: CGRect(
+            x: 5,
+            y: 3,
+            width: Constants.avatarSize.width,
+            height: Constants.avatarSize.height
+        ))
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(openRecipientAccountInfo))
+        imageView.addGestureRecognizer(tapGestureRecognizer)
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = Constants.avatarSize.height / 2
+        imageView.hero.id = GlobalConstants.userImageHeroId
+        imageView.isSkeletonable = true
+        imageView.isUserInteractionDisabledWhenSkeletonIsActive = true
+        imageView.isUserInteractionEnabled = true
+        return imageView
     }()
     
     private let titleLabel: UILabel = {
@@ -58,6 +69,8 @@ class NewChatVC: MessagesViewController {
         label.textAlignment = .left
         label.font = UIFont.sfProRounded(ofSize: 16, weight: .semibold)
         label.adjustsFontSizeToFitWidth = true
+        label.isSkeletonable = true
+        label.skeletonCornerRadius = 12
         return label
     }()
     
@@ -73,7 +86,6 @@ class NewChatVC: MessagesViewController {
     private lazy var configuration: PHPickerConfiguration = {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = Constants.maxPhotosForChoose
-//        configuration.filter = .
         return configuration
     }()
     
@@ -81,6 +93,40 @@ class NewChatVC: MessagesViewController {
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = self
         return picker
+    }()
+
+    private let callBarButtonItem: UIBarButtonItem = {
+        let button = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 44, height: 44)))
+        button.setImage(
+            UIImage(
+                systemName: "phone",
+                withConfiguration: Constants.boldIconConfig)?
+                .withTintColor(
+                    .systemTeal,
+                    renderingMode: .alwaysOriginal
+                ),
+            for: UIControl.State()
+        )
+        button.addTarget(self, action: #selector(callAction), for: .touchUpInside)
+        button.alpha = 0
+        return UIBarButtonItem(customView: button)
+    }()
+
+    private let facetimeBarButtonItem: UIBarButtonItem = {
+        let button = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 44, height: 44)))
+        button.setImage(
+            UIImage(
+                systemName: "video",
+                withConfiguration: Constants.boldIconConfig)?
+                .withTintColor(
+                    .systemTeal,
+                    renderingMode: .alwaysOriginal
+                ),
+            for: UIControl.State()
+        )
+        button.addTarget(self, action: #selector(facetimeAction), for: .touchUpInside)
+        button.alpha = 0
+        return UIBarButtonItem(customView: button)
     }()
         
     // MARK: - Listeners
@@ -98,10 +144,9 @@ class NewChatVC: MessagesViewController {
     
     var typingCounter = 0
     
-    private let recipientData: UserModel
+    private var recipientData: UserModel?
     private let chatId: String
     private let recipientId: String
-    var recipientImage: UIImage? = nil
     
     open lazy var audioController = BasicAudioController(messageCollectionView: messagesCollectionView)
     
@@ -118,10 +163,9 @@ class NewChatVC: MessagesViewController {
     var audioDuration: Date!
     
     // MARK: - Inits
-    init(chatId: String, recipientId: String, recipientData: UserModel) {
+    init(chatId: String, recipientId: String) {
         self.chatId = chatId
         self.recipientId = recipientId
-        self.recipientData = recipientData
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -133,18 +177,8 @@ class NewChatVC: MessagesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setIsTabBarHidden(true)
-        if let imageUrl = URL(string: recipientData.avatarStringURL) {
-            StorageService.shared.downloadImage(url: imageUrl) { [weak self] result in
-                switch result {
-                case .success(let image):
-                    self?.recipientImage = image
-                    self?.avatarImageButton.imageView?.image = image
-                case .failure(_):
-                    break
-                }
-            }
-        }
-
+        startSkeleton()
+        getRecipientData()
         createTypingObserver()
         configureMessageCollectionView()
         configureMessageInputBar()
@@ -183,6 +217,35 @@ class NewChatVC: MessagesViewController {
         }
         audioController.stopAnyOngoingPlaying()
     }
+
+    private func getRecipientData() {
+        FirestoreService.shared.getUser(by: recipientId) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let recipientData):
+                DispatchQueue.main.async {
+                    self.recipientData = recipientData
+                    self.titleLabel.text = recipientData.username
+                    self.titleLabel.hideSkeleton()
+                    self.avatarImageView.setImage(stringUrl: recipientData.avatarStringURL)
+                    UIView.animate(withDuration: 0.3) {
+                        self.callBarButtonItem.customView?.alpha = 1
+                        self.facetimeBarButtonItem.customView?.alpha = 1
+                    }
+                }
+            case .failure(let error):
+                print("ERROR_LOG Eror get user data with id \(self.recipientId): ", error.localizedDescription)
+                SPAlert.present(title: "Не удалось получить данные собеседника", preset: .error)
+                self.avatarImageView.hideSkeleton()
+                self.titleLabel.hideSkeleton()
+            }
+        }
+    }
+
+    private func startSkeleton() {
+        avatarImageView.showAnimatedGradientSkeleton()
+        titleLabel.showAnimatedGradientSkeleton()
+    }
     
     // MARK: - Configurations
     private func configureMessageCollectionView() {
@@ -196,19 +259,32 @@ class NewChatVC: MessagesViewController {
         messagesCollectionView.refreshControl = refreshController
         
         if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
-            layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.photoMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.audioMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.contactMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.emojiMessageSizeCalculator.outgoingAvatarSize = .zero
-            layout.locationMessageSizeCalculator.outgoingAvatarSize = .zero
-       
-            layout.textMessageSizeCalculator.incomingAvatarSize = .zero
-            layout.photoMessageSizeCalculator.incomingAvatarSize = .zero
-            layout.audioMessageSizeCalculator.incomingAvatarSize = .zero
-            layout.contactMessageSizeCalculator.incomingAvatarSize = .zero
-            layout.emojiMessageSizeCalculator.incomingAvatarSize = .zero
-            layout.locationMessageSizeCalculator.incomingAvatarSize = .zero
+            layout.setMessageIncomingAvatarSize(.zero)
+            layout.setMessageOutgoingAvatarSize(.zero)
+            let bottomLabelTopOffset: CGFloat = 2
+            let bottomLabelHorizontalOffset: CGFloat = 4
+            let incomingLabelAlignment = LabelAlignment(
+                textAlignment: .left,
+                textInsets: UIEdgeInsets(
+                    top: bottomLabelTopOffset,
+                    left: bottomLabelHorizontalOffset,
+                    bottom: 0,
+                    right: 0
+                )
+            )
+            let outgoindLabelAlignment = LabelAlignment(
+                textAlignment: .right,
+                textInsets: UIEdgeInsets(
+                    top: bottomLabelTopOffset,
+                    left: 0,
+                    bottom: 0,
+                    right: bottomLabelHorizontalOffset
+                )
+            )
+            layout.setMessageIncomingMessageBottomLabelAlignment(incomingLabelAlignment)
+            layout.setMessageOutgoingMessageBottomLabelAlignment(outgoindLabelAlignment)
+            layout.setMessageIncomingCellBottomLabelAlignment(incomingLabelAlignment)
+            layout.setMessageOutgoingCellBottomLabelAlignment(outgoindLabelAlignment)
         }
     }
     
@@ -237,7 +313,6 @@ class NewChatVC: MessagesViewController {
 //        messageInputBar.layer.shadowRadius = 5
 //        messageInputBar.layer.shadowOpacity = 0.3
 //        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
-        
         configureSendButton()
         configureAttachButton()
     }
@@ -252,7 +327,6 @@ class NewChatVC: MessagesViewController {
                                for: .primaryActionTriggered)
         
         messageInputBar.setStackViewItems([attachButton], forStack: .left, animated: false)
-        
         messageInputBar.middleContentViewPadding.left = -66
         messageInputBar.setLeftStackViewWidthConstant(to: 76, animated: false)
     }
@@ -266,11 +340,7 @@ class NewChatVC: MessagesViewController {
     }
     
     func updateMicButtonStatus(show: Bool) {
-        if show {
-            messageInputBar.setStackViewItems([micButton], forStack: .right, animated: false)
-        } else {
-            messageInputBar.setStackViewItems([messageInputBar.sendButton], forStack: .right, animated: false)
-        }
+        messageInputBar.setStackViewItems([show ? micButton : messageInputBar.sendButton], forStack: .right, animated: false)
     }
     
     private func configureLeftBarButton() {
@@ -283,32 +353,24 @@ class NewChatVC: MessagesViewController {
             NSAttributedString.Key.font: UIFont.sfProRounded(ofSize: 16, weight: .bold)
         ]
         navigationController?.navigationBar.standardAppearance.titleTextAttributes = attrs as [NSAttributedString.Key : Any]
-        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 16, weight: .medium))
-
-        let callBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "phone", withConfiguration: boldConfig)?.withTintColor(.systemTeal, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(callAction))
-        
-        let facetimeBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "video", withConfiguration: boldConfig)?.withTintColor(.systemTeal, renderingMode: .alwaysOriginal), style: .plain, target: self, action: #selector(facetimeAction))
-        
-        navigationItem.rightBarButtonItems = [facetimeBarButtonItem, callBarButtonItem]
-        
+        navigationItem.setRightBarButtonItems([facetimeBarButtonItem, callBarButtonItem], animated: true)
         configureCustomTitle()
     }
     
     private func configureCustomTitle() {
-        if !leftBarButtonView.contains(titleLabel) {
-            leftBarButtonView.addSubview(avatarImageButton)
-            leftBarButtonView.addSubview(titleLabel)
-            leftBarButtonView.addSubview(subtitleLabel)
-            
-            let leftBarButtonItem = UIBarButtonItem(customView: leftBarButtonView)
-            self.navigationItem.leftBarButtonItems?.append(leftBarButtonItem)
-        }
-  
-        titleLabel.text = recipientData.username
+        guard !leftBarButtonView.contains(titleLabel) else { return }
+        leftBarButtonView.addSubview(avatarImageView)
+        leftBarButtonView.addSubview(titleLabel)
+        leftBarButtonView.addSubview(subtitleLabel)
+        let leftBarButtonItem = UIBarButtonItem(customView: leftBarButtonView)
+        self.navigationItem.leftBarButtonItems?.append(leftBarButtonItem)
     }
     
     @objc private func openRecipientAccountInfo() {
-        let aboutUserVC = AboutUserVC(userData: recipientData)
+        guard let recipientData = recipientData else { return }
+        let aboutUserVC = AboutUserVC(userData: recipientData, preloadedUserImage: avatarImageView.image)
+        navigationController?.hero.isEnabled = true
+        navigationController?.hero.navigationAnimationType = .none
         navigationController?.pushViewController(aboutUserVC, animated: true)
     }
     
@@ -325,11 +387,10 @@ class NewChatVC: MessagesViewController {
         
         notificationToken = allLocalMessages.observe({ [weak self] ( changes: RealmCollectionChange) in
             switch changes {
-            
             case .initial(_):
                 self?.insertMessages()
                 self?.messagesCollectionView.reloadData()
-                self?.messagesCollectionView.scrollToLastItem(animated: true)
+                self?.messagesCollectionView.scrollToLastItem(animated: false)
             case .update(_, _, let insertions, _):
                 self?.updateTypingIndicator(true, performUpdates: {
                     print("asidasiodjasiodijaosjdoiajosidjoias")
@@ -341,7 +402,6 @@ class NewChatVC: MessagesViewController {
                     }
                     self?.messagesCollectionView.reloadData()
                     if isLastSectionVisible == true {
-                        print("asdojasodijasoidjasiodjasoidjasd")
                         self?.messagesCollectionView.scrollToLastItem(animated: true)
                     }
                 }
@@ -425,7 +485,13 @@ class NewChatVC: MessagesViewController {
     }
     
     // MARK: - Actions
-    func messageSend(text: String?, photo: UIImage?, video: URL?, audio: String?, location: Location?, audioDuration: Float = 0.0) {
+    func messageSend(
+        text: String?,
+        photo: UIImage?,
+        video: URL?,
+        audio: String?,
+        location: Location?,
+        audioDuration: Float = 0.0) {
         messageInputBar.sendButton.startAnimating()
         messageInputBar.inputTextView.placeholder = "Отправка..."
         OutgoingMessage.send(chatId: chatId, text: text, photo: photo, video: video, audio: audio, audioDuration: audioDuration, location: location, memberIds: [AuthService.shared.currentUser!.id, recipientId]) { [weak self] result in
@@ -445,6 +511,10 @@ class NewChatVC: MessagesViewController {
     }
     
     @objc private func callAction() {
+        guard let recipientData = recipientData else {
+            print("ERROR_LOG Error unwrap recipientData")
+            return
+        }
         if let phoneUrl = URL(string: "tel://\(recipientData.phone)") {
             let application = UIApplication.shared
             if (application.canOpenURL(phoneUrl)) {
@@ -454,12 +524,20 @@ class NewChatVC: MessagesViewController {
                 print("ERROR_LOG Error make phone call for phone number: ", recipientData.phone)
             }
         } else {
-            SPAlert.present(title: "Невозможно выполнить звонок", message: "Возможно номер пользователя недействителен", preset: .error)
+            SPAlert.present(
+                title: "Невозможно выполнить звонок",
+                message: "Возможно номер пользователя недействителен",
+                preset: .error
+            )
             print("ERROR_LOG Error get url from phone number: ", recipientData.phone)
         }
     }
     
     @objc private func facetimeAction() {
+        guard let recipientData = recipientData else {
+            print("ERROR_LOG Error unwrap recipientData")
+            return
+        }
         if let facetimeUrl = URL(string: "facetime://\(recipientData.phone)") {
             let application = UIApplication.shared
             if (application.canOpenURL(facetimeUrl)) {
@@ -469,7 +547,11 @@ class NewChatVC: MessagesViewController {
                 print("ERROR_LOG Error make facetime call for phone number: ", recipientData.phone)
             }
         } else {
-            SPAlert.present(title: "Невозможно выполнить звонок", message: "Возможно номер пользователя недействителен", preset: .error)
+            SPAlert.present(
+                title: "Невозможно выполнить звонок",
+                message: "Возможно номер пользователя недействителен",
+                preset: .error
+            )
             print("ERROR_LOG Error get url from phone number: ", recipientData.phone)
         }
     }
@@ -573,11 +655,8 @@ class NewChatVC: MessagesViewController {
     }
     
     func isLastSectionVisible() -> Bool {
-        
         guard !mkMessages.isEmpty else { return false }
-        
         let lastIndexPath = IndexPath(item: 0, section: mkMessages.count - 1)
-        
         return messagesCollectionView.indexPathsForVisibleItems.contains(lastIndexPath)
     }
     
@@ -713,17 +792,14 @@ extension NewChatVC: PHPickerViewControllerDelegate {
 }
 
 extension NewChatVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
         if let image = info[.editedImage] as? UIImage {
             updateMicButtonStatus(show: false)
             messageSend(text: nil, photo: image, video: nil, audio: nil, location: nil)
         } else {
             SPAlert.present(title: "Ошибка получени изображения с камеры", preset: .error)
         }
-        
         dismiss(animated: true, completion: nil)
     }
 }

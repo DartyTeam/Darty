@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class KingfisherManager {
 
@@ -30,6 +31,7 @@ class KingfisherManager {
             case .failure(let error):
                 print("Job failed: \(error.localizedDescription)")
             }
+            imageView.hideSkeleton()
         }
     }
 }

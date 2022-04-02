@@ -16,29 +16,32 @@ final class PhotosUserVC: UIViewController {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.isSkeletonable = true
         return imageView
     }()
     
     private let complimentaryGradientView: ComplimentaryGradientView = {
         let complimentaryGradientView = ComplimentaryGradientView()
         complimentaryGradientView.gradientType = .colors(start: .primary, end: .secondary)
-        
-        // Default = `.left`
         complimentaryGradientView.gradientStartPoint = .top
-        
-        // Default = `.high`
         complimentaryGradientView.gradientQuality = .high
         return complimentaryGradientView
     }()
     
     // MARK: - Properties
-    private var imageStringUrl: String
+    private var imageStringUrl: String?
     private let preloadedUserImage: UIImage?
     private let isNeedAnimatedShowImage: Bool
     
     // MARK: - Lifecycle
     init(image: String, preloadedUserImage: UIImage? = nil, isNeedAnimatedShowImage: Bool = true) {
         self.imageStringUrl = image
+        self.preloadedUserImage = preloadedUserImage
+        self.isNeedAnimatedShowImage = isNeedAnimatedShowImage
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    init(preloadedUserImage: UIImage? = nil, isNeedAnimatedShowImage: Bool = true) {
         self.preloadedUserImage = preloadedUserImage
         self.isNeedAnimatedShowImage = isNeedAnimatedShowImage
         super.init(nibName: nil, bundle: nil)
@@ -50,13 +53,24 @@ final class PhotosUserVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imageView.image = preloadedUserImage
-        setupGradientAndFocusWith(image: preloadedUserImage)
+        setupHero()
+        if let preloadedUserImage = preloadedUserImage {
+            imageView.image = preloadedUserImage
+            setupGradientAndFocusWith(image: preloadedUserImage)
+        } else {
+            imageView.showAnimatedGradientSkeleton()
+        }
+        if let imageStringUrl = imageStringUrl {
+            setupWith(imageStringUrl: imageStringUrl)
+        }
         setupViews()
         setupConstraints()
-        setupHero()
+    }
+
+    func setupWith(imageStringUrl: String) {
         imageView.setImage(stringUrl: imageStringUrl) { image in
             self.setupGradientAndFocusWith(image: image)
+            self.imageView.hideSkeleton()
         }
     }
 

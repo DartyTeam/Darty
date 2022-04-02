@@ -10,6 +10,7 @@ import Firebase
 import GoogleSignIn
 import FBSDKCoreKit
 import SnapKit
+import SkeletonView
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -40,7 +41,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let db = Firestore.firestore()
         db.settings = settings
 
+        configureSkeleton()
+
         return true
+    }
+
+    private func configureSkeleton() {
+        SkeletonAppearance.default.multilineLastLineFillPercent = Int.random(in: 20...70)
+        SkeletonAppearance.default.multilineCornerRadius = 8
+        SkeletonAppearance.default.skeletonCornerRadius = 8
     }
 
     func application(_ application: UIApplication,

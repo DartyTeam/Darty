@@ -12,15 +12,12 @@ extension NewChatVC: MessagesLayoutDelegate {
     
     // MARK: - Cell top label
     func cellTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-
         if isTimeLabelVisible(at: indexPath) {
             if (indexPath.section == 0) && (allLocalMessages.count > displayingMessagesCount) {
                 return 40
             }
-
             return 30
         }
-
         return 0
     }
     

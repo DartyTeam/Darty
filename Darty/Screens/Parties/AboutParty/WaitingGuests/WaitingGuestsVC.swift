@@ -214,9 +214,8 @@ extension WaitingGuestsVC {
 extension WaitingGuestsVC: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let user = self.dataSource.itemIdentifier(for: indexPath) else {
-            print("asdijasdiojasdioajsdiojs")
-            return }
-        print("asidojasoidjasoidjaoisdjasdias9da9sdj")
+            return
+        }
         let message = waitingGuestsRequests[indexPath.row].message
         let aboutUserVC = AboutUserVC(userData: user, message: message)
         aboutUserVC.partyRequestDelegate = self
