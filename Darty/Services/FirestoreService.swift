@@ -559,6 +559,9 @@ class FirestoreService {
     //    }
     
     func setOnline(status: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard Auth.auth().currentUser != nil else {
+            return
+        }
         userRef.updateData([
             "isOnline": status,
         ]) { err in

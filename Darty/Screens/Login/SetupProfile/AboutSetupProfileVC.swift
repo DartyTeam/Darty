@@ -80,7 +80,7 @@ final class AboutSetupProfileVC: UIViewController {
     
     @objc private func nextButtonTapped() {
         guard let descriptionText = aboutTextView.text, !descriptionText.isEmptyOrWhitespaceOrNewLines() else {
-            SPAlert.present(title: "Расскажите о себе", preset: .error)
+            SPAlert.present(title: "Расскажите о себе", message: "Поле не может быть пустым", preset: .custom(UIImage(.text.bubble)), haptic: .error)
             return
         }
         delegate?.goNext(description: descriptionText)

@@ -42,4 +42,11 @@ extension DateFormatter {
         dateFormatter.locale = Locale(identifier: "en_EN")
         return dateFormatter
     }()
+
+    static let mmSS: DateFormatter = {
+        var dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "mm:ss"
+        dateFormatter.locale = Locale(identifier: "en_EN")
+        return dateFormatter
+    }()
 }

@@ -101,7 +101,13 @@ final class PartyNameAndDescriptionVC: UIViewController {
         let keyboardScreenEndFrame = keyboardValue.cgRectValue
         let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
 
-        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + 20, right: 0)
+        let keyboardBottomOffset: CGFloat = 20
+        scrollView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + keyboardBottomOffset,
+            right: 0
+        )
         scrollView.scrollIndicatorInsets = scrollView.contentInset
 
         scrollView.scrollRectToVisible(nextButton.frame, animated: true)

@@ -23,7 +23,11 @@ class NewChatVC: MessagesViewController {
         static let avatarSize = CGSize(width: 34, height: 34)
 
         static let messagePlaceholder = "Сообщение..."
+        static let messagePlaceholderColor = #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1)
         static let boldIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .medium))
+
+        static let recordButtonSpace: CGFloat = 100
+        static let deleteButtonSpace: CGFloat = 150
     }
     
     // MARK: - UI Elements
@@ -128,6 +132,9 @@ class NewChatVC: MessagesViewController {
         button.alpha = 0
         return UIBarButtonItem(customView: button)
     }()
+
+    private let audioRecordView = AudioRecordView()
+    private let audioRecordButton = AudioRecordButton()
         
     // MARK: - Listeners
     var notificationToken: NotificationToken?
@@ -153,7 +160,7 @@ class NewChatVC: MessagesViewController {
     let currentUser = MKSender(senderId: AuthService.shared.currentUser!.id, displayName: AuthService.shared.currentUser!.username)
     
     lazy var micLongPressGesture: UILongPressGestureRecognizer = {
-        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(recordAudio))
+        let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(recordAudio(gesture:)))
         longPressGestureRecognizer.minimumPressDuration = 0.5
         longPressGestureRecognizer.delaysTouchesBegan = true
         return longPressGestureRecognizer
@@ -298,7 +305,7 @@ class NewChatVC: MessagesViewController {
         messageInputBar.backgroundColor = .clear
         
         messageInputBar.inputTextView.backgroundColor = .systemBackground
-        messageInputBar.inputTextView.placeholderTextColor = #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1)
+        messageInputBar.inputTextView.placeholderTextColor = Constants.messagePlaceholderColor
         messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 16, left: 44, bottom: 16, right: 12)
         messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 16, left: 50, bottom: 16, right: 12)
         messageInputBar.inputTextView.layer.borderColor = UIColor.systemTeal.cgColor
@@ -306,15 +313,24 @@ class NewChatVC: MessagesViewController {
         messageInputBar.inputTextView.layer.cornerRadius = 24.0
         messageInputBar.inputTextView.layer.masksToBounds = true
         messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
-        messageInputBar.inputTextView.placeholder = "Сообщение..."
+        messageInputBar.inputTextView.placeholder = Constants.messagePlaceholder
         messageInputBar.inputTextView.font = .sfProDisplay(ofSize: 14, weight: .medium)
-        
 //        messageInputBar.layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
 //        messageInputBar.layer.shadowRadius = 5
 //        messageInputBar.layer.shadowOpacity = 0.3
 //        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
         configureSendButton()
         configureAttachButton()
+        configureAudioRecordView()
+    }
+
+    private func configureAudioRecordView() {
+        messageInputBar.addSubview(audioRecordView)
+        audioRecordView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        audioRecordView.isHidden = true
+        audioRecordView.isUserInteractionEnabled = false
     }
     
     func configureAttachButton() {
@@ -598,25 +614,63 @@ class NewChatVC: MessagesViewController {
     }
     
     // MARK: - Audio messages
-    @objc private func recordAudio() {
-        switch micLongPressGesture.state {
+    @objc private func recordAudio(gesture: UIGestureRecognizer) {
+        switch gesture.state {
         case .began:
+            vibrate()
+            audioRecordView.isHidden = false
+            messageInputBar.inputTextView.isHidden = true
+            messageInputBar.rightStackView.isHidden = true
+            messageInputBar.leftStackView.isHidden = true
             audioDuration = Date()
             audioFileName = DateFormatter.ddMMyyyyHHmmss.string(from: Date())
             AudioRecorder.shared.startRecording(fileName: audioFileName)
-        case .ended:
-            AudioRecorder.shared.finishRecording()
-            if fileExistsAtPath(path: audioFileName + ".m4a") {
-                let audioD = audioDuration.interval(comp: .second, fromDate: Date())
-                messageSend(text: nil, photo: nil, video: nil, audio: audioFileName, location: nil, audioDuration: audioD)
-            } else {
-                print("no audio file")
+            audioRecordButton.center = gesture.location(in: view)
+            view.addSubview(audioRecordButton)
+        case .changed:
+            let location = gesture.location(in: view)
+            let rightSpace = UIScreen.main.bounds.width - location.x
+            switch rightSpace {
+            case 0...Constants.recordButtonSpace:
+                audioRecordButton.update(center: location, state: .record)
+            case Constants.recordButtonSpace...Constants.deleteButtonSpace:
+                audioRecordButton.update(center: location, state: .delete)
+            default:
+                audioRecordButton.update(center: location, state: .end)
+                vibrate()
+                audioRecordView.isHidden = true
+                messageInputBar.inputTextView.isHidden = false
+                messageInputBar.rightStackView.isHidden = false
+                messageInputBar.leftStackView.isHidden = false
+                gesture.state = .cancelled
+                endRecordAudio()
             }
-            
-            audioFileName = ""
-        @unknown default:
-            print("unknown mic long press gesture status")
+        case .ended:
+            vibrate()
+            audioRecordView.isHidden = true
+            messageInputBar.inputTextView.isHidden = false
+            messageInputBar.rightStackView.isHidden = false
+            messageInputBar.leftStackView.isHidden = false
+            audioRecordButton.update(center: gesture.location(in: view), state: .end)
+            endRecordAudio()
+        default:
+            break
         }
+    }
+
+    private func endRecordAudio() {
+        AudioRecorder.shared.finishRecording()
+        if fileExistsAtPath(path: audioFileName + ".m4a") {
+            let audioD = audioDuration.interval(comp: .second, fromDate: Date())
+            messageSend(text: nil, photo: nil, video: nil, audio: audioFileName, location: nil, audioDuration: audioD)
+        } else {
+            print("no audio file")
+        }
+        audioFileName.removeAll()
+    }
+
+    private func vibrate() {
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
     }
     
     // MARK: - Update typing indicator

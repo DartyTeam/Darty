@@ -81,6 +81,22 @@ final class LoginVC: UIViewController {
         return view
     }()
 
+    private lazy var videoPlayerLayer: AVPlayerLayer? = {
+        guard let videoPath = videoPath else {
+            return nil
+        }
+        let url = URL(fileURLWithPath: videoPath)
+        let player = AVPlayer(url: url)
+        let playerLayer = AVPlayerLayer(player: player)
+        playerLayer.frame = self.view.bounds
+        videoView.layer.addSublayer(playerLayer)
+        return playerLayer
+    }()
+
+    // MARK: - Properties
+    private let videoPath = Bundle.main.path(forResource: "MainAnimation", ofType:"mp4")
+    private var isLongPressOnScreen = false
+
     // MARK: - Delegates
     weak var coordinator: AuthCoordinator?
     
@@ -99,49 +115,10 @@ final class LoginVC: UIViewController {
         }
     }
 
-    private func replayView() {
-        self.videoPlayer?.seek(to: CMTime.zero)
-        self.videoPlayer?.play()
-    }
-
-    private func rewindVideo() {
-        videoPlayer?.rate = -1.0
-        videoPlayer?.play()
-    }
-
-    var isLongPressOnScreen = false
-
-    @objc private func panOnScreen(_ sender: UILongPressGestureRecognizer) {
-        switch sender.state {
-        case .began:
-            isLongPressOnScreen = true
-            replayView()
-        case .ended:
-            isLongPressOnScreen = false
-            rewindVideo()
-        default:
-            break
-        }
-    }
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
-
-    let videoPath = Bundle.main.path(forResource: "MainAnimation", ofType:"mp4")
-
-    private lazy var videoPlayerLayer: AVPlayerLayer? = {
-        guard let videoPath = videoPath else {
-            return nil
-        }
-        let url = URL(fileURLWithPath: videoPath)
-        let player = AVPlayer(url: url)
-        let playerLayer = AVPlayerLayer(player: player)
-        playerLayer.frame = self.view.bounds
-        videoView.layer.addSublayer(playerLayer)
-        return playerLayer
-    }()
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -215,6 +192,30 @@ final class LoginVC: UIViewController {
     }
     
     // MARK: - Handlers
+    @objc private func panOnScreen(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began:
+            isLongPressOnScreen = true
+            replayView()
+        case .ended:
+            isLongPressOnScreen = false
+            rewindVideo()
+        default:
+            break
+        }
+    }
+
+    private func replayView() {
+        self.videoPlayer?.seek(to: CMTime.zero)
+        self.videoPlayer?.play()
+    }
+
+    private func rewindVideo() {
+        videoPlayer?.rate = -1.0
+        videoPlayer?.play()
+    }
+
+
     @objc private func signInAction() {
         coordinator?.signIn()
     }
@@ -243,7 +244,6 @@ final class LoginVC: UIViewController {
             haptic: .success
         ) {
             self.view.isUserInteractionEnabled = true
-            print("asidjasiodjaiosdjaiosdjaisodjasoidjaosid: ", self.coordinator)
             self.coordinator?.changeToMainFlow(with: user)
         }
     }

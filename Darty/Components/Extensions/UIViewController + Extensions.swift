@@ -18,7 +18,7 @@ extension UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
-    func setNavigationBar(withColor color: UIColor, title: String?, withClear: Bool = true) {
+    func setNavigationBar(withColor color: UIColor, title: String? = nil, withClear: Bool = true) {
 
         navigationController?.setNavigationBarHidden(false, animated: true)
         
