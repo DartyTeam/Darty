@@ -17,13 +17,11 @@ final class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     
     private override init() {
         super.init()
-        
         checkForRecordPermission()
     }
     
     func checkForRecordPermission() {
         switch AVAudioSession.sharedInstance().recordPermission {
-        
         case .undetermined:
             AVAudioSession.sharedInstance().requestRecordPermission { isAllowed in
                 self.isAudioRecordingGranted = isAllowed
@@ -42,7 +40,6 @@ final class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     func setupRecorder() {
         if isAudioRecordingGranted {
             recordingSession = AVAudioSession.sharedInstance()
-            
             do {
                 try recordingSession.setCategory(.playAndRecord, mode: .default)
                 try recordingSession.setActive(true)
@@ -60,7 +57,6 @@ final class AudioRecorder: NSObject, AVAudioRecorderDelegate {
             AVNumberOfChannelsKey: 1,
             AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
         ]
-        
         do {
             audioRecorder = try AVAudioRecorder(url: audioFileName, settings: settings)
             audioRecorder.delegate = self

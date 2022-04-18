@@ -20,8 +20,8 @@ struct InterestModel {
 final class InterestsSetupProfile: UIViewController {
 
     // MARK: - UI Elements
-    private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Готово 􀆅")
+    private lazy var nextButton: DButton = {
+        let button = DButton(title: "Готово 􀆅")
         button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)

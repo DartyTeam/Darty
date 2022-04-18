@@ -15,5 +15,9 @@ extension Date {
         
         return Float(start - end)
     }
-}
 
+    func age() -> Int {
+        let calendar = Calendar.current
+        return calendar.dateComponents([.year], from: self, to: Date()).year!
+    }
+}

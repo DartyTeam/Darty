@@ -27,8 +27,8 @@ final class SearchInterestsSetupProfileVC: UIViewController {
     }
     
     // MARK: - UI Elements
-    private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "")
+    private lazy var nextButton: DButton = {
+        let button = DButton()
         button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)

@@ -17,13 +17,16 @@ final class ChangePhoneVC: UIViewController {
     // MARK: - Constants
     private enum Constants {
         static let textFieldFont: UIFont? = .sfProText(ofSize: 25, weight: .medium)
+        static let acceptButtonPlaceholder = "Подтвердить"
     }
     
     // MARK: - UI Elements
     private let phoneAnimationView = AnimationView(name: "SendMail")
     
     private let phoneNumberKit = PhoneNumberKit()
-    
+
+    private let enterPhoneStackView = UIStackView(arrangedSubviews: [], axis: .vertical, spacing: 16)
+
     private lazy var phoneTextField: PhoneNumberTF = {
         let textField = PhoneNumberTF(color: .systemIndigo)
         textField.withFlag = true
@@ -32,11 +35,21 @@ final class ChangePhoneVC: UIViewController {
         textField.font = Constants.textFieldFont
         textField.maxDigits = 10
         textField.flagButton.addTarget(self, action: #selector(openCountrySelector), for: .touchUpInside)
+        textField.delegate = self
         return textField
     }()
 
-    private let acceptButton: UIButton = {
-        let button = UIButton(title: "Подтвердить")
+    private let errorLabel: UILabel = {
+        let label = UILabel()
+        label.font = .sfProText(ofSize: 16, weight: .regular)
+        label.text = "Введите валидный номер телефона"
+        label.textColor = .systemRed
+        label.isHidden = true
+        return label
+    }()
+
+    private let acceptButton: DButton = {
+        let button = DButton(title: Constants.acceptButtonPlaceholder)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
@@ -45,6 +58,7 @@ final class ChangePhoneVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupPhone()
         setupNavigationBar()
         setupViews()
         setupConstraints()
@@ -65,13 +79,15 @@ final class ChangePhoneVC: UIViewController {
     // MARK: - Setup
     private func setupNavigationBar() {
         navigationController?.navigationBar.prefersLargeTitles = false
-        setNavigationBar(withColor: .systemIndigo, title: "Связь с разработчиком")
+        setNavigationBar(withColor: .systemIndigo, title: "Номер телефона")
     }
     
     private func setupViews() {
         view.backgroundColor = .systemBackground
         view.addSubview(phoneAnimationView)
-        view.addSubview(phoneTextField)
+        enterPhoneStackView.addArrangedSubview(phoneTextField)
+        enterPhoneStackView.addArrangedSubview(errorLabel)
+        view.addSubview(enterPhoneStackView)
         view.addSubview(acceptButton)
     }
     
@@ -82,17 +98,23 @@ final class ChangePhoneVC: UIViewController {
             make.height.equalTo(223)
         }
         
-        phoneTextField.snp.makeConstraints { make in
-            make.top.equalTo(phoneAnimationView.snp.bottom).offset(32)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
         acceptButton.snp.makeConstraints { make in
-            make.top.equalTo(phoneTextField.snp.bottom).offset(44)
             make.left.right.equalToSuperview().inset(20)
             make.width.equalTo(view.frame.size.width - 40)
-            make.height.equalTo(50)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
+            make.height.equalTo(UIButton.defaultButtonHeight)
         }
+
+        enterPhoneStackView.snp.makeConstraints { make in
+            make.bottom.equalTo(acceptButton.snp.top).offset(-44)
+            make.left.right.equalToSuperview().inset(20)
+        }
+    }
+
+    private func setupPhone() {
+        phoneTextField.text = FirestoreService.shared.currentUser.phone
+        phoneTextField.updateFlag()
+        acceptButton.isEnabled = phoneTextField.isValidNumber
     }
     
     // MARK: - Handlers
@@ -100,28 +122,9 @@ final class ChangePhoneVC: UIViewController {
         
     }
     
-    @objc private func sendEmail() {
-        let mailComposeViewController = configuredMailComposeViewController()
-        if MFMailComposeViewController.canSendMail() {
-            self.present(mailComposeViewController, animated: true, completion: nil)
-        } else {
-            SPAlert.present(title: "Не найдено почтовых клиентов на устройстве", message: "Пожалуйста добавьте учетную запись в приложении Почта, либо скачайте и настройке сторонний почтовый клиент", preset: .error)
-        }
-    }
-    
-    func configuredMailComposeViewController() -> MFMailComposeViewController {
-        let mailComposeVC = MFMailComposeViewController()
-        mailComposeVC.mailComposeDelegate = self        
-        mailComposeVC.setToRecipients(["s.ru5c55an.n@gmail.com"])
-        mailComposeVC.setSubject("Message from DartyApp")
-//        mailComposeVC.setMessageBody(messageTextView.text, isHTML: false)
-        return mailComposeVC
-    }
-    
     @objc private func openCountrySelector() {
         let alert = UIAlertController(style: .actionSheet, title: "Коды стран")
         alert.addLocalePicker(type: .phoneCode) { [weak self] info in
-        
             if let country = CountryCodePickerViewController.Country(for: info!.code, with: PhoneNumberKit()) {
                 self?.phoneTextField.text = (self?.isEditing ?? false) ? "+" + country.prefix : ""
                 self?.phoneTextField.partialFormatter.defaultRegion = country.code
@@ -131,31 +134,21 @@ final class ChangePhoneVC: UIViewController {
                 SPAlert.present(title: "Код страны отсуствует в базе данных Google. Используйте страну с аналогичным кодом", preset: .error)
             }
         }
-        
         alert.addAction(title: "OK", style: .cancel)
         alert.show()
     }
 }
 
-// MARK: - MFMailComposeViewControllerDelegate
-extension ChangePhoneVC: MFMailComposeViewControllerDelegate {
-    private func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
-        switch result {
-        case .cancelled:
-            print("Mail cancelled")
-        case .saved:
-            print("Mail saved")
-            SPAlert.present(title: "Письмо сохранено", preset: .done)
-        case .sent:
-            print("Mail sent")
-            SPAlert.present(title: "Письмо отправлено", preset: .done)
-        case .failed:
-            print("Mail sent failure: \(error?.localizedDescription ?? "")")
-            SPAlert.present(title: error?.localizedDescription ?? "Неизвестная ошибка", preset: .error)
-        default:
-            break
+extension ChangePhoneVC: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let newText = (textField.text! as NSString).replacingCharacters(in: range, with: string)
+        print("asdijasidojasiod: ", newText)
+        textField.text = newText
+        let isValidPhoneNumber = (textField as? PhoneNumberTF)?.isValidNumber ?? false
+        acceptButton.isEnabled = isValidPhoneNumber
+        UIView.animate(withDuration: 0.3) {
+            self.errorLabel.isHidden = isValidPhoneNumber
         }
-        
-        controller.dismiss(animated: true, completion: nil)
+        return true
     }
 }

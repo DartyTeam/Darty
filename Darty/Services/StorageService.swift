@@ -200,7 +200,7 @@ class StorageService {
         
         var task: StorageUploadTask!
         
-        if fileExistsAtPath(path: fileName) {
+        if fileExistsAt(path: fileName) {
             if let audioData = NSData(contentsOfFile: fileInDocumentsDirectory(fileName: fileName)) {
                 task = self.mediaMessagesAudioRef.child(chatRoomId).child("_\(fileName)").putData(audioData as Data, metadata: nil) { (metadata, error) in
                     task.removeAllObservers()
@@ -236,7 +236,7 @@ class StorageService {
         
         let videoFileName = fileNameFrom(fileUrl: url.absoluteString) + ".mov"
         
-        if fileExistsAtPath(path: videoFileName) {
+        if fileExistsAt(path: videoFileName) {
             completion(.success(videoFileName))
         } else {
             let downloadQueue = DispatchQueue(label: "VideoDownloadQueue")
@@ -266,7 +266,7 @@ class StorageService {
         
         let audioFilename = fileNameFrom(fileUrl: audioUrl) + ".m4a"
         
-        if fileExistsAtPath(path: audioFilename) {
+        if fileExistsAt(path: audioFilename) {
             completion(.success(audioFilename))
         } else {
             let downloadQueue = DispatchQueue(label: "AudioDownloadQueue")
@@ -292,14 +292,13 @@ class StorageService {
     
     func downloadImage(url: URL, completion: @escaping (Result<UIImage?, Error>) -> Void) {
         let imageFileName = fileNameFrom(fileUrl: url.absoluteString)
-        if fileExistsAtPath(path: imageFileName) {
+        if fileExistsAt(path: imageFileName) {
             if let contentsOfFile = UIImage(contentsOfFile: fileInDocumentsDirectory(fileName: imageFileName)) {
                 completion(.success(contentsOfFile))
             } else {
                 print("ERROR_LOG Coundnt convert local image")
                 completion(.failure(StorageErrors.couldntConvertLocalImage))
             }
-            
         } else {
             let ref = Storage.storage().reference(forURL: url.absoluteString)
             let megaByte = Int64(1 * 1024 * 1024)
@@ -339,8 +338,16 @@ func getDocumentsUrl() -> URL {
     return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last!
 }
 
-func fileExistsAtPath(path: String) -> Bool {
+func fileExistsAt(path: String) -> Bool {
     return FileManager.default.fileExists(atPath: fileInDocumentsDirectory(fileName: path))
+}
+
+func deleteFileAt(path: String) {
+    do {
+        try FileManager.default.removeItem(atPath: fileInDocumentsDirectory(fileName: path))
+    } catch let error {
+        print("ERROR_LOG Error deleting file by path: ", fileInDocumentsDirectory(fileName: path), error.localizedDescription)
+    }
 }
 
 func timeElapsed(_ date: Date) -> String {

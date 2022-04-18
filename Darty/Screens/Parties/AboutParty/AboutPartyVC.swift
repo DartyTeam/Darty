@@ -201,15 +201,15 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         return label
     }()
     
-    private lazy var actionButton: UIButton = {
-        let button = UIButton(title: "Отправить заявку 􀝻")
+    private lazy var actionButton: DButton = {
+        let button = DButton(title: "Отправить заявку 􀝻")
         button.backgroundColor = .systemOrange
         button.addTarget(self, action: #selector(actionButtonAction), for: .touchDown)
         return button
     }()
     
-    private lazy var cancelPartyButton: UIButton = {
-        let button = UIButton(title: "Отменить вечеринку 􀆄")
+    private lazy var cancelPartyButton: DButton = {
+        let button = DButton(title: "Отменить вечеринку 􀆄")
         button.backgroundColor = .systemRed
         button.addTarget(self, action: #selector(cancelPartyAction), for: .touchDown)
         button.isHidden = true
@@ -554,30 +554,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func shareAction() {
-        var endTimeString = ""
-        if let endTime = party.endTime {
-            endTimeString = DateFormatter.HHmm.string(from: endTime)
-        }
-        let text = "Приходи на вечеринку \n\"\(party.name)\"!\n\(party.description)\nДата: \(DateFormatter.ddMMMM.string(from: party.date))\nВремя: \(DateFormatter.HHmm.string(from: party.startTime)) \(endTimeString.isEmpty ? "" : "до \(endTimeString)")\nТематика: \(party.type.dropLast())\nМесто: \(party.address)\nПриглашено \(approvedUsers.count) из \(party.maxGuests)\nДля людей старше \(party.minAge)"
-        let items: [Any] = [text]
-        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        ac.excludedActivityTypes = [.addToReadingList, .airDrop, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]
-        ac.completionWithItemsHandler = { activity, completed, items, error in
-            guard completed else { return }
-            switch activity {
-            case .some(.copyToPasteboard):
-                SPAlert.present(
-                    title: "Информация о вечеринке скопирована в буфер обмена",
-                    preset: .custom(UIImage(.doc.onClipboardFill)),
-                    haptic: .success
-                )
-            case .some(_):
-                SPAlert.present(title: "Спасибо что поделились вечеринкой", preset: .heart)
-            case .none:
-                break
-            }
-        }
-        navigationController?.present(ac, animated: true)
+        ShareHelper.share(party: party, approvedUsersCount: approvedUsers.count, from: self)
     }
     
     func showMessageVC() {

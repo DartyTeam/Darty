@@ -23,11 +23,15 @@ class NewChatVC: MessagesViewController {
         static let avatarSize = CGSize(width: 34, height: 34)
 
         static let messagePlaceholder = "Сообщение..."
+        static let sendingMessageInProccessPlaceholder = "Отправка..."
         static let messagePlaceholderColor = #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1)
         static let boldIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .medium))
 
         static let recordButtonSpace: CGFloat = 100
-        static let deleteButtonSpace: CGFloat = 150
+        static let deleteButtonSpace: CGFloat = 200
+        static let rightRecordButtonPadding: CGFloat = 44
+
+        static let writingText = "Печатает..."
     }
     
     // MARK: - UI Elements
@@ -133,7 +137,7 @@ class NewChatVC: MessagesViewController {
         return UIBarButtonItem(customView: button)
     }()
 
-    private let audioRecordView = AudioRecordView()
+    private lazy var audioRecordView = AudioRecordView(effect: messageInputBar.blurView.effect, cancelTappableViewRightInset: Constants.recordButtonSpace)
     private let audioRecordButton = AudioRecordButton()
         
     // MARK: - Listeners
@@ -321,16 +325,20 @@ class NewChatVC: MessagesViewController {
 //        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
         configureSendButton()
         configureAttachButton()
-        configureAudioRecordView()
     }
 
     private func configureAudioRecordView() {
-        messageInputBar.addSubview(audioRecordView)
-        audioRecordView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        if !view.contains(audioRecordView) {
+            view.addSubview(audioRecordView)
+            audioRecordView.snp.makeConstraints { make in
+                make.height.equalTo(messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom)
+                make.left.right.bottom.equalToSuperview()
+            }
+            audioRecordView.isUserInteractionEnabled = false
+            audioRecordView.delegate = self
+            audioRecordButton.delegate = self
         }
-        audioRecordView.isHidden = true
-        audioRecordView.isUserInteractionEnabled = false
+        audioRecordView.isHidden = false
     }
     
     func configureAttachButton() {
@@ -509,8 +517,18 @@ class NewChatVC: MessagesViewController {
         location: Location?,
         audioDuration: Float = 0.0) {
         messageInputBar.sendButton.startAnimating()
-        messageInputBar.inputTextView.placeholder = "Отправка..."
-        OutgoingMessage.send(chatId: chatId, text: text, photo: photo, video: video, audio: audio, audioDuration: audioDuration, location: location, memberIds: [AuthService.shared.currentUser!.id, recipientId]) { [weak self] result in
+        updateMicButtonStatus(show: false)
+        messageInputBar.inputTextView.placeholder = Constants.sendingMessageInProccessPlaceholder
+        OutgoingMessage.send(
+            chatId: chatId,
+            text: text,
+            photo: photo,
+            video: video,
+            audio: audio,
+            audioDuration: audioDuration,
+            location: location,
+            memberIds: [AuthService.shared.currentUser!.id, recipientId]
+        ) { [weak self] result in
             switch result {
             case .success():
                 self?.updateInputBarAfterMessageSend()
@@ -615,56 +633,85 @@ class NewChatVC: MessagesViewController {
     
     // MARK: - Audio messages
     @objc private func recordAudio(gesture: UIGestureRecognizer) {
+        var yPos = view.frame.size.height - (audioRecordView.frame.size.height / 2) - (audioRecordButton.frame.size.height / 4)
+        let location = gesture.location(in: view)
         switch gesture.state {
         case .began:
+            audioRecordView.setSwipeToCancel()
+            audioRecordView.startInfoLabelAnimation()
+            configureAudioRecordView()
             vibrate()
-            audioRecordView.isHidden = false
-            messageInputBar.inputTextView.isHidden = true
-            messageInputBar.rightStackView.isHidden = true
-            messageInputBar.leftStackView.isHidden = true
             audioDuration = Date()
             audioFileName = DateFormatter.ddMMyyyyHHmmss.string(from: Date())
             AudioRecorder.shared.startRecording(fileName: audioFileName)
-            audioRecordButton.center = gesture.location(in: view)
+            let messageViewHeight = messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom
+            yPos = view.frame.size.height - (messageViewHeight / 2) - (audioRecordButton.frame.size.height / 3)
+            audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .record)
+            messageInputBar.isHidden = true
             view.addSubview(audioRecordButton)
         case .changed:
-            let location = gesture.location(in: view)
             let rightSpace = UIScreen.main.bounds.width - location.x
-            switch rightSpace {
-            case 0...Constants.recordButtonSpace:
-                audioRecordButton.update(center: location, state: .record)
-            case Constants.recordButtonSpace...Constants.deleteButtonSpace:
-                audioRecordButton.update(center: location, state: .delete)
-            default:
-                audioRecordButton.update(center: location, state: .end)
-                vibrate()
-                audioRecordView.isHidden = true
-                messageInputBar.inputTextView.isHidden = false
-                messageInputBar.rightStackView.isHidden = false
-                messageInputBar.leftStackView.isHidden = false
+            let maxRightPosX = view.frame.size.width - Constants.rightRecordButtonPadding
+            let isInSafeRightPadding = location.x >= maxRightPosX
+            let xPos = isInSafeRightPadding ? maxRightPosX : location.x
+            let bottomSpace = view.frame.size.height - location.y
+            let yPosForStartStayRecord = audioRecordView.frame.size.height + audioRecordButton.frame.size.height
+            switch bottomSpace {
+            case yPosForStartStayRecord...view.frame.size.height:
                 gesture.state = .cancelled
-                endRecordAudio()
+                audioRecordView.setTapToCancel()
+                audioRecordButton.update(center: CGPoint(x: maxRightPosX, y: yPos), state: .stayRecord)
+            default:
+                switch rightSpace {
+                case 0...Constants.recordButtonSpace:
+                    audioRecordView.setSwipeToCancel()
+                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .record)
+                case Constants.recordButtonSpace...Constants.deleteButtonSpace:
+                    audioRecordView.slideInfoLabel(offset: xPos)
+                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .delete)
+                default:
+                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .end) { [weak self] in
+                        gesture.state = .cancelled
+                        self?.cancelRecordAudio()
+                    }
+                }
             }
         case .ended:
-            vibrate()
-            audioRecordView.isHidden = true
-            messageInputBar.inputTextView.isHidden = false
-            messageInputBar.rightStackView.isHidden = false
-            messageInputBar.leftStackView.isHidden = false
-            audioRecordButton.update(center: gesture.location(in: view), state: .end)
-            endRecordAudio()
+            audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .end) { [weak self] in
+                gesture.state = .cancelled
+                self?.endRecordAudio()
+            }
         default:
             break
         }
     }
 
     private func endRecordAudio() {
+        vibrate()
+        audioRecordView.isHidden = true
+        messageInputBar.isHidden = false
         AudioRecorder.shared.finishRecording()
-        if fileExistsAtPath(path: audioFileName + ".m4a") {
+        let path = audioFileName + ".m4a"
+        if fileExistsAt(path: path) {
             let audioD = audioDuration.interval(comp: .second, fromDate: Date())
             messageSend(text: nil, photo: nil, video: nil, audio: audioFileName, location: nil, audioDuration: audioD)
         } else {
-            print("no audio file")
+            SPAlert.present(message: "Не удалось отправить аудиосообщение", haptic: .error)
+            print("no audio file for send in message by path: ", path)
+        }
+        audioFileName.removeAll()
+    }
+
+    private func cancelRecordAudio() {
+        vibrate()
+        audioRecordView.isHidden = true
+        messageInputBar.isHidden = false
+        AudioRecorder.shared.finishRecording()
+        let path = audioFileName + ".m4a"
+        if fileExistsAt(path: path) {
+            deleteFileAt(path: path)
+        } else {
+            print("no audio file for deleting by path: ", path)
         }
         audioFileName.removeAll()
     }
@@ -705,7 +752,7 @@ class NewChatVC: MessagesViewController {
                 self?.messagesCollectionView.scrollToLastItem(animated: true)
             }
         }
-        subtitleLabel.text = !show ? "Печатает..." : ""
+        subtitleLabel.text = !show ? Constants.writingText : ""
     }
     
     func isLastSectionVisible() -> Bool {
@@ -807,7 +854,7 @@ class NewChatVC: MessagesViewController {
     }
 }
 
-// MARK: - IImagePickerControllerDelegate, UINavigationControllerDelegat (Work with image)
+// MARK: - PHPickerViewControllerDelegate
 extension NewChatVC: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true, completion: nil)
@@ -845,6 +892,7 @@ extension NewChatVC: PHPickerViewControllerDelegate {
     }
 }
 
+// MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
 extension NewChatVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController,
                                didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -855,5 +903,19 @@ extension NewChatVC: UIImagePickerControllerDelegate, UINavigationControllerDele
             SPAlert.present(title: "Ошибка получени изображения с камеры", preset: .error)
         }
         dismiss(animated: true, completion: nil)
+    }
+}
+
+extension NewChatVC: AudioRecordViewDelegate {
+    func cancelTapped() {
+        cancelRecordAudio()
+        audioRecordButton.update(center: .zero, state: .end)
+    }
+}
+
+extension NewChatVC: AudioRecordButtonDelegate {
+    func sendButtonTapped() {
+        endRecordAudio()
+        audioRecordButton.update(center: .zero, state: .end)
     }
 }

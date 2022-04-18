@@ -10,8 +10,8 @@ import FirebaseAuth
 
 final class BirthdaySetupProfileVC: UIViewController {
     
-    private lazy var nextButton: UIButton = {
-        let button = UIButton(title: "Далее 􀰑")
+    private lazy var nextButton: DButton = {
+        let button = DButton(title: "Далее 􀰑")
         button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)

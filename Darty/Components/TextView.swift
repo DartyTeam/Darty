@@ -69,20 +69,17 @@ class TextView: UIView {
     }
 
     private func setupViews() {
-
-        addSubview(textView)
-
-        textView.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
-            textView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
-            textView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
-            textView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -8)
-        ])
-
         backgroundColor = .systemBackground
-        textView.backgroundColor = .systemBackground
+        addSubview(textView)
+        textView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(8)
+        }
+    }
+
+    override var backgroundColor: UIColor? {
+        didSet {
+            textView.backgroundColor = backgroundColor
+        }
     }
     
     private func setupFloatingLabel() {

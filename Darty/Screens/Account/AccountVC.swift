@@ -78,8 +78,8 @@ final class AccountVC: UIViewController {
         return segmentedControl
     }()
     
-    private lazy var darkModeButton: UIButton = {
-        let button = UIButton(title: "Темный режим")
+    private lazy var darkModeButton: DButton = {
+        let button = DButton(title: "Темный режим")
         button.backgroundColor = .black.withAlphaComponent(0.75)
         button.setImage(handIcon, for: UIControl.State())
         button.backgroundColor = #colorLiteral(red: 0.8823529412, green: 0.8823529412, blue: 0.8941176471, alpha: 1)
@@ -177,6 +177,7 @@ final class AccountVC: UIViewController {
         label.font = Constants.ratingFont
         label.text = "3.4 *"
         label.textColor = Constants.ratingLabelColor
+        label.isHidden = true
         return label
     }()
     
@@ -189,6 +190,7 @@ final class AccountVC: UIViewController {
         button.titleLabel?.font = Constants.ratingFont
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        button.isHidden = true
         return button
     }()
     
@@ -217,7 +219,30 @@ final class AccountVC: UIViewController {
         stackView.distribution = .fill
         return stackView
     }()
-    
+    private let comingSoonView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemIndigo.withAlphaComponent(0.8)
+        view.layer.cornerRadius = 15
+        view.layer.cornerCurve = .continuous
+        let label = UILabel()
+        label.font = .sfProDisplay(ofSize: 28, weight: .semibold)
+        label.textColor = .white
+        label.numberOfLines = 0
+        let stringValue = "Дарты\nДонаты\nDarty MAX\nСкоро"
+        let attrString = NSMutableAttributedString(string: stringValue)
+        var style = NSMutableParagraphStyle()
+        style.lineSpacing = 24 // change line spacing between paragraph like 36 or 48
+        style.minimumLineHeight = 20 // change line spacing between each line like 30 or 40
+        style.alignment = .center
+        attrString.addAttribute(NSAttributedString.Key.paragraphStyle, value: style, range: NSRange(location: 0, length: stringValue.count))
+        attrString.addAttribute(NSAttributedString.Key.kern, value: 2, range: NSMakeRange(0, attrString.length))
+        label.attributedText = attrString
+        view.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(32)
+        }
+        return view
+    }()
     private let buyDartsView: UIView = {
         let view = UIView()
         view.backgroundColor = .secondarySystemBackground
@@ -504,10 +529,7 @@ final class AccountVC: UIViewController {
         navigationItem.title = userData.username
         
         cityLabel.text = userData.country + "" + userData.city
-        let now = Date()
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: userData.birthday, to: now)
-        ageLabel.text = String(ageComponents.year!)
+        ageLabel.text = String(userData.birthday.age())
     }
     
     private func setupNavigationBar() {
@@ -549,6 +571,7 @@ final class AccountVC: UIViewController {
         subscribeView.addSubview(subscribeInfoLabel)
         subscribeView.addSubview(subscribeExpiredView)
         subscribeExpiredView.addSubview(subscribeExpiredLabel)
+        subscribeSegmentContainer.addSubview(comingSoonView)
     }
     
     private func setupConstraints() {
@@ -668,6 +691,13 @@ final class AccountVC: UIViewController {
             make.left.right.equalToSuperview().inset(20)
             make.height.equalTo(Constants.settingButtonsHeight)
         }
+
+        comingSoonView.snp.makeConstraints { make in
+            make.top.equalTo(firstLineSubscribeButtonsStackView.snp.top)
+            make.left.equalTo(firstLineSubscribeButtonsStackView.snp.left)
+            make.right.equalTo(donateView.snp.right)
+            make.bottom.equalTo(subscribeView.snp.bottom)
+        }
     }
 
     private func setupHero() {
@@ -704,7 +734,7 @@ final class AccountVC: UIViewController {
     }
     
     @objc private func shareAccount() {
-        
+        ShareHelper.share(user: FirestoreService.shared.currentUser, from: self)
     }
     
     @objc private func changeInfoAccount() {

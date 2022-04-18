@@ -57,14 +57,14 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
         return label
     }()
     
-    let acceptButton: UIButton = {
-        let button = UIButton(title: "Принять 􀆅")
+    let acceptButton: DButton = {
+        let button = DButton(title: "Принять 􀆅")
         button.backgroundColor = .systemOrange
         return button
     }()
     
-    let denyButton: UIButton = {
-        let button = UIButton(title: "Отклонить 􀆄")
+    let denyButton: DButton = {
+        let button = DButton(title: "Отклонить 􀆄")
         button.backgroundColor = .systemRed
         return button
     }()
@@ -91,10 +91,7 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
         
         usernameLabel.text = user.username
 
-        let now = Date()
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: user.birthday, to: now)
-        ageLabel.text = String(ageComponents.year!)
+        ageLabel.text = String(user.birthday.age())
         
         userRatingLabel.text = "0.0 *"
                 

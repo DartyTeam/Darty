@@ -137,6 +137,8 @@
 		44C639BE269CE44900D5CFD5 /* PartyTypeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639BD269CE44900D5CFD5 /* PartyTypeVC.swift */; };
 		44C639C0269CED5400D5CFD5 /* PartyPriceAndGuestsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639BF269CED5400D5CFD5 /* PartyPriceAndGuestsVC.swift */; };
 		44C639C2269E2DCA00D5CFD5 /* FloatingTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C639C1269E2DC900D5CFD5 /* FloatingTabbar.swift */; };
+		44CCE003280CA9B20059A62D /* DButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CCE002280CA9B20059A62D /* DButton.swift */; };
+		44CCE005280CB0A10059A62D /* ShareUserHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CCE004280CB0A10059A62D /* ShareUserHelper.swift */; };
 		44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D369FF26963438002886D0 /* WaitingChatCell.swift */; };
 		44D36A02269635B0002886D0 /* ListenerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A01269635B0002886D0 /* ListenerService.swift */; };
 		44D36A042696366D002886D0 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A032696366D002886D0 /* SectionHeader.swift */; };
@@ -316,6 +318,8 @@
 		44C639BD269CE44900D5CFD5 /* PartyTypeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartyTypeVC.swift; sourceTree = "<group>"; };
 		44C639BF269CED5400D5CFD5 /* PartyPriceAndGuestsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartyPriceAndGuestsVC.swift; sourceTree = "<group>"; };
 		44C639C1269E2DC900D5CFD5 /* FloatingTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingTabbar.swift; sourceTree = "<group>"; };
+		44CCE002280CA9B20059A62D /* DButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DButton.swift; sourceTree = "<group>"; };
+		44CCE004280CB0A10059A62D /* ShareUserHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareUserHelper.swift; sourceTree = "<group>"; };
 		44D369FF26963438002886D0 /* WaitingChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingChatCell.swift; sourceTree = "<group>"; };
 		44D36A01269635B0002886D0 /* ListenerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenerService.swift; sourceTree = "<group>"; };
 		44D36A032696366D002886D0 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
@@ -704,6 +708,7 @@
 				448E5EDE26AA2B1B003633FE /* MessageTextField.swift */,
 				4413E81826ACC804008BACEC /* TextFieldWithoutInteract.swift */,
 				4408BCCC26B0A5C2006C48AE /* AnomatedArrowView.swift */,
+				44CCE002280CA9B20059A62D /* DButton.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -937,6 +942,7 @@
 				443B949426E9434C00EEA3C2 /* StoreReviewHelper.swift */,
 				443C414E27E609C9008EAF87 /* KingfisherManager.swift */,
 				449FDC6927F4DC5000B65664 /* DeeplinkManager.swift */,
+				44CCE004280CB0A10059A62D /* ShareUserHelper.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1185,6 +1191,7 @@
 				44E2AB2A26BDA65F00D04FC9 /* RealmManager.swift in Sources */,
 				4491D51B26B6C57B00D3E98A /* UIColor + Extension.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
+				44CCE005280CB0A10059A62D /* ShareUserHelper.swift in Sources */,
 				4408BCCD26B0A5C2006C48AE /* AnomatedArrowView.swift in Sources */,
 				4430DF62268E0EB60016F2A7 /* AboutCell.swift in Sources */,
 				44FB27C926A0D32F00028602 /* MultiSetImagesView.swift in Sources */,
@@ -1248,6 +1255,7 @@
 				44E82E432693ADAE000E3D35 /* ActiveChatCell.swift in Sources */,
 				44D44ADA268A632B00EFE76F /* RecentChatModel.swift in Sources */,
 				44D44ADC268A639700EFE76F /* MessageModel.swift in Sources */,
+				44CCE003280CA9B20059A62D /* DButton.swift in Sources */,
 				445411B426ED016400D7A5D4 /* InstagramAPI.swift in Sources */,
 				44A172012691183000C154A0 /* SignInVC.swift in Sources */,
 				440670D626E3EA72008911EB /* CurrencyCell.swift in Sources */,

@@ -78,6 +78,7 @@ final class TextField: UITextField {
     private func setupShadow() {
         self.layer.shadowColor =  UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
         self.layer.shadowRadius = 5
+        self.layer.cornerCurve = .continuous
         self.layer.shadowOpacity = 1
         self.layer.shadowOffset = CGSize(width: 0, height: 0)
     }
@@ -159,7 +160,6 @@ final class TextField: UITextField {
     
     private func addBlackFloating() {
         if !self.subviews.contains(floatingLabel) {
-            
             floatingLabel.font = Constants.titleFont
             floatingLabel.text = savedPlaceholder
             floatingLabel.translatesAutoresizingMaskIntoConstraints = false

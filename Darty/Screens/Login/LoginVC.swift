@@ -29,8 +29,8 @@ final class LoginVC: UIViewController {
         return imageView
     }()
     
-    private let signInButton: UIButton = {
-        let button = UIButton(title: "Sign In")
+    private let signInButton: DButton = {
+        let button = DButton(title: "Sign In")
         button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)

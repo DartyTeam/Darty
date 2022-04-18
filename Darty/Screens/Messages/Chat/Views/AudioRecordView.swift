@@ -7,25 +7,37 @@
 
 import UIKit
 
-final class AudioRecordView: UIView {
+protocol AudioRecordViewDelegate: AnyObject {
+    func cancelTapped()
+}
+
+final class AudioRecordView: UIVisualEffectView {
 
     // MARK: - Constants
     private enum Constants {
-        static let statusRecordViewSize: CGFloat = 4
+        static let statusRecordViewSize: CGFloat = 8
     }
+
     // MARK: - UI Elements
     private let timerLabel: UILabel = {
         let label = UILabel()
+        label.text = "00:00"
         return label
     }()
-
-    private let leftToCancelLabel: UILabel = {
+    private let infoLabel: UILabel = {
         let label = UILabel()
         label.text = "􀆉  Влево – отмена"
         label.font = .sfProDisplay(ofSize: 14, weight: .medium)
         return label
     }()
-
+    private let cancelButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Отмена", for: UIControl.State())
+        button.titleLabel?.textAlignment = .center
+        button.setTitleColor(.systemTeal, for: UIControl.State())
+        button.isHidden = true
+        return button
+    }()
     private let statusRecordView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemOrange
@@ -40,9 +52,14 @@ final class AudioRecordView: UIView {
     // MARK: - Observation
     private var observation: NSKeyValueObservation?
 
+    // MARK: - Delegate
+    weak var delegate: AudioRecordViewDelegate?
+    private let cancelTappableViewRightInset: CGFloat
+
     // MARK: - Init
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(effect: UIVisualEffect?, cancelTappableViewRightInset: CGFloat) {
+        self.cancelTappableViewRightInset = cancelTappableViewRightInset
+        super.init(effect: effect)
         observation = observe(\.isHidden, options: .new) { (object, change) in
             if change.newValue == false {
                 object.startTimer()
@@ -51,38 +68,42 @@ final class AudioRecordView: UIView {
             }
         }
         setupViews()
-        timerLabel.text = "0:00"
-    }
-
-    // MARK: - Setup
-    private func setupViews() {
-        addSubview(statusRecordView)
-        statusRecordView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(32)
-            make.size.equalTo(Constants.statusRecordViewSize)
-            make.left.equalToSuperview().offset(32)
-        }
-
-        addSubview(timerLabel)
-        timerLabel.snp.makeConstraints { make in
-            make.left.equalTo(statusRecordView.snp.right).offset(16)
-            make.centerY.equalTo(statusRecordView.snp.centerY)
-        }
-
-        addSubview(leftToCancelLabel)
-        leftToCancelLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalTo(statusRecordView.snp.centerY)
-        }
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
+    private func setupViews() {
+        contentView.addSubview(statusRecordView)
+        statusRecordView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(32)
+            make.size.equalTo(Constants.statusRecordViewSize)
+            make.left.equalToSuperview().offset(32)
+        }
+
+        contentView.addSubview(timerLabel)
+        timerLabel.snp.makeConstraints { make in
+            make.left.equalTo(statusRecordView.snp.right).offset(16)
+            make.centerY.equalTo(statusRecordView.snp.centerY)
+        }
+
+        contentView.addSubview(infoLabel)
+        infoLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(statusRecordView.snp.centerY)
+        }
+        contentView.addSubview(cancelButton)
+        cancelButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(statusRecordView.snp.centerY)
+            make.height.equalTo(44)
+        }
+    }
+
     // MARK: - Functions
     private func startTimer() {
-        startLeftToCacelLabelAnimation()
         recordAudioTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
             self.recordAudioCounter += 1
@@ -92,10 +113,10 @@ final class AudioRecordView: UIView {
         }
     }
 
-    private func startLeftToCacelLabelAnimation() {
-        self.leftToCancelLabel.center.x -= 10
+    func startInfoLabelAnimation() {
+        self.infoLabel.center.x -= 10
         UIView.animateKeyframes(withDuration: 1, delay: 0, options: [.autoreverse, .repeat], animations: {
-            self.leftToCancelLabel.center.x += 10
+            self.infoLabel.center.x += 10
         }, completion: nil)
     }
 
@@ -104,5 +125,37 @@ final class AudioRecordView: UIView {
         recordAudioTimer = nil
         recordAudioCounter = 0
         timerLabel.text = "0:00"
+    }
+
+    func setTapToCancel() {
+        cancelButton.addTarget(self, action: #selector(cancelAction(_:)), for: .touchUpInside)
+        contentView.isUserInteractionEnabled = true
+        isUserInteractionEnabled = true
+        infoLabel.isHidden = true
+        cancelButton.isHidden = false
+    }
+
+    func setSwipeToCancel() {
+        infoLabel.alpha = 1
+        infoLabel.isHidden = false
+        cancelButton.isHidden = true
+    }
+
+    @objc private func cancelAction(_ sender: UIGestureRecognizer) {
+        delegate?.cancelTapped()
+    }
+
+    private var animationCompleted = false
+    func slideInfoLabel(offset: CGFloat) {
+        if infoLabel.alpha == 1 {
+            UIView.animate(withDuration: 0.6) {
+                self.infoLabel.alpha = offset / 1000
+            } completion: { _ in
+                self.animationCompleted = true
+            }
+        } else if animationCompleted {
+            infoLabel.layer.removeAllAnimations()
+        }
+        infoLabel.center.x = offset - 100
     }
 }

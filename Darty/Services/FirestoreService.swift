@@ -242,7 +242,6 @@ class FirestoreService {
         isDateInSearch: Bool,
         isPriceInSearch: Bool,
         isGuestsInSearch: Bool,
-        isUserIdInSearch: Bool,
         ascType: FilterManager.AscendingType,
         sortingType: FilterManager.SortingType,
         completion: @escaping (Result<[PartyModel], Error>) -> Void
@@ -251,7 +250,7 @@ class FirestoreService {
         var query: Query = db.collection("parties")
         
         if let city = city, city != "Любой" { query = query.whereField("city", isEqualTo : city) }
-        if let type = type { query = query.whereField("type", isEqualTo : type.rawValue) } // WORKING 
+        if let type = type { query = query.whereField("type", isEqualTo : type.rawValue) } // WORKING
         if let dateSign = dateSign {
             switch dateSign {
             case .isGreaterThanOrEqualTo:
@@ -281,34 +280,31 @@ class FirestoreService {
             }
         }
 
-        if isUserIdInSearch {
-            query = query.whereField("userId", isNotEqualTo: Auth.auth().currentUser!.uid)
-        }
-
         switch sortingType {
         case .date:
-            query = query.order(by: "date", descending: ascType == .desc)
+            if isDateInSearch {
+                query = query.order(by: "date", descending: ascType == .desc)
+            }
         case .guests:
-            query = query.order(by: "maxGuests", descending: ascType == .desc)
+            if isGuestsInSearch {
+                query = query.order(by: "maxGuests", descending: ascType == .desc)
+            }
         case .price:
-            query = query.order(by: "moneyPrice", descending: ascType == .desc)
+            if isPriceInSearch {
+                query = query.order(by: "moneyPrice", descending: ascType == .desc)
+            }
         }
         
         query.getDocuments() { (querySnapshot, err) in
             if let err = err {
                 completion(.failure(err))
             } else {
-                
                 var parties: [PartyModel] = []
-                
                 for document in querySnapshot!.documents {
                     //                    print("\(document.documentID) => \(document.data())")
-                    
                     guard let party = PartyModel(document: document) else { return }
-                    
                     parties.append(party)
                 }
-                
                 completion(.success(parties))
             }
         }
@@ -328,14 +324,12 @@ class FirestoreService {
                 completion(.failure(error))
                 return
             }
-            
             waitingPartiesReference.document(receiver).setData(waitingGuestRequest.representation) { (error) in
                 if let error = error {
                     completion(.failure(error))
                     return
                 }
             }
-            
             completion(.success(Void()))
         }
     }
@@ -347,42 +341,31 @@ class FirestoreService {
         
         guestRef.getDocument { (document, error) in
             if let error = error {
-                
                 completion(.failure(error))
                 return
             }
-            
             guard document?.data() != nil else {
                 return
             }
-            
             completion(.success(Void()))
         }
     }
     
     func getApprovedGuestsId(party: PartyModel, completion: @escaping (Result<[String], Error>) -> Void) {
         let reference = db.collection(["parties", party.id, "approvedGuests"].joined(separator: "/"))
-        
         reference.getDocuments() { (querySnapshot, err) in
-            
             if let err = err {
                 completion(.failure(err))
             } else {
-                
                 var usersId: [String] = []
-                
                 for document in querySnapshot!.documents {
-                    
                     guard let userId = document.data()["uid"] as? String else { return }
-                    
                     usersId.append(userId)
                 }
-                
                 guard usersId != [] else {
                     completion(.failure(PartyError.noApprovedGuests))
                     return
                 }
-                
                 completion(.success(usersId))
             }
         }
@@ -390,27 +373,19 @@ class FirestoreService {
     
     func getWaitingGuestsRequests(party: PartyModel, completion: @escaping (Result<[PartyRequestModel], Error>) -> Void) {
         let reference = db.collection(["parties", party.id, "waitingGuests"].joined(separator: "/"))
-        
         reference.getDocuments() { (querySnapshot, err) in
-            
             if let err = err {
                 completion(.failure(err))
             } else {
-                
                 var waitingGuestsRequests: [PartyRequestModel] = []
-                
                 for document in querySnapshot!.documents {
-                    
                     guard let waitingGuestRequest = PartyRequestModel(document: document) else { return }
-                    
                     waitingGuestsRequests.append(waitingGuestRequest)
                 }
-                
                 guard waitingGuestsRequests != [] else {
                     completion(.failure(PartyError.noWaitingGuests))
                     return
                 }
-                
                 completion(.success(waitingGuestsRequests))
             }
         }

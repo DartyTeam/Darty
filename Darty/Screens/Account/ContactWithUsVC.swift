@@ -29,8 +29,8 @@ final class ContactWithUsVC: UIViewController {
         return textView
     }()
     
-    private let sendButton: UIButton = {
-        let button = UIButton(title: "Отправить")
+    private let sendButton: DButton = {
+        let button = DButton(title: "Отправить")
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(sendEmail), for: .touchUpInside)
         return button

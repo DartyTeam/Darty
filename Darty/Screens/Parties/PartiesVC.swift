@@ -265,7 +265,7 @@ final class PartiesVC: UIViewController {
         searchController.searchBar.delegate = self
 
         searchController.obscuresBackgroundDuringPresentation = false
-//        searchController.hidesNavigationBarDuringPresentation = true
+        //        searchController.hidesNavigationBarDuringPresentation = true
         
         // Make sure the search bar is showing, even when scrolling
         navigationItem.hidesSearchBarWhenScrolling = true
@@ -478,10 +478,10 @@ extension PartiesVC: UICollectionViewDelegate {
 // MARK: - Search parties
 extension PartiesVC {
     private func searchParties(filterParams: FilterManager.FilterParams) {
+        let filterParams = FilterManager.shared.filterParams
         var isDateInSearch = false
         var isPriceInSearch = false
         var isGuestsInSearch = false
-        var isUserIdInSearch = false
 
         if filterParams.dateSign != .isEqual {
             isDateInSearch = true
@@ -489,9 +489,8 @@ extension PartiesVC {
             isPriceInSearch = true
         } else if filterParams.maxGuestsLower != nil, filterParams.maxGuestsUpper != nil {
             isGuestsInSearch = true
-        } else {
-            isUserIdInSearch = true
         }
+
         FirestoreService.shared.searchPartiesWith(
             city: filterParams.city,
             type: filterParams.type,
@@ -505,7 +504,6 @@ extension PartiesVC {
             isDateInSearch: isDateInSearch,
             isPriceInSearch: isPriceInSearch,
             isGuestsInSearch: isGuestsInSearch,
-            isUserIdInSearch: isUserIdInSearch,
             ascType: filterParams.ascendingType,
             sortingType: filterParams.sortingType
         ) { [weak self] (result) in
@@ -528,10 +526,11 @@ extension PartiesVC {
                     }
                 }
 
+                print("asdijasodijasdioajsdoiasjdaiosdj: ", isPriceInSearch, filterParams.priceLower, filterParams.priceUpper)
                 if !isPriceInSearch,
                    let priceLower = filterParams.priceLower,
-                    let priceUpper = filterParams.priceUpper,
-                    filterParams.priceType == .money {
+                   let priceUpper = filterParams.priceUpper,
+                   filterParams.priceType == .money {
                     parties = parties.filter { party in
                         if let partyMoneyPrice = party.moneyPrice {
                             return partyMoneyPrice >= priceLower && partyMoneyPrice <= priceUpper
@@ -541,9 +540,40 @@ extension PartiesVC {
                     }
                 }
 
-                if !isUserIdInSearch {
-                    parties = parties.filter { party in
-                        party.userId != AuthService.shared.currentUser.id
+                parties = parties.filter { party in
+                    party.userId != AuthService.shared.currentUser.id
+                }
+
+                switch filterParams.sortingType {
+                case .date:
+                    if !isDateInSearch {
+                        parties.sort { firstParty, secondParty in
+                            if filterParams.ascendingType == .desc {
+                                return firstParty.date < secondParty.date
+                            } else {
+                                return firstParty.date > secondParty.date
+                            }
+                        }
+                    }
+                case .guests:
+                    if !isGuestsInSearch {
+                        parties.sort { firstParty, secondParty in
+                            if filterParams.ascendingType == .desc {
+                                return firstParty.maxGuests < secondParty.maxGuests
+                            } else {
+                                return firstParty.maxGuests > secondParty.maxGuests
+                            }
+                        }
+                    }
+                case .price:
+                    if !isPriceInSearch {
+                        parties.sort { firstParty, secondParty in
+                            if filterParams.ascendingType == .desc {
+                                return (firstParty.moneyPrice ?? 0) < (secondParty.moneyPrice ?? 0)
+                            } else {
+                                return (firstParty.moneyPrice ?? 0) > (secondParty.moneyPrice ?? 0)
+                            }
+                        }
                     }
                 }
 

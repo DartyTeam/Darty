@@ -162,22 +162,22 @@ final class InfoUserVC: UIViewController {
         return label
     }()
     
-    private lazy var acceptButton: UIButton = {
-        let button = UIButton(title: "Принять")
+    private lazy var acceptButton: DButton = {
+        let button = DButton(title: "Принять")
         button.backgroundColor = accentColor
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
     }()
     
-    private lazy var declineButton: UIButton = {
-        let button = UIButton(title: "Отклонить")
+    private lazy var declineButton: DButton = {
+        let button = DButton(title: "Отклонить")
         button.backgroundColor = .systemRed
         button.addTarget(self, action: #selector(declineAction), for: .touchUpInside)
         return button
     }()
     
-    private let changeMyUserData: UIButton = {
-        let button = UIButton(title: "Изменить данные")
+    private let changeMyUserData: DButton = {
+        let button = DButton(title: "Изменить данные")
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(changeAction), for: .touchUpInside)
         return button
@@ -191,8 +191,8 @@ final class InfoUserVC: UIViewController {
         return label
     }()
     
-    private let connectInstagramButton: UIButton = {
-        let button = UIButton(title: "Подключить Instagram")
+    private let connectInstagramButton: DButton = {
+        let button = DButton(title: "Подключить Instagram")
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(connectInstagram), for: .touchUpInside)
         return button

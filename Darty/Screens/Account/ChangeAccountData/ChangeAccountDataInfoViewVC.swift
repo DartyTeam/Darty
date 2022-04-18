@@ -58,12 +58,14 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     private lazy var nameTextField: TextField = {
         let textField = TextField(color: .systemIndigo, placeholder: "Имя")
         textField.delegate = self
+        textField.backgroundColor = .systemGray4
         return textField
     }()
     
     private lazy var aboutTextView: TextView = {
         let textView = TextView(placeholder: "Обо мне", isEditable: true, color: .systemIndigo)
         textView.delegate = self
+        textView.backgroundColor = .systemGray4
         return textView
     }()
     
@@ -126,8 +128,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         return collectionView
     }()
     
-    private let changeInterestsButton: UIButton = {
-        let button = UIButton(title: Constants.changeInterestsButtonTitle)
+    private let changeInterestsButton: DButton = {
+        let button = DButton(title: Constants.changeInterestsButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(changeInterestsOpen), for: .touchUpInside)
         return button
@@ -141,8 +143,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         return label
     }()
     
-    private let connectInstagramButton: UIButton = {
-        let button = UIButton(title: Constants.connectInstagramButtonTitle)
+    private let connectInstagramButton: DButton = {
+        let button = DButton(title: Constants.connectInstagramButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(connectInstagram), for: .touchUpInside)
         return button
@@ -185,8 +187,8 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         return collectionView
     }()
     
-    private let connectAppleMusicButton: UIButton = {
-        let button = UIButton(title: Constants.connectAppleMusicButtonTitle)
+    private let connectAppleMusicButton: DButton = {
+        let button = DButton(title: Constants.connectAppleMusicButtonTitle)
         button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(connectAppleMusic), for: .touchUpInside)
         return button
@@ -227,6 +229,18 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillAppear),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
         addHideKeyboardOnTapAround()
         setupHero()
         setupUser()
@@ -238,7 +252,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.numberOfTouchesRequired = 1
-        scrollView.addGestureRecognizer(tapRecognizer)
+//        scrollView.addGestureRecognizer(tapRecognizer)
     }
 
     private func setupHero() {
@@ -296,112 +310,12 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         scrollView.addSubview(connectAppleMusicButton)
     }
     
-    private func setupConstraints() {
-        arrowDirectionImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.centerX.equalToSuperview()
-            make.size.equalTo(Constants.arrowSize)
-        }
-        
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
-        nameTextField.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(64)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        aboutTextView.snp.makeConstraints { make in
-            make.top.equalTo(nameTextField.snp.bottom).offset(32)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(128)
-        }
-        
-        birthdayTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(aboutTextView.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
-        }
-        
-        birthdayDatePicker.snp.makeConstraints { make in
-            make.top.equalTo(birthdayTitleLabel.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(20)
-        }
-        
-        sexTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(birthdayDatePicker.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
-        }
-        
-        sexSegmentControl.snp.makeConstraints { make in
-            make.top.equalTo(sexTitleLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        interestsTitleLable.snp.makeConstraints { make in
-            make.top.equalTo(sexSegmentControl.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
-        }
-        
-        // Этот элемент растягивает scroll view по ширине
-        interestsCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(interestsTitleLable.snp.bottom)
-            make.left.right.equalToSuperview()
-            make.height.equalTo(54)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(view.frame.size.width)
-        }
-        
-        changeInterestsButton.snp.makeConstraints { make in
-            make.top.equalTo(interestsCollectionView.snp.bottom).offset(16)
-            make.height.equalTo(44)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        instagramTitleLable.snp.makeConstraints { make in
-            make.top.equalTo(changeInterestsButton.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
-        }
-        
-        instagramPhotosCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
-            make.left.right.equalToSuperview()
-            make.height.equalTo(64)
-        }
-        
-        connectInstagramButton.snp.makeConstraints { make in
-            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
-            make.height.equalTo(44)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        playlistTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(instagramPhotosCollectionView.snp.bottom).offset(24)
-            make.left.equalToSuperview().offset(26)
-        }
-        
-        playlistCollectionView.backgroundColor = .green
-        playlistCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview()
-            make.height.equalTo(64)
-        }
-        
-        connectAppleMusicButton.snp.makeConstraints { make in
-            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
-            make.height.equalTo(44)
-            make.left.right.equalToSuperview().inset(20)
-            make.bottom.equalToSuperview().offset(-96)
-        }
-    }
-    
     // MARK: - Handlers
     @objc private func tapAction() {
         self.view.endEditing(true)
     }
     
     @objc private func sexChangedAction(_ sender: UISegmentedControl) {
-        
         switch sender.selectedSegmentIndex {
         case 0:
             AuthService.shared.currentUser.sex = Sex.man.rawValue
@@ -507,6 +421,37 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
             
             agrume.show(from: self)
         }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        let contentInset = UIEdgeInsets.zero
+        scrollView.contentInset = contentInset
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.blurEffectView.contentView.layoutIfNeeded()
+        })
+    }
+
+    @objc private func keyboardWillAppear(notification: NSNotification) {
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        let keyboardScreenEndFrame = keyboardValue.cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+        let keyboardBottomOffset: CGFloat = 64
+        scrollView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom + keyboardBottomOffset,
+            right: 0
+        )
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
+//        scrollView.scrollRectToVisible(connectAppleMusicButton.frame, animated: true)
+//        scrollView.contentSize = CGSize(
+//            width: view.frame.size.width,
+//            height: scrollView.frame.size.height - scrollView.contentInset.bottom
+//        )
+        UIView.animate(withDuration: 0.3, animations: { [weak self] in
+            self?.blurEffectView.contentView.layoutIfNeeded()
+        })
     }
 }
 
@@ -621,5 +566,107 @@ extension ChangeAccountDataInfoViewVC: SearchInterestsSetupProfileDelegate {
         interestsCollectionView.reloadSections([0])
         updateUserDataInFirestore()
         coordinator?.popVC()
+    }
+}
+
+// MARK: - Setup constraints
+extension ChangeAccountDataInfoViewVC {
+    private func setupConstraints() {
+        arrowDirectionImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(Constants.arrowSize)
+        }
+
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        nameTextField.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(64)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        aboutTextView.snp.makeConstraints { make in
+            make.top.equalTo(nameTextField.snp.bottom).offset(32)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(128)
+        }
+
+        birthdayTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(aboutTextView.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+
+        birthdayDatePicker.snp.makeConstraints { make in
+            make.top.equalTo(birthdayTitleLabel.snp.bottom).offset(16)
+            make.left.equalToSuperview().offset(20)
+        }
+
+        sexTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(birthdayDatePicker.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+
+        sexSegmentControl.snp.makeConstraints { make in
+            make.top.equalTo(sexTitleLabel.snp.bottom).offset(16)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        interestsTitleLable.snp.makeConstraints { make in
+            make.top.equalTo(sexSegmentControl.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+
+        // Этот элемент растягивает scroll view по ширине
+        interestsCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(interestsTitleLable.snp.bottom)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(54)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(view.frame.size.width)
+        }
+
+        changeInterestsButton.snp.makeConstraints { make in
+            make.top.equalTo(interestsCollectionView.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        instagramTitleLable.snp.makeConstraints { make in
+            make.top.equalTo(changeInterestsButton.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+
+        instagramPhotosCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(64)
+        }
+
+        connectInstagramButton.snp.makeConstraints { make in
+            make.top.equalTo(instagramTitleLable.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        playlistTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(instagramPhotosCollectionView.snp.bottom).offset(24)
+            make.left.equalToSuperview().offset(26)
+        }
+
+        playlistCollectionView.backgroundColor = .green
+        playlistCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(64)
+        }
+
+        connectAppleMusicButton.snp.makeConstraints { make in
+            make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().offset(-96)
+        }
     }
 }

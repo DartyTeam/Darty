@@ -51,8 +51,8 @@ final class WelcomeVC: UIViewController {
         return tableView
     }()
     
-    private let continueButton: UIButton = {
-        let button = UIButton(title: "Веселиться!")
+    private let continueButton: DButton = {
+        let button = DButton(title: "Веселиться!")
         button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(continueAction), for: .touchUpInside)

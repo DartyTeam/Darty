@@ -226,7 +226,6 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     @objc private func keyboardWillAppear(notification: NSNotification) {
         moveOverlay(toNotchAt: .maximum)
         drivingScrollView?.isScrollEnabled = false
-        
     }
     
     func overlayContainerViewController(_ containerViewController: OverlayContainerViewController,
@@ -238,7 +237,7 @@ final class AboutUserVC: OverlayContainerViewController, OverlayContainerViewCon
     }
     
     @objc private func shareAction() {
-        
+        ShareHelper.share(user: FirestoreService.shared.currentUser, from: self)
     }
     
     @objc private func backAction() {

@@ -11,7 +11,7 @@ extension UIAlertController {
     func addLocalePicker(type: LocalePickerViewController.Kind, selection: @escaping LocalePickerViewController.Selection) {
         var info: LocaleInfo?
         let selection: LocalePickerViewController.Selection = selection
-        let buttonSelect: UIAlertAction = UIAlertAction(title: "Select", style: .default) { action in
+        let buttonSelect: UIAlertAction = UIAlertAction(title: "Выбрать", style: .default) { action in
             selection(info)
         }
         buttonSelect.isEnabled = false
@@ -65,6 +65,7 @@ final class LocalePickerViewController: UIViewController {
         $0.searchBar.searchBarStyle = .minimal
         $0.searchBar.textField?.textColor = .black
         $0.searchBar.textField?.clearButtonMode = .whileEditing
+        $0.searchBar.placeholder = "Поиск"
         return $0
     }(UISearchController(searchResultsController: nil))
     
