@@ -9,7 +9,6 @@ import Foundation
 import FirebaseFirestore
 
 enum PriceType: String, CaseIterable {
-
     case free = "Бесплатно 􀎸"
     case money = "Деньги 􀭿"
     case another = "Другое 􀍣"
@@ -160,6 +159,29 @@ enum PartyType: String, CaseIterable {
 //    }
 //}
 
+enum PartyModelKeys {
+    static let id = "id"
+    static let city = "city"
+    static let location = "location"
+    static let address = "address"
+    static let userId = "userId"
+    static let imageUrlStrings = "imageUrlStrings"
+    static let type = "type"
+    static let maxGuests = "maxGuests"
+    static let curGuests = "curGuests"
+    static let date = "date"
+    static let startTime = "startTime"
+    static let endTime = "endTime"
+    static let name = "name"
+    static let priceType = "priceType"
+    static let moneyPrice = "moneyPrice"
+    static let anotherPrice = "anotherPrice"
+    static let description = "description"
+    static let minAge = "minAge"
+    static let isCanceled = "isCanceled"
+    static let uid = "uid"
+}
+
 struct PartyModel: Hashable, Decodable {
     
     var id: String
@@ -180,8 +202,25 @@ struct PartyModel: Hashable, Decodable {
     var anotherPrice: String?
     var description: String
     var minAge: Int
+    var isCanceled: Bool = false
     
-    init(city: String, location: GeoPoint, address: String, userId: String, imageUrlStrings: [String], type: PartyType.RawValue, maxGuests: Int, curGuests: Int, id: String, date: Date, startTime: Date, endTime: Date?, name: String, moneyPrice: Int?, anotherPrice: String?, priceType: PriceType.RawValue, description: String, minAge: Int) {
+    init(city: String,
+         location: GeoPoint,
+         address: String,
+         userId: String,
+         imageUrlStrings: [String],
+         type: PartyType.RawValue,
+         maxGuests: Int,
+         curGuests: Int,
+         id: String,
+         date: Date,
+         startTime: Date,
+         endTime: Date?,
+         name: String,
+         moneyPrice: Int?,
+         anotherPrice: String?,
+         priceType: PriceType.RawValue,
+         description: String, minAge: Int) {
         self.city = city
         self.location = location
         self.address = address
@@ -204,29 +243,36 @@ struct PartyModel: Hashable, Decodable {
     
     init?(document: DocumentSnapshot) {
         // Non optional values
-        guard let data = document.data() else { return nil }
-        guard let city = data["city"] as? String,
-              let location = data["location"] as? GeoPoint,
-              let address = data["address"] as? String,
-              let userId = data["userId"] as? String,
-              let imageUrlStrings = data["imageUrlStrings"] as? [String],
-              let type = data["type"] as? PartyType.RawValue,
-              let maxGuests = data["maxGuests"] as? Int,
-              let curGuests = data["curGuests"] as? Int,
-              let date = (data["date"] as? Timestamp)?.dateValue(),
-              let startTime = (data["startTime"] as? Timestamp)?.dateValue(),
-              let endTime = (data["endTime"] as? Timestamp)?.dateValue(),
-              let name = data["name"] as? String,
-              let priceType = data["priceType"] as? PriceType.RawValue,
-              let description = data["description"] as? String,
-              let id = data["uid"] as? String,
-              let minAge = data["minAge"] as? Int
-        
-        else { return nil }
+        guard
+            let data = document.data()
+        else {
+            return nil
+        }
+        guard
+            let city = data[PartyModelKeys.city] as? String,
+            let location = data[PartyModelKeys.location] as? GeoPoint,
+            let address = data[PartyModelKeys.address] as? String,
+            let userId = data[PartyModelKeys.userId] as? String,
+            let imageUrlStrings = data[PartyModelKeys.imageUrlStrings] as? [String],
+            let type = data[PartyModelKeys.type] as? PartyType.RawValue,
+            let maxGuests = data[PartyModelKeys.maxGuests] as? Int,
+            let curGuests = data[PartyModelKeys.curGuests] as? Int,
+            let date = (data[PartyModelKeys.date] as? Timestamp)?.dateValue(),
+            let startTime = (data[PartyModelKeys.startTime] as? Timestamp)?.dateValue(),
+            let endTime = (data[PartyModelKeys.endTime] as? Timestamp)?.dateValue(),
+            let name = data[PartyModelKeys.name] as? String,
+            let priceType = data[PartyModelKeys.priceType] as? PriceType.RawValue,
+            let description = data[PartyModelKeys.description] as? String,
+            let id = data[PartyModelKeys.uid] as? String,
+            let minAge = data[PartyModelKeys.minAge] as? Int,
+            let isCanceled = data[PartyModelKeys.isCanceled] as? Bool
+        else {
+            return nil
+        }
         
         // Optional values
-        let moneyPrice = data["moneyPrice"] as? Int
-        let anotherPrice = data["anotherPrice"] as? String
+        let moneyPrice = data[PartyModelKeys.moneyPrice] as? Int
+        let anotherPrice = data[PartyModelKeys.anotherPrice] as? String
             
         self.city = city
         self.location = location
@@ -246,28 +292,30 @@ struct PartyModel: Hashable, Decodable {
         self.id = id
         self.minAge = minAge
         self.priceType = priceType
+        self.isCanceled = isCanceled
     }
     
     var representation: [String: Any] {
         var rep = [String: Any]()
-        rep = ["location": location]
-        rep["city"] = city
-        rep["address"] = address
-        rep["userId"] = userId
-        rep["imageUrlStrings"] = imageUrlStrings
-        rep["type"] = type
-        rep["maxGuests"] = maxGuests
-        rep["curGuests"] = curGuests
-        rep["date"] = date
-        rep["startTime"] = startTime
-        rep["endTime"] = endTime
-        rep["name"] = name
-        rep["moneyPrice"] = moneyPrice
-        rep["anotherPrice"] = anotherPrice
-        rep["priceType"] = priceType
-        rep["description"] = description
-        rep["uid"] = id
-        rep["minAge"] = minAge
+        rep = [PartyModelKeys.location: location]
+        rep[PartyModelKeys.city] = city
+        rep[PartyModelKeys.address] = address
+        rep[PartyModelKeys.userId] = userId
+        rep[PartyModelKeys.imageUrlStrings] = imageUrlStrings
+        rep[PartyModelKeys.type] = type
+        rep[PartyModelKeys.maxGuests] = maxGuests
+        rep[PartyModelKeys.curGuests] = curGuests
+        rep[PartyModelKeys.date] = date
+        rep[PartyModelKeys.startTime] = startTime
+        rep[PartyModelKeys.endTime] = endTime
+        rep[PartyModelKeys.name] = name
+        rep[PartyModelKeys.moneyPrice] = moneyPrice
+        rep[PartyModelKeys.anotherPrice] = anotherPrice
+        rep[PartyModelKeys.priceType] = priceType
+        rep[PartyModelKeys.description] = description
+        rep[PartyModelKeys.uid] = id
+        rep[PartyModelKeys.minAge] = minAge
+        rep[PartyModelKeys.isCanceled] = isCanceled
         return rep
     }
     
@@ -280,12 +328,9 @@ struct PartyModel: Hashable, Decodable {
     }
     
     func contains(filter: String?) -> Bool {
-        
         guard let filter = filter else { return true }
         if filter.isEmpty { return true }
-        
         let lowercasedFilter = filter.lowercased()
-        
         return name.lowercased().contains(lowercasedFilter) || type.lowercased().contains(lowercasedFilter)
     }
 }

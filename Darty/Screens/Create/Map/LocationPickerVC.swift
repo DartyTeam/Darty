@@ -358,8 +358,7 @@ extension LocationPickerViewController: UISearchResultsUpdating {
     }
 }
 
-// MARK: Selecting location with gesture
-
+// MARK: - Selecting location with gesture
 extension LocationPickerViewController {
     @objc func addLocation(_ gestureRecognizer: UIGestureRecognizer) {
         
@@ -380,8 +379,7 @@ extension LocationPickerViewController {
     }
 }
 
-// MARK: MKMapViewDelegate
-
+// MARK: - MKMapViewDelegate
 extension LocationPickerViewController: MKMapViewDelegate {
     public func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation { return nil }
@@ -437,14 +435,7 @@ extension LocationPickerViewController: MKMapViewDelegate {
     }
 }
 
-extension LocationPickerViewController: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-}
-
-// MARK: UISearchBarDelegate
-
+// MARK: - UISearchBarDelegate
 extension LocationPickerViewController: UISearchBarDelegate {
     public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         // dirty hack to show history when there is no text in search bar
@@ -462,4 +453,3 @@ extension LocationPickerViewController: UISearchBarDelegate {
         }
     }
 }
-

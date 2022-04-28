@@ -528,7 +528,7 @@ final class AccountVC: UIViewController {
         
         navigationItem.title = userData.username
         
-        cityLabel.text = userData.country + "" + userData.city
+        cityLabel.text = userData.country + ", " + userData.city
         ageLabel.text = String(userData.birthday.age())
     }
     
@@ -572,132 +572,6 @@ final class AccountVC: UIViewController {
         subscribeView.addSubview(subscribeExpiredView)
         subscribeExpiredView.addSubview(subscribeExpiredLabel)
         subscribeSegmentContainer.addSubview(comingSoonView)
-    }
-    
-    private func setupConstraints() {
-        darkModeButton.snp.makeConstraints { make in
-            make.width.equalTo(256)
-            make.height.equalTo(50)
-            make.center.equalToSuperview()
-        }
-        
-        userAvatarImageView.snp.makeConstraints { make in
-            make.right.equalToSuperview().inset(22)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
-            make.size.equalTo(Constants.userAvatarSize)
-        }
-        
-        cityLabel.snp.makeConstraints { make in
-            make.top.equalTo(userAvatarImageView.snp.top).offset(8)
-            make.left.equalToSuperview().offset(20)
-            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
-        }
-        
-        ageLabel.snp.makeConstraints { make in
-            make.top.equalTo(cityLabel.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(20)
-            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
-        }
-        
-        ratingLabel.snp.makeConstraints { make in
-            make.top.equalTo(ageLabel.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(20)
-        }
-        
-        ratingButton.snp.makeConstraints { make in
-            make.centerY.equalTo(ratingLabel.snp.centerY)
-            make.left.equalTo(ratingLabel.snp.right).offset(8)
-        }
-        
-        segmentedControl.snp.makeConstraints { make in
-            make.top.equalTo(userAvatarImageView.snp.bottom).offset(24)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        scrollView.snp.makeConstraints { make in
-            make.top.equalTo(segmentedControl.snp.bottom).offset(24)
-            make.left.right.bottom.equalToSuperview()
-        }
-        
-        horizontalScrollableStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.height.equalTo(scrollView.snp.height)
-        }
-        horizontalScrollableStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 2).isActive = true
-        
-        subscribeSegmentContainer.snp.makeConstraints { make in
-            make.width.equalTo(view.frame.size.width)
-        }
-        
-        firstLineSubscribeButtonsStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        subscribeView.snp.makeConstraints { make in
-            make.top.equalTo(firstLineSubscribeButtonsStackView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        dartyLogo.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.centerX.equalToSuperview()
-            make.size.equalTo(Constants.subscribeDartyLogoSize)
-        }
-        
-        subscribeNameLabel.snp.makeConstraints { make in
-            make.top.equalTo(dartyLogo.snp.bottom).offset(12)
-            make.centerX.equalToSuperview()
-        }
-        
-        subscribeInfoLabel.snp.makeConstraints { make in
-            make.top.equalTo(subscribeNameLabel.snp.bottom).offset(10)
-            make.left.right.equalToSuperview().inset(20)
-        }
-        
-        subscribeExpiredView.snp.makeConstraints { make in
-            make.top.equalTo(subscribeInfoLabel.snp.bottom).offset(20)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(18)
-        }
-        
-        subscribeExpiredLabel.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(Constants.subscribeExpiredLabelTopBottomInsets)
-            make.left.right.equalToSuperview().inset(Constants.subscribeExpiredLabelLeftRightInsets)
-        }
-        
-        view.layoutIfNeeded()
-        subscribeExpiredView.layer.cornerRadius = subscribeExpiredView.frame.size.height / 2
-        
-        menuSegmentContainer.snp.makeConstraints { make in
-            make.width.equalTo(view.frame.size.width)
-            make.top.bottom.equalToSuperview()
-        }
-        
-        firstLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
-        }
-        
-        secondLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalTo(firstLineSettingButtonsStackView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
-        }
-        
-        thirdLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalTo(secondLineSettingButtonsStackView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
-        }
-
-        comingSoonView.snp.makeConstraints { make in
-            make.top.equalTo(firstLineSubscribeButtonsStackView.snp.top)
-            make.left.equalTo(firstLineSubscribeButtonsStackView.snp.left)
-            make.right.equalTo(donateView.snp.right)
-            make.bottom.equalTo(subscribeView.snp.bottom)
-        }
     }
 
     private func setupHero() {
@@ -807,6 +681,135 @@ extension AccountVC: UIScrollViewDelegate {
                 previousPage = page
             }
             segmentedControl.selectedSegmentIndex = previousPage
+        }
+    }
+}
+
+// MARK: - Setup constraints
+extension AccountVC {
+    private func setupConstraints() {
+        darkModeButton.snp.makeConstraints { make in
+            make.width.equalTo(256)
+            make.height.equalTo(50)
+            make.center.equalToSuperview()
+        }
+
+        userAvatarImageView.snp.makeConstraints { make in
+            make.right.equalToSuperview().inset(22)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
+            make.size.equalTo(Constants.userAvatarSize)
+        }
+
+        cityLabel.snp.makeConstraints { make in
+            make.top.equalTo(userAvatarImageView.snp.top).offset(8)
+            make.left.equalToSuperview().offset(20)
+            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
+        }
+
+        ageLabel.snp.makeConstraints { make in
+            make.top.equalTo(cityLabel.snp.bottom).offset(16)
+            make.left.equalToSuperview().offset(20)
+            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
+        }
+
+        ratingLabel.snp.makeConstraints { make in
+            make.top.equalTo(ageLabel.snp.bottom).offset(16)
+            make.left.equalToSuperview().offset(20)
+        }
+
+        ratingButton.snp.makeConstraints { make in
+            make.centerY.equalTo(ratingLabel.snp.centerY)
+            make.left.equalTo(ratingLabel.snp.right).offset(8)
+        }
+
+        segmentedControl.snp.makeConstraints { make in
+            make.top.equalTo(userAvatarImageView.snp.bottom).offset(24)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(segmentedControl.snp.bottom).offset(24)
+            make.left.right.bottom.equalToSuperview()
+        }
+
+        horizontalScrollableStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.height.equalTo(scrollView.snp.height)
+        }
+        horizontalScrollableStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 2).isActive = true
+
+        subscribeSegmentContainer.snp.makeConstraints { make in
+            make.width.equalTo(view.frame.size.width)
+        }
+
+        firstLineSubscribeButtonsStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        subscribeView.snp.makeConstraints { make in
+            make.top.equalTo(firstLineSubscribeButtonsStackView.snp.bottom).offset(16)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        dartyLogo.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(Constants.subscribeDartyLogoSize)
+        }
+
+        subscribeNameLabel.snp.makeConstraints { make in
+            make.top.equalTo(dartyLogo.snp.bottom).offset(12)
+            make.centerX.equalToSuperview()
+        }
+
+        subscribeInfoLabel.snp.makeConstraints { make in
+            make.top.equalTo(subscribeNameLabel.snp.bottom).offset(10)
+            make.left.right.equalToSuperview().inset(20)
+        }
+
+        subscribeExpiredView.snp.makeConstraints { make in
+            make.top.equalTo(subscribeInfoLabel.snp.bottom).offset(20)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(18)
+        }
+
+        subscribeExpiredLabel.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(Constants.subscribeExpiredLabelTopBottomInsets)
+            make.left.right.equalToSuperview().inset(Constants.subscribeExpiredLabelLeftRightInsets)
+        }
+
+        view.layoutIfNeeded()
+        subscribeExpiredView.layer.cornerRadius = subscribeExpiredView.frame.size.height / 2
+
+        menuSegmentContainer.snp.makeConstraints { make in
+            make.width.equalTo(view.frame.size.width)
+            make.top.bottom.equalToSuperview()
+        }
+
+        firstLineSettingButtonsStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(Constants.settingButtonsHeight)
+        }
+
+        secondLineSettingButtonsStackView.snp.makeConstraints { make in
+            make.top.equalTo(firstLineSettingButtonsStackView.snp.bottom).offset(16)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(Constants.settingButtonsHeight)
+        }
+
+        thirdLineSettingButtonsStackView.snp.makeConstraints { make in
+            make.top.equalTo(secondLineSettingButtonsStackView.snp.bottom).offset(16)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(Constants.settingButtonsHeight)
+        }
+
+        comingSoonView.snp.makeConstraints { make in
+            make.top.equalTo(firstLineSubscribeButtonsStackView.snp.top)
+            make.left.equalTo(firstLineSubscribeButtonsStackView.snp.left)
+            make.right.equalTo(donateView.snp.right)
+            make.bottom.equalTo(subscribeView.snp.bottom)
         }
     }
 }

@@ -117,15 +117,28 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private let locationButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(Constants.locationButtonText, for: .normal)
-        let mapIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 14, weight: .semibold))
-        let mapIcon = UIImage(systemName: "map", withConfiguration: mapIconConfig)?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal)
+        let mapIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(
+            ofSize: 14,
+            weight: .semibold)
+        )
+        let mapIcon = UIImage(
+            systemName: "map",
+            withConfiguration: mapIconConfig
+        )?.withTintColor(
+            .systemOrange,
+            renderingMode: .alwaysOriginal
+        )
         button.setImage(mapIcon, for: .normal)
         button.backgroundColor = .secondarySystemBackground
         button.layer.cornerRadius = 16
         button.tintColor = .systemOrange
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(showOnMapAction), for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(showOnMapAction),
+            for: .touchUpInside
+        )
         return button
     }()
     
@@ -140,7 +153,15 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        let collectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: 118, height: 96), collectionViewLayout: layout)
+        let collectionView = UICollectionView(
+            frame: CGRect(
+                x: 0,
+                y: 0,
+                width: 118,
+                height: 96
+            ),
+            collectionViewLayout: layout
+        )
         collectionView.backgroundColor = .clear
         collectionView.register(PartyImageCell.self, forCellWithReuseIdentifier: PartyImageCell.reuseIdentifier)
         collectionView.delegate = self
@@ -200,21 +221,31 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         label.font = Constants.partyDescriptionFint
         return label
     }()
-    
-    private lazy var actionButton: DButton = {
-        let button = DButton(title: "Отправить заявку 􀝻")
-        button.backgroundColor = .systemOrange
-        button.addTarget(self, action: #selector(actionButtonAction), for: .touchDown)
-        return button
-    }()
-    
-    private lazy var cancelPartyButton: DButton = {
+
+    private let cancelPartyButton: DButton = {
         let button = DButton(title: "Отменить вечеринку 􀆄")
         button.backgroundColor = .systemRed
-        button.addTarget(self, action: #selector(cancelPartyAction), for: .touchDown)
+        button.addTarget(
+            self,
+            action: #selector(cancelPartyAction),
+            for: .touchUpInside
+        )
         button.isHidden = true
         return button
     }()
+
+    private let actionButton: DButton = {
+        let button = DButton(title: "Отправить заявку 􀝻")
+        button.backgroundColor = .systemOrange
+        button.addTarget(
+            self,
+            action: #selector(actionButtonAction),
+            for: .touchUpInside
+        )
+        return button
+    }()
+
+    private lazy var buttonsStackView = UIStackView(arrangedSubviews: [cancelPartyButton, actionButton], axis: .horizontal, spacing: 8)
     
     // MARK: - Properties
     private var waitingGuestsRequests: [PartyRequestModel] = []
@@ -272,11 +303,9 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         let count = waitingGuestsRequests.count
         if count > 0 {
             actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
-            actionButton.backgroundColor = .systemOrange
             actionButton.isEnabled = true
         } else {
             actionButton.setTitle("Новых заявок нет", for: .normal)
-            actionButton.backgroundColor = .systemYellow
             actionButton.isEnabled = false
         }
     }
@@ -380,8 +409,8 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         scrollView.addSubview(ownerNameLabel)
         scrollView.addSubview(ownerRatingLabel)
         scrollView.addSubview(partyDescriptionLabel)
-        view.addSubview(actionButton)
-        view.addSubview(cancelPartyButton)
+        buttonsStackView.distribution = .fillEqually
+        view.addSubview(buttonsStackView)
     }
     
     private func setupConstraints() {
@@ -474,61 +503,45 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             make.right.equalToSuperview().inset(10)
             make.bottom.equalToSuperview().offset(-Constants.ownerImageSize - 128)
         }
-        
-        switch type {
-        case .search:
-            actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
-                make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(UIButton.defaultButtonHeight)
+
+        buttonsStackView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
+        }
+
+        if party.isCanceled {
+            setupCanceledParty()
+        } else {
+            switch type {
+            case .search:
+                break
+            case .approved:
+                changeToApprovedButton()
+            case .waiting:
+                cancelPartyButton.isHidden = false
+                cancelPartyButton.setTitle("Отменить заявку 􀆄", for: .normal)
+                changeToSendButton()
+            case .my:
+                cancelPartyButton.isHidden = false
+                let count = waitingGuestsRequests.count
+                if count > 0 {
+                    actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
+                } else {
+                    actionButton.setTitle("Новых заявок нет", for: .normal)
+                    actionButton.isEnabled = false
+                }
+            case .archive:
+                break
             }
-        case .approved:
-            actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
-                make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(UIButton.defaultButtonHeight)
-            }
-            changeToApprovedButton()
-        case .waiting:
-            cancelPartyButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
-                make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(UIButton.defaultButtonHeight)
-            }
-            cancelPartyButton.isHidden = false
-            cancelPartyButton.setTitle("Отменить заявку 􀆄", for: .normal)
-            
-            actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(cancelPartyButton.snp.top).offset(-16)
-                make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(UIButton.defaultButtonHeight)
-            }
-            changeToSendButton()
-        case .my:
-            cancelPartyButton.isHidden = false
-            cancelPartyButton.snp.makeConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(54)
-                make.left.equalToSuperview().inset(20)
-                make.right.equalToSuperview().inset(112)
-                make.height.equalTo(UIButton.defaultButtonHeight)
-            }
-            
-            actionButton.snp.makeConstraints { make in
-                make.bottom.equalTo(cancelPartyButton.snp.top).offset(-16)
-                make.left.right.equalToSuperview().inset(20)
-                make.height.equalTo(UIButton.defaultButtonHeight)
-            }
-            
-            let count = waitingGuestsRequests.count
-            if count > 0 {
-                actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
-            } else {
-                actionButton.setTitle("Новых заявок нет", for: .normal)
-                actionButton.backgroundColor = .systemYellow
-                actionButton.isEnabled = false
-            }
-        case .archive:
-            break
+//        }
+    }
+
+    private func setupCanceledParty() {
+        UIView.animate(withDuration: 0.3) {
+            self.cancelPartyButton.isHidden = true
+            self.actionButton.isEnabled = false
+            self.actionButton.setTitle("Вечеринка отменена", for: UIControl.State())
         }
     }
     
@@ -543,13 +556,12 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     
     private func changeToSendButton() {
         actionButton.setTitle("Заявка отправлена 􀈟", for: .normal)
-        actionButton.backgroundColor = .systemYellow
         actionButton.isEnabled = false
     }
     
     private func changeToApprovedButton() {
         actionButton.setTitle("Вы приглашены 􀯧", for: .normal)
-        actionButton.backgroundColor = .systemGreen
+        actionButton.disabledBackround = .systemGreen
         actionButton.isEnabled = false
     }
     
@@ -622,14 +634,26 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func cancelPartyAction() {
+        print("asidojasoidjasidjioasdjioaijosdjioasjidojaiosd")
         let alertController = UIAlertController(title: "Вы уверены?", message: "Ваша вечеринка с записанными гостями будет безвозвратно удалена", preferredStyle: .actionSheet)
         let okAction = UIAlertAction(title: "Да, отменить", style: .destructive) { (_) in
-#warning("Нужно добавить функционал отмены вечеринки")
+            SPAlert.present(title: "Удаление...", preset: .spinner)
+            FirestoreService.shared.changeToCanceled(party: self.party) { result in
+                DispatchQueue.main.async {
+                    SPAlert.dismiss()
+                }
+                switch result {
+                case .success():
+                    self.setupCanceledParty()
+#warning("Нужно добавить отправку уведомлений об отмене вечеринки")
+                case .failure(_):
+                    break
+                }
+            }
         }
         let dismissAction = UIAlertAction(title: "Нет, оставить", style: .cancel) { _ in
             
         }
-        
         alertController.addAction(dismissAction)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)

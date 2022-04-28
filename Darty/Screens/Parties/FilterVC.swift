@@ -145,7 +145,7 @@ final class FilterVC: UIViewController {
     // MARK: - UI Elements
     private lazy var topLineView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = Constants.topLineHeight / 2
         return view
     }()
@@ -173,12 +173,12 @@ final class FilterVC: UIViewController {
         return label
     }()
     
-    private let maxGuestsPicker: RubberRangePicker = {
+    private lazy var maxGuestsPicker: RubberRangePicker = {
         let rubberRangePicker = RubberRangePicker()
         rubberRangePicker.minimumValue = 1
         rubberRangePicker.tintColor = .systemOrange
         rubberRangePicker.maximumValue = Double(GlobalConstants.maximumGuests)
-        rubberRangePicker.addTarget(self, action: #selector(maxGuestsUpdated), for: .valueChanged)
+        rubberRangePicker.addTarget(self, action: #selector(maxGuestsUpdated(_:)), for: .valueChanged)
         rubberRangePicker.thumbSize = 26
         rubberRangePicker.lineColor = .systemGray4
         return rubberRangePicker
@@ -198,8 +198,9 @@ final class FilterVC: UIViewController {
         return pickerView
     }()
     
-    private lazy var typeBackgroundView: BlurEffectView = {
-        let view = BlurEffectView(style: .light)
+    private lazy var typeBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = priceTypeSegment.layer.cornerRadius
         view.layer.cornerCurve = .continuous
         view.clipsToBounds = true
@@ -334,9 +335,7 @@ final class FilterVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let type = filterParams.type {
-            setPickedType(type)
-        }
+        setupFilters()
         setupViews()
         setupConstraints()
     }
@@ -346,6 +345,15 @@ final class FilterVC: UIViewController {
         guard filterParams != FilterManager.shared.filterParams else { return }
         FilterManager.shared.filterParams = filterParams
         delegate.didChangeFilter(filterParams)
+    }
+
+    private func setupFilters() {
+        if let type = filterParams.type {
+            setPickedType(type)
+        }
+        maxGuestsPicker.lowerValue = Double(filterParams.maxGuestsLower ?? 1)
+        maxGuestsPicker.upperValue = Double(filterParams.maxGuestsUpper ?? GlobalConstants.maximumGuests)
+        maxGuestsUpdated(maxGuestsPicker)
     }
 
     // MARK: - Setup views
@@ -364,7 +372,7 @@ final class FilterVC: UIViewController {
         let typeView = UIView()
         typeView.addSubview(typeLabel)
         typeView.addSubview(typeBackgroundView)
-        typeBackgroundView.contentView.addSubview(typeTextField)
+        typeBackgroundView.addSubview(typeTextField)
 
         let priceView = UIView()
         priceView.addSubview(priceTypeLabel)
@@ -410,10 +418,10 @@ final class FilterVC: UIViewController {
         self.view.endEditing(true)
     }
     
-    @objc private func maxGuestsUpdated() {
+    @objc private func maxGuestsUpdated(_ sender: RubberRangePicker) {
         maxGuestsLabel.text = String(format:"\(Constants.maxGuestsText): \(Int(maxGuestsPicker.lowerValue)) - \(Int(maxGuestsPicker.upperValue))")
-        filterParams.maxGuestsLower = Int(maxGuestsPicker.lowerValue)
-        filterParams.maxGuestsUpper = Int(maxGuestsPicker.upperValue)
+        filterParams.maxGuestsLower = Int(sender.lowerValue)
+        filterParams.maxGuestsUpper = Int(sender.upperValue)
     }
     
     @objc private func typeDoneTapped() {

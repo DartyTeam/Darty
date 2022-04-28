@@ -19,7 +19,7 @@ class StorageService {
     
     private init () {}
     
-    let storageRef = Storage.storage().reference()
+    private let storageRef = Storage.storage().reference()
     
     private var avatarsRef: StorageReference {
         return storageRef.child("avatars")
@@ -71,10 +71,6 @@ class StorageService {
                 StorageService.saveFileLocally(fileData: photo.jpegData(compressionQuality: 1.0)! as NSData, fileName: filename)
             }
         }
-    }
-    
-    func delete(stringUrl: String) {
-        
     }
     
     private var partiesImagesRef: StorageReference {

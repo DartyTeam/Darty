@@ -7,6 +7,7 @@
 
 import Firebase
 import FirebaseFirestore
+import FirebaseDatabase
 
 class FirestoreService {
     
@@ -504,6 +505,19 @@ class FirestoreService {
             })
         }
     }
+
+    func changeToCanceled(party: PartyModel, completion: @escaping (Result<Void, Error>) -> Void) {
+        let partyId = party.id
+        let myParties = partiesRef.document(partyId)
+        myParties.updateData(["isCanceled": true]) { error in
+            if let error = error {
+                completion(.failure(error))
+                print("Error canceled party \(partyId): ", error)
+            }
+            print("Successfull canceled paty \(partyId)")
+            completion(.success(Void()))
+        }
+    }
     
     // MARK: - Will be need in future
     //    func getWaitingParties(completion: @escaping (Result<[Party], Error>) -> Void) {
@@ -534,18 +548,17 @@ class FirestoreService {
     //    }
     
     func setOnline(status: Bool, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard Auth.auth().currentUser != nil else {
+        guard let currentUser = Auth.auth().currentUser else {
             return
         }
-        userRef.updateData([
-            "isOnline": status,
-        ]) { err in
-            if let err = err {
-                completion(.failure(err))
-                print("Error updating document: \(err)")
+        let onlinesRef = Database.database().reference().child(currentUser.uid).child("isOnline")
+        onlinesRef.setValue(status) {(error, _ ) in
+            if let error = error {
+                completion(.failure(error))
+                print("Error set online status: \(error.localizedDescription)")
             } else {
                 completion(.success(Void()))
-                print("Document successfully updated")
+                print("Successfully updated online status")
             }
         }
     }

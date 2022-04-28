@@ -223,7 +223,7 @@ extension SearchInterestsSetupProfileVC: UISearchResultsUpdating {
     }
 
     private func filterContentForSearchText(_ searchText: String) {
-        filteredInterests = GlobalConstants.interestsArray.filter({ interest in
+        filteredInterests = ConfigService.shared.interestsArray.filter({ interest in
             interest.title.lowercased().contains(searchText.lowercased()) || interest.emoji.contains(searchText)
         })
         interestsCollectionView.reloadSections([0])
@@ -236,7 +236,7 @@ extension SearchInterestsSetupProfileVC: UISearchResultsUpdating {
 
 extension SearchInterestsSetupProfileVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return isFiltering ? filteredInterests.count : GlobalConstants.interestsArray.count
+        return isFiltering ? filteredInterests.count : ConfigService.shared.interestsArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -244,7 +244,7 @@ extension SearchInterestsSetupProfileVC: UICollectionViewDelegate, UICollectionV
             withReuseIdentifier: InterestCell.reuseIdentifier,
             for: indexPath
         ) as! InterestCell
-        let interest = isFiltering ? filteredInterests[indexPath.row] : GlobalConstants.interestsArray[indexPath.row]
+        let interest = isFiltering ? filteredInterests[indexPath.row] : ConfigService.shared.interestsArray[indexPath.row]
         cell.setupCell(title: interest.title, emoji: interest.emoji)
         return cell
     }
@@ -253,7 +253,7 @@ extension SearchInterestsSetupProfileVC: UICollectionViewDelegate, UICollectionV
         if isFiltering {
             selectedInterests.append(filteredInterests[indexPath.row].id)
         } else {
-            selectedInterests.append(GlobalConstants.interestsArray[indexPath.row].id)
+            selectedInterests.append(ConfigService.shared.interestsArray[indexPath.row].id)
         }
     }
     
@@ -261,7 +261,7 @@ extension SearchInterestsSetupProfileVC: UICollectionViewDelegate, UICollectionV
         if isFiltering {
             selectedInterests.removeAll { $0 == filteredInterests[indexPath.row].id }
         } else {
-            selectedInterests.removeAll { $0 == GlobalConstants.interestsArray[indexPath.row].id }
+            selectedInterests.removeAll { $0 == ConfigService.shared.interestsArray[indexPath.row].id }
         }
     }
 }

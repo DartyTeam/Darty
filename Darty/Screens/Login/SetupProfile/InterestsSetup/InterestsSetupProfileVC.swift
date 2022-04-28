@@ -10,12 +10,7 @@ import FirebaseAuth
 import Magnetic
 import SPSafeSymbols
 import SpriteKit
-
-struct InterestModel {
-    let id: Int
-    let title: String
-    let emoji: String
-}
+import SPAlert
 
 final class InterestsSetupProfile: UIViewController {
 
@@ -32,6 +27,7 @@ final class InterestsSetupProfile: UIViewController {
         let blurEffectView = BlurEffectView(style: .systemUltraThinMaterial)
         blurEffectView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         blurEffectView.layer.cornerRadius = 30
+        blurEffectView.layer.cornerCurve = .continuous
         blurEffectView.layer.masksToBounds = true
         return blurEffectView
     }()
@@ -58,6 +54,7 @@ final class InterestsSetupProfile: UIViewController {
     override func loadView() {
         super.loadView()
         let magneticView = MagneticView(frame: self.view.bounds)
+        magneticView.backgroundColor = .systemBackground
         magnetic = magneticView.magnetic
         magnetic?.magneticDelegate = self
         self.view.addSubview(magneticView)
@@ -73,10 +70,7 @@ final class InterestsSetupProfile: UIViewController {
 
     private func setupNavigationBar() {
         setNavigationBar(withColor: .systemBlue, title: "Интересы", withClear: false)
-        var image = UIImage(.magnifyingglass, font: .boldSystemFont(ofSize: 18))
-        if #available(iOS 15.0, *) {
-            image = UIImage(.sparkle.magnifyingglass, font: .boldSystemFont(ofSize: 18))
-        }
+        let image = UIImage(.magnifyingglass, font: .boldSystemFont(ofSize: 18))
         let magniyingglassButton = UIBarButtonItem(
             image: image.withTintColor(
                 .systemBlue,
@@ -90,14 +84,36 @@ final class InterestsSetupProfile: UIViewController {
     }
 
     private func setupViews() {
-        view.backgroundColor = .systemBackground
         view.addSubview(bottomView)
         bottomView.contentView.addSubview(nextButton)
     }
 
     private func setupInterests() {
+        guard !ConfigService.shared.interestsArray.isEmpty else {
+            let alertView = SPAlertView(title: "Загрузка списка интересов", preset: .spinner)
+            ConfigService.shared.getInterests { result in
+                DispatchQueue.main.async {
+                    alertView.dismiss()
+                    switch result {
+                    case .success(_):
+                        self.addInterestsNodes()
+                    case .failure(_):
+                        SPAlert.present(
+                            title: "Ошибка загрузки списка интересов",
+                            message: "Пропробуйте снова позже",
+                            preset: .error
+                        )
+                    }
+                }
+            }
+            return
+        }
+        self.addInterestsNodes()
+    }
+
+    private func addInterestsNodes() {
         DispatchQueue.global(qos: .userInitiated).async {
-            for (i, interest) in GlobalConstants.interestsArray.enumerated() {
+            for (i, interest) in ConfigService.shared.interestsArray.enumerated() {
                 let bubbleColors = [
                     Colors.Bubbles.indigoBubble,
                     Colors.Bubbles.orangeBubble,

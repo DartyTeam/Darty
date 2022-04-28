@@ -192,7 +192,6 @@ class ListenerService {
     }
     
     func myPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
-        
         var parties = parties
         let partiesRef = db.collection(["users", currentUserId, "myParties"].joined(separator: "/"))
         
@@ -223,7 +222,6 @@ class ListenerService {
                             parties.remove(at: index)
                             dg.leave()
                         }
-                        
                     case .failure(let error):
                         completion(.failure(error))
                     } // switch result
@@ -242,8 +240,7 @@ class ListenerService {
         
         var waitingGuestsRequests = waitingGuestsRequests
         let reference = db.collection(["parties", partyId, "waitingGuests"].joined(separator: "/"))
-        
-        
+
         let requestsListener = reference.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
@@ -251,9 +248,6 @@ class ListenerService {
             }
             
             snapshot.documentChanges.forEach { (diff) in
-                print("asdiojasidoajd: ", diff)
-                print("asidjasidojasoidjasd: ", diff)
-                
                 guard let partyRequest = PartyRequestModel(document: diff.document) else { return }
                 switch diff.type {
                 case .added:

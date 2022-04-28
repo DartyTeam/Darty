@@ -201,16 +201,20 @@ final class PartiesVC: UIViewController {
         })
     }
 
+    private let filterBarButtonItem = UIBarButtonItem(
+        image: UIImage(.slider.horizontal_3)
+            .withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
+                ofSize: 18,
+                weight: .semibold
+            )))
+            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal),
+        style: .plain,
+        target: self,
+        action: #selector(filterAction)
+    )
+
     private func setupNavigationBar() {
         setNavigationBar(withColor: .systemPurple, title: "Поиск вечеринки", withClear: false)
-        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 18, weight: .semibold))
-        let filterBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "slider.horizontal.3", withConfiguration: boldConfig)?
-                .withTintColor(.systemOrange, renderingMode: .alwaysOriginal),
-            style: .plain,
-            target: self,
-            action: #selector(filterAction)
-        )
         navigationItem.rightBarButtonItems = [filterBarButtonItem]
         navigationItem.titleView?.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentedPartiesPages)
@@ -294,7 +298,8 @@ final class PartiesVC: UIViewController {
         case .none:
             break
         }
-
+        let isSearchListPartyType = partyListType == .search
+        navigationItem.setRightBarButton(isSearchListPartyType ? filterBarButtonItem : nil, animated: true)
         reloadData(with: nil)
     }
 
@@ -398,6 +403,27 @@ extension PartiesVC {
             switch section {
             case .parties:
                 let cell = self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
+                DispatchQueue.global(qos: .default).async {
+                    cell?.snapShotter.start { snapshot, error in
+                        DispatchQueue.main.async {
+                            let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
+                            cell?.setMap(image: snapshot?.image)
+                        }
+                    }
+                }
+
+                FirestoreService.shared.getUser(by: party.userId) { (result) in
+                    switch result {
+                    case .success(let user):
+                        DispatchQueue.main.async {
+                            let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
+                            cell?.setUser(rating: "000000", username: user.username, avatarStringUrl: user.avatarStringURL)
+                        }
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                }
+
                 if let party = self?.dataSource.itemIdentifier(for: indexPath) {
                     if self?.rejectedParties.contains(party) ?? false {
                         cell?.setRejected()
@@ -592,6 +618,7 @@ extension PartiesVC {
     }
 }
 
+// MARK: - FilterVCDelegate
 extension PartiesVC: FilterVCDelegate {
     func didChangeFilter(_ filter: FilterManager.FilterParams) {
         searchParties(filterParams: filter)

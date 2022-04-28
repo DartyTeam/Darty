@@ -11,6 +11,7 @@ target 'Darty' do
   pod 'Firebase/Auth'
   pod 'Firebase/Firestore'
   pod 'Firebase/Storage'
+  pod 'Firebase/Database'
   
   pod 'GoogleSignIn'
   pod 'FBSDKCoreKit'

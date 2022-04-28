@@ -267,8 +267,8 @@ final class SelectLocationVC: UIViewController {
     }
 }
 
+// MARK: - CLLocationManagerDelegate
 extension SelectLocationVC: CLLocationManagerDelegate {
-    
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
         currentLocationListeners.forEach { $0.action(location) }
@@ -277,8 +277,7 @@ extension SelectLocationVC: CLLocationManagerDelegate {
     }
 }
 
-// MARK: Searching
-
+// MARK: - Searching
 extension SelectLocationVC: UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
         guard let term = searchController.searchBar.text else { return }
@@ -340,8 +339,7 @@ extension SelectLocationVC: UISearchResultsUpdating {
     }
 }
 
-// MARK: Selecting location with gesture
-
+// MARK: - Selecting location with gesture
 extension SelectLocationVC {
     @objc func addLocation(_ gestureRecognizer: UIGestureRecognizer) {
         
@@ -362,8 +360,7 @@ extension SelectLocationVC {
     }
 }
 
-// MARK: MKMapViewDelegate
-
+// MARK: - MKMapViewDelegate
 extension SelectLocationVC: MKMapViewDelegate {
     public func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation { return nil }
@@ -414,14 +411,7 @@ extension SelectLocationVC: MKMapViewDelegate {
     }
 }
 
-extension SelectLocationVC: UIGestureRecognizerDelegate {
-    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-}
-
-// MARK: UISearchBarDelegate
-
+// MARK: - UISearchBarDelegate
 extension SelectLocationVC: UISearchBarDelegate {
     public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         // dirty hack to show history when there is no text in search bar

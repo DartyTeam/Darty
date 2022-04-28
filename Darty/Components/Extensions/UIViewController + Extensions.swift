@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Inject
 
 extension UIViewController {
     
@@ -27,12 +28,11 @@ extension UIViewController {
         self.navigationItem.setHidesBackButton(true, animated:false)
 
         if let index = navigationController?.viewControllers.firstIndex(of: self), index > 0 {
-            let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-
-            let leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), style: .plain, target: self, action:  #selector(backToMain))
-//            leftBarButtonItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
-
-            self.navigationItem.leftBarButtonItem = leftBarButtonItem
+            addBackButton(color: color)
+        } else if let parentHost = self.parent,
+                  let index = navigationController?.viewControllers.firstIndex(of: parentHost),
+                  index > 0 {
+            addBackButton(color: color)
         }
         
         navigationController?.navigationBar.setup(withColor: color, withClear: withClear)
@@ -40,6 +40,18 @@ extension UIViewController {
         //            let leftBarButtonItem = UIBarButtonItem(customView: view)
         //            leftBarButtonItem.setBackgroundVerticalPositionAdjustment(30, for: .default)
         //            self.navigationItem.leftBarButtonItem?.setBackButtonBackgroundVerticalPositionAdjustment(16, for: .default)
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+
+    private func addBackButton(color: UIColor) {
+        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
+
+        let leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), style: .plain, target: self, action:  #selector(backToMain))
+//            leftBarButtonItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
+
+        self.navigationItem.leftBarButtonItem = leftBarButtonItem
     }
 
     @objc func backToMain() {
@@ -96,5 +108,11 @@ extension UIViewController {
         } else {
             return false
         }
+    }
+}
+
+extension UIViewController: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }

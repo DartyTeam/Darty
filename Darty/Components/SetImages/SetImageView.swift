@@ -136,7 +136,7 @@ final class SetImageView: BlurEffectView {
                         }
                     }
                 } else {
-                    let alertController = UIAlertController(style: .alert, title: "Нет доступа к камере", message: "Необходимо пройти в настройки и включить доступ")
+                    let alertController = UIAlertController(style: .alert, title: "Нет доступа к камере", message: "Необходимо пройти в настройки и разрешить доступ")
                     let settingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { _ in
                         guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                             return

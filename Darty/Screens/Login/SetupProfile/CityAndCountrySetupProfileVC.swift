@@ -5,28 +5,31 @@
 //  Created by Руслан Садыков on 05.09.2021.
 //
 
-
 import UIKit
 import FirebaseAuth
 import MapKit
 import SPAlert
+import FlyoverKit
+import SPSafeSymbols
+import Inject
 
 final class CityAndCountrySetupProfileVC: UIViewController {
-    
+
+    private struct CityAndCountry {
+        var city: String?
+        var country: String?
+    }
+
     // MARK: - Constants
     private enum Constants {
-        static let aboutText = "Страна и город вашего местонахождения"
         static let textFont: UIFont? = .sfProDisplay(ofSize: 26, weight: .semibold)
-        
         static let cityFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
         static let countryFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
-        
-        static let cityPlaceholder = "Город неизвестен"
-        static let countryPlaceholder = "Страна неизвестна"
+        static let userLocationButtonSize: CGFloat = 56
     }
     
     // MARK: - UI Elements
-    let locationManager = CLLocationManager()
+    private let locationManager = CLLocationManager()
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
@@ -36,33 +39,9 @@ final class CityAndCountrySetupProfileVC: UIViewController {
         return button
     }()
     
-    private let aboutTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.aboutText
-        label.font = Constants.textFont
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    private let retryButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.addTarget(self, action: #selector(checkLocationServices), for: .touchUpInside)
-        button.setTitle("Запросить местоположение", for: UIControl.State())
-        button.setImage(UIImage(systemName: "location.fill"), for: UIControl.State())
-        button.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.8)
-        button.layer.cornerRadius = 8
-        button.clipsToBounds = true
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -16, bottom: 0, right: 16)
-        button.tintColor = .white
-        return button
-    }()
-    
     private let countryLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.countryFont
-        label.text = Constants.countryPlaceholder
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -71,15 +50,34 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     private let cityLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.cityFont
-        label.text = Constants.cityPlaceholder
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
     }()
 
+    private lazy var userLocationButton: UIButton = {
+        $0.layer.masksToBounds = true
+        $0.layer.cornerRadius = Constants.userLocationButtonSize / 2
+        $0.setImage(
+            UIImage(SPSafeSymbol.location.circleFill)
+                .withTintColor(.systemPurple, renderingMode: .alwaysOriginal),
+            for: UIControl.State()
+        )
+        $0.addTarget(self, action: #selector(checkLocationServices), for: .touchUpInside)
+        $0.addBlurEffect()
+        return $0
+    }(UIButton())
+
+    private let flyoverMapView = FlyoverMapView()
+
     // MARK: - Properties
-    private var city: String?
-    private var country: String?
+    private var cityAndCountry = CityAndCountry() {
+        didSet {
+            cityLabel.text = cityAndCountry.city
+            countryLabel.text = cityAndCountry.country
+            nextButton.backgroundColor = (cityAndCountry.country != nil && cityAndCountry.city != nil) ? nextButton.enabledBackground : nextButton.disabledBackround
+        }
+    }
     
     // MARK: - Delegate
     weak var delegate: CityAndCountrySetupProfileDelegate?
@@ -87,18 +85,37 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        checkLocationServices()
-        setNavigationBar(withColor: .systemBlue, title: "О вас")
+        locationManager.delegate = self
+        setupFlyover()
         setupViews()
         setupConstraints()
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNavigationBar(withColor: .systemBlue, title: "Страна и город")
+        checkLocationServices()
+    }
+
+    private func setupFlyover() {
+        let randomAwesomeLocation = FlyoverAwesomePlace.allCases.randomElement()
+        flyoverMapView.start(flyover: randomAwesomeLocation!)
+        view.addSubview(flyoverMapView)
+        flyoverMapView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
     
     @objc private func checkLocationServices() {
-        if CLLocationManager.locationServicesEnabled() { //Данный метод является методом класса и поэтому мы обращаемся к классу, а не к его экземпляру locationManager
+        if CLLocationManager.locationServicesEnabled() {
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             checkLocationAuthorization()
         } else {
-            self.showAlert(title: "Отключены службы геолокации", message: "Для включения перейдите: Настройки -> Конфиденциальность -> Службы геолокации -> Включить")
+            SPAlert.present(
+                title: "Отключены службы геолокации",
+                message: "Для включения перейдите: Настройки -> Конфиденциальность -> Службы геолокации -> Включить",
+                preset: .error
+            )
         }
     }
     
@@ -106,31 +123,21 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     private func checkLocationAuthorization() {
         switch locationManager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            print("asdijoasjdoijiasdijoasoijdjoiasdoijasd")
-            locationManager.delegate = self
-            locationManager.startUpdatingLocation()
-            locationManager.location?.fetchCityAndCountry(completion: { [weak self] city, country, error in
-                if let error = error {
-                    SPAlert.present(title: error.localizedDescription, message: "Вы можете попробовать снова в настройках аккаунта, а пока будет выбрано - Россия, Москва", preset: .error)
-                    self?.city = "Moscow"
-                    self?.country = "Russia"
-                    self?.countryLabel.text = "Russia"
-                    self?.cityLabel.text = "Moscow"
+            setCurrentLocation()
+        case .denied:
+            let alertVC = UIAlertController(title: "Отключены службы геолокации", message: "Необходимо разрешить доступ в настройках", preferredStyle: .alert)
+            let settingsAction = UIAlertAction(title: "Перейти в настройки", style: .default) { action in
+                guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                     return
                 }
-                
-                self?.countryLabel.text = country
-                self?.cityLabel.text = city
-                self?.city = city
-                self?.country = country
-            })
-            break
-        case .denied:
-            // Делаем отсрочку показа Alert на 1 секунду иначе он прогрузится раньше нужного из-за вызова метода из viewDidLoad и не отобразится
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.showAlert(title: "Отсутствует разрешение на определение местоположения", message: "Для выдачи разрешения перейдите: Настройки -> Конфиденциальность -> Службы геолокации -> Darty -> При использовании приложения")
+                if UIApplication.shared.canOpenURL(settingsUrl) {
+                    UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                        print("Settings opened: \(success)") // Prints true
+                    })
+                }
             }
-            break
+            alertVC.addAction(settingsAction)
+            present(alertVC, animated: true)
         case .restricted:
             break
         case .notDetermined:
@@ -139,17 +146,39 @@ final class CityAndCountrySetupProfileVC: UIViewController {
             print("ERROR_LOG Error check location authorization, new case is Available")
         }
     }
-    
+
+    // MARK: - Setup views
     private func setupViews() {
-        if let image = UIImage(named: "about.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
-            addBackground(image)
-        }
         view.backgroundColor = .systemBackground
-        view.addSubview(aboutTitleLabel)
         view.addSubview(nextButton)
         view.addSubview(countryLabel)
         view.addSubview(cityLabel)
-        view.addSubview(retryButton)
+        view.addSubview(userLocationButton)
+    }
+
+    // MARK: - Functions
+    private func setCurrentLocation() {
+        locationManager.startUpdatingLocation()
+        locationManager.location?.fetchCityAndCountry(completion: { [weak self] city, country, location, error in
+            guard let self = self else { return }
+            if let location = location, city != self.cityAndCountry.city, country != self.cityAndCountry.country {
+                self.flyoverMapView.start(flyover: location)
+            }
+            if let error = error {
+                self.cityAndCountry.city = "Москва"
+                self.cityAndCountry.country = "Россия"
+                let messageText = "Вы можете попробовать снова в настройках аккаунта, а пока будет выбрано - \(self.cityAndCountry.country!), \(self.cityAndCountry.city!)"
+                SPAlert.present(
+                    title: error.localizedDescription,
+                    message: messageText,
+                    preset: .error
+                )
+                return
+            } else if let city = city, let country = country {
+                self.cityAndCountry.city = city
+                self.cityAndCountry.country = country
+            }
+        })
     }
     
     // MARK: - Handlers
@@ -158,7 +187,7 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard let city = city, let country = country else {
+        guard let city = cityAndCountry.city, let country = cityAndCountry.country else {
             SPAlert.present(title: "Запросите определение местоположения снова", preset: .error)
             return
         }
@@ -168,14 +197,7 @@ final class CityAndCountrySetupProfileVC: UIViewController {
 
 // MARK: - Setup constraints
 extension CityAndCountrySetupProfileVC {
-    
     private func setupConstraints() {
-        
-        aboutTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(44)
-            make.left.right.equalToSuperview().inset(44)
-        }
-        
         countryLabel.snp.makeConstraints { make in
             make.centerY.equalToSuperview().offset(-32)
             make.left.right.equalToSuperview().inset(20)
@@ -194,17 +216,23 @@ extension CityAndCountrySetupProfileVC {
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-44)
         }
         
-        retryButton.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+        userLocationButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().offset(-24)
             make.bottom.equalTo(nextButton.snp.top).offset(-32)
+            make.size.equalTo(Constants.userLocationButtonSize)
         }
     }
 }
 
+// MARK: - CLLocationManagerDelegate
 extension CityAndCountrySetupProfileVC: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let _ = locations.first else { return }
         manager.stopUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        guard status == .authorizedWhenInUse || status == .authorizedAlways else { return }
+        setCurrentLocation()
     }
 }

@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import Inject
 
 protocol NameSetupProfileDelegate: AnyObject {
     func goNext(name: String)
@@ -117,7 +118,7 @@ final class AuthCoordinator: Coordinator {
     }
 
     private func openCityAndCountry() {
-        let cityAndCountryVC = CityAndCountrySetupProfileVC()
+        let cityAndCountryVC = Inject.ViewControllerHost(CityAndCountrySetupProfileVC())
         cityAndCountryVC.delegate = self
         navigationController.pushViewController(cityAndCountryVC, animated: true)
     }

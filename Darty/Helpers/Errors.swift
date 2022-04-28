@@ -75,6 +75,7 @@ extension PartyError: LocalizedError {
 
 enum StorageErrors {
     case couldntConvertLocalImage
+    case couldntConvertLocalJson
 }
 
 extension StorageErrors: LocalizedError {
@@ -82,6 +83,8 @@ extension StorageErrors: LocalizedError {
         switch self {
         case .couldntConvertLocalImage:
             return NSLocalizedString("Невозможно конвертировать локальное изображение", comment: "")
+        case .couldntConvertLocalJson:
+            return NSLocalizedString("Не удалось конвертировать локальный json файл в модель данных InterestModel", comment: "")
         }
     }
 }

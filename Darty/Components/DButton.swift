@@ -9,12 +9,15 @@ import UIKit
 
 class DButton: UIButton {
 
-    private var enabledBackground: UIColor?
-    private let disabledBackround: UIColor = .systemGray
+    private (set) var enabledBackground: UIColor?
+    var disabledBackround: UIColor = .systemGray
 
     init(title: String? = "") {
         super.init(frame: .zero)
         self.setTitle(title, for: .normal)
+        self.titleLabel?.numberOfLines = 0
+        self.titleLabel?.textAlignment = .center
+        self.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         self.setTitleColor(.white, for: .normal)
 
         self.titleLabel?.font = .sfProRounded(ofSize: 17, weight: .semibold)
@@ -40,7 +43,7 @@ class DButton: UIButton {
 
     override var backgroundColor: UIColor? {
         didSet {
-            guard enabledBackground == nil else { return }
+            guard enabledBackground == nil, backgroundColor != disabledBackround else { return }
             enabledBackground = backgroundColor ?? .systemBlue
         }
     }

@@ -63,7 +63,7 @@ final class MapVC: UIViewController {
     }()
     
     private lazy var userLocationButton: UIButton = {
-        $0.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        $0.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.8)
         $0.layer.masksToBounds = true
         $0.layer.cornerRadius = Constants.circleButtonsSize / 2
         $0.setImage(
@@ -77,7 +77,7 @@ final class MapVC: UIViewController {
     
     private let navigateInAnotherAppButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        button.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.8)
         button.layer.cornerRadius = Constants.circleButtonsSize / 2
         button.layer.masksToBounds = true
         button.setImage(

@@ -30,7 +30,7 @@ final class LoginVC: UIViewController {
     }()
     
     private let signInButton: DButton = {
-        let button = DButton(title: "Sign In")
+        let button = DButton(title: "Войти")
         button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
@@ -41,7 +41,7 @@ final class LoginVC: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = Constants.textFont
-        label.text = "Or continue with social network account"
+        label.text = "Или продолжить с учетной записью"
         label.textColor = .white
         return label
     }()
@@ -137,58 +137,6 @@ final class LoginVC: UIViewController {
         view.addSubview(googleButton)
         view.addSubview(appleButton)
         view.addSubview(facebookButton)
-    }
-    
-    private func setupConstraints() {
-        topBackgroundView.snp.makeConstraints { make in
-            make.top.left.right.equalToSuperview()
-            make.height.equalTo(56)
-        }
-
-        NSLayoutConstraint.activate([
-            signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            signInButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
-            signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -150)
-        ])
-
-        videoView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            make.left.right.equalToSuperview()
-            make.bottom.equalTo(signInButton.snp.bottom).inset(UIButton.defaultButtonHeight / 2)
-        }
-
-        dartyLogo.snp.makeConstraints { make in
-            make.top.equalTo(videoView.snp.top).offset(21)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(Constants.dartyLogoTextWidth)
-        }
-        
-        NSLayoutConstraint.activate([
-            appleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            appleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
-            appleButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        ])
-        
-        NSLayoutConstraint.activate([
-            googleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            googleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            googleButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
-            googleButton.trailingAnchor.constraint(equalTo: appleButton.leadingAnchor, constant: -50)
-        ])
-        
-        NSLayoutConstraint.activate([
-            facebookButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            facebookButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
-            facebookButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
-            facebookButton.leadingAnchor.constraint(equalTo: appleButton.trailingAnchor, constant: 50)
-        ])
-        
-        NSLayoutConstraint.activate([
-            continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -20),
-            continueWithSocLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-        ])
     }
     
     // MARK: - Handlers
@@ -333,5 +281,60 @@ extension LoginVC {
                 self?.showAlert(title: "Ошибка", message: error.localizedDescription)
             }
         }
+    }
+}
+
+// MARK: - Setup constraints
+extension LoginVC {
+    private func setupConstraints() {
+        topBackgroundView.snp.makeConstraints { make in
+            make.top.left.right.equalToSuperview()
+            make.height.equalTo(56)
+        }
+
+        NSLayoutConstraint.activate([
+            signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            signInButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
+            signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -150)
+        ])
+
+        videoView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(signInButton.snp.bottom).inset(UIButton.defaultButtonHeight / 2)
+        }
+
+        dartyLogo.snp.makeConstraints { make in
+            make.top.equalTo(videoView.snp.top).offset(21)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(Constants.dartyLogoTextWidth)
+        }
+
+        NSLayoutConstraint.activate([
+            appleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            appleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            appleButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
+            appleButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        ])
+
+        NSLayoutConstraint.activate([
+            googleButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            googleButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            googleButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
+            googleButton.trailingAnchor.constraint(equalTo: appleButton.leadingAnchor, constant: -50)
+        ])
+
+        NSLayoutConstraint.activate([
+            facebookButton.heightAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            facebookButton.widthAnchor.constraint(equalToConstant: Constants.socialButtonSize),
+            facebookButton.centerYAnchor.constraint(equalTo: appleButton.centerYAnchor),
+            facebookButton.leadingAnchor.constraint(equalTo: appleButton.trailingAnchor, constant: 50)
+        ])
+
+        NSLayoutConstraint.activate([
+            continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -20),
+            continueWithSocLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        ])
     }
 }

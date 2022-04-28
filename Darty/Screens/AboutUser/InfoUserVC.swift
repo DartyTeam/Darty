@@ -659,7 +659,7 @@ extension InfoUserVC: UICollectionViewDataSource {
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
-            let interest = GlobalConstants.interestsArray[userData.interestsList[indexPath.row]]
+            let interest = ConfigService.shared.interestsArray[userData.interestsList[indexPath.row]]
             cell.setupCell(title: interest.title, emoji: interest.emoji)
             if AuthService.shared.currentUser?.interestsList.contains(userData.interestsList[indexPath.row]) ?? false {
                 cell.isSelected = true

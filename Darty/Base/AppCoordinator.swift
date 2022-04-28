@@ -22,6 +22,7 @@ final class AppCoordinator: NSObject {
     }
 
     private func startScreenFlow() {
+        ConfigService.shared.getInterests()
         if let user = Auth.auth().currentUser {
             getCurrentUserDataDispatchGroup.enter()
             FirestoreService.shared.getUserData(user: user) { [weak self] (result) in

@@ -8,12 +8,10 @@
 import MapKit
 
 extension CLLocation {
-    func fetchCityAndCountry(completion: @escaping (_ city: String?, _ country:  String?, _ error: Error?) -> ()) {
+    func fetchCityAndCountry(completion: @escaping (_ city: String?, _ country:  String?, _ location: CLLocation?, _ error: Error?) -> ()) {
         let geocoder = CLGeocoder()
-        print("asdiojadsioasdijojaoisd: ", self)
         geocoder.reverseGeocodeLocation(self, completionHandler: { placemark, error in
-            print("asdiojasodijasd: ", self, placemark, error)
-            completion(placemark?.first?.locality, placemark?.first?.country, error)
+            completion(placemark?.first?.locality, placemark?.first?.country, placemark?.first?.location, error)
         })
     }
 }

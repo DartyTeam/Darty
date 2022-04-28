@@ -8,6 +8,7 @@
 import UIKit
 import MapKit
 import SkeletonView
+import SPSafeSymbols
 
 class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
@@ -117,7 +118,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         return view
     }()
 
-    private let rejectedLabel: UILabel = {
+    private let warningLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.titleFont
         label.text = "Отклонено"
@@ -166,9 +167,6 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     func configure<U>(with value: U) where U : Hashable {
         guard let party: PartyModel = value as? PartyModel else { return }
 
-        redView.isHidden = true
-        rejectedLabel.isHidden = true
-
         FirestoreService.shared.getUser(by: party.userId) { [weak self] (result) in
             switch result {
             case .success(let user):
@@ -201,11 +199,17 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         lon = party.location.longitude
         lat = party.location.latitude
         setupMapImageViewFor(latitude: party.location.latitude, longitude: party.location.longitude)
+
+        redView.isHidden = !party.isCanceled
+        warningLabel.isHidden = !party.isCanceled
+        warningLabel.text = party.isCanceled ? "Отменена" : "Отклонено"
     }
 
-    private func setupMapImageViewFor(latitude: Double, longitude: Double) {
-        let mapSnapshotOptions = MKMapSnapshotter.Options()
-
+    private let mapSnapshotOptions = MKMapSnapshotter.Options()
+    var snapShotter: MKMapSnapshotter {
+        return MKMapSnapshotter(options: self.mapSnapshotOptions)
+    }
+    func setupMapImageViewFor(latitude: Double, longitude: Double) {
         // Set the region of the map that is rendered.
         let location = CLLocationCoordinate2DMake(latitude, longitude) // Apple HQ
         let region = MKCoordinateRegion(center: location, latitudinalMeters: 1000, longitudinalMeters: 1000)
@@ -239,19 +243,24 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
             .hospital,
             .hotel,
             .laundry,
-            .library]
-        )
+            .library
+        ])
+    }
 
-        let snapShotter = MKMapSnapshotter(options: mapSnapshotOptions)
-        snapShotter.start { snapshot, error in
-            self.mapImageView.image = snapshot?.image
-            self.mapImageView.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.3))
-        }
+    func setMap(image: UIImage?) {
+        mapImageView.image = image
+        mapImageView.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.3))
+    }
+
+    func setUser(rating: String, username: String, avatarStringUrl: String) {
+        userImageView.setImage(stringUrl: avatarStringUrl)
+        userNameLabel.text = username
+        userRatingLabel.text = rating
     }
     
     func setRejected() {
         redView.isHidden = false
-        rejectedLabel.isEnabled = false
+        warningLabel.isHidden = false
     }
     
     func setRequests(count: Int) {
@@ -300,7 +309,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         contentView.addSubview(infoView)
         infoView.addSubview(infoLabel)
         contentView.addSubview(redView)
-        contentView.addSubview(rejectedLabel)
+        contentView.addSubview(warningLabel)
     }
 }
 
@@ -387,7 +396,7 @@ extension PartyCell {
             make.edges.equalToSuperview()
         }
 
-        rejectedLabel.snp.makeConstraints { make in
+        warningLabel.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
         

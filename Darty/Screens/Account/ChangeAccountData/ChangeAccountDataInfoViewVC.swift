@@ -526,7 +526,7 @@ extension ChangeAccountDataInfoViewVC: UICollectionViewDataSource, UICollectionV
                 withReuseIdentifier: InterestCell.reuseIdentifier,
                 for: indexPath
             ) as! InterestCell
-            let interest = GlobalConstants.interestsArray[AuthService.shared.currentUser.interestsList[indexPath.row]]
+            let interest = ConfigService.shared.interestsArray[AuthService.shared.currentUser.interestsList[indexPath.row]]
             cell.setupCell(title: interest.title, emoji: interest.emoji)
             cell.isSelected = true
             return cell

@@ -44,6 +44,7 @@ class NewChatVC: MessagesViewController {
         let inputBarButtonItem = InputBarButtonItem(type: .system)
         inputBarButtonItem.image = UIImage(systemName: "mic")
         inputBarButtonItem.addGestureRecognizer(micLongPressGesture)
+        inputBarButtonItem.addGestureRecognizer(micUpSwipeGesure)
         inputBarButtonItem.tintColor = .systemTeal
         inputBarButtonItem.setSize(Constants.inputBarButtonsSize, animated: false)
         return inputBarButtonItem
@@ -65,7 +66,6 @@ class NewChatVC: MessagesViewController {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = Constants.avatarSize.height / 2
-        imageView.hero.id = GlobalConstants.userImageHeroId
         imageView.isSkeletonable = true
         imageView.isUserInteractionDisabledWhenSkeletonIsActive = true
         imageView.isUserInteractionEnabled = true
@@ -163,11 +163,17 @@ class NewChatVC: MessagesViewController {
     
     let currentUser = MKSender(senderId: AuthService.shared.currentUser!.id, displayName: AuthService.shared.currentUser!.username)
     
-    lazy var micLongPressGesture: UILongPressGestureRecognizer = {
+    private lazy var micLongPressGesture: UILongPressGestureRecognizer = {
         let longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(recordAudio(gesture:)))
         longPressGestureRecognizer.minimumPressDuration = 0.5
         longPressGestureRecognizer.delaysTouchesBegan = true
         return longPressGestureRecognizer
+    }()
+
+    private lazy var micUpSwipeGesure: UISwipeGestureRecognizer = {
+        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(recordAudio(gesture:)))
+        swipeGestureRecognizer.direction = .up
+        return swipeGestureRecognizer
     }()
     
     var audioFileName: String = ""
@@ -337,6 +343,7 @@ class NewChatVC: MessagesViewController {
             audioRecordView.isUserInteractionEnabled = false
             audioRecordView.delegate = self
             audioRecordButton.delegate = self
+            view.addSubview(audioRecordButton)
         }
         audioRecordView.isHidden = false
     }
@@ -393,8 +400,6 @@ class NewChatVC: MessagesViewController {
     @objc private func openRecipientAccountInfo() {
         guard let recipientData = recipientData else { return }
         let aboutUserVC = AboutUserVC(userData: recipientData, preloadedUserImage: avatarImageView.image)
-        navigationController?.hero.isEnabled = true
-        navigationController?.hero.navigationAnimationType = .none
         navigationController?.pushViewController(aboutUserVC, animated: true)
     }
     
@@ -634,56 +639,72 @@ class NewChatVC: MessagesViewController {
     // MARK: - Audio messages
     @objc private func recordAudio(gesture: UIGestureRecognizer) {
         var yPos = view.frame.size.height - (audioRecordView.frame.size.height / 2) - (audioRecordButton.frame.size.height / 4)
-        let location = gesture.location(in: view)
-        switch gesture.state {
-        case .began:
-            audioRecordView.setSwipeToCancel()
-            audioRecordView.startInfoLabelAnimation()
-            configureAudioRecordView()
-            vibrate()
-            audioDuration = Date()
-            audioFileName = DateFormatter.ddMMyyyyHHmmss.string(from: Date())
-            AudioRecorder.shared.startRecording(fileName: audioFileName)
+        print("aisdjaisodjaoisdjaoisdj: ", gesture)
+        if gesture == micUpSwipeGesure {
+            confgureAudioRecordForStart()
             let messageViewHeight = messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom
-            yPos = view.frame.size.height - (messageViewHeight / 2) - (audioRecordButton.frame.size.height / 3)
-            audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .record)
-            messageInputBar.isHidden = true
-            view.addSubview(audioRecordButton)
-        case .changed:
-            let rightSpace = UIScreen.main.bounds.width - location.x
             let maxRightPosX = view.frame.size.width - Constants.rightRecordButtonPadding
-            let isInSafeRightPadding = location.x >= maxRightPosX
-            let xPos = isInSafeRightPadding ? maxRightPosX : location.x
-            let bottomSpace = view.frame.size.height - location.y
-            let yPosForStartStayRecord = audioRecordView.frame.size.height + audioRecordButton.frame.size.height
-            switch bottomSpace {
-            case yPosForStartStayRecord...view.frame.size.height:
-                gesture.state = .cancelled
-                audioRecordView.setTapToCancel()
-                audioRecordButton.update(center: CGPoint(x: maxRightPosX, y: yPos), state: .stayRecord)
-            default:
-                switch rightSpace {
-                case 0...Constants.recordButtonSpace:
-                    audioRecordView.setSwipeToCancel()
-                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .record)
-                case Constants.recordButtonSpace...Constants.deleteButtonSpace:
-                    audioRecordView.slideInfoLabel(offset: xPos)
-                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .delete)
+            yPos = view.frame.size.height - (messageViewHeight / 2) - (audioRecordButton.frame.size.height / 4)
+            gesture.state = .cancelled
+            audioRecordView.setTapToCancel()
+            audioRecordButton.update(center: CGPoint(x: maxRightPosX, y: yPos), state: .stayRecord, animated: false)
+            view.addSubview(audioRecordButton)
+        } else {
+            let location = gesture.location(in: view)
+            switch gesture.state {
+            case .began:
+                audioRecordView.setSwipeToCancel()
+                audioRecordView.startInfoLabelAnimation()
+                confgureAudioRecordForStart()
+                let messageViewHeight = messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom
+                yPos = view.frame.size.height - (messageViewHeight / 2) - (audioRecordButton.frame.size.height / 3)
+                audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .record)
+                view.addSubview(audioRecordButton)
+            case .changed:
+                let rightSpace = UIScreen.main.bounds.width - location.x
+                let maxRightPosX = view.frame.size.width - Constants.rightRecordButtonPadding
+                let isInSafeRightPadding = location.x >= maxRightPosX
+                let xPos = isInSafeRightPadding ? maxRightPosX : location.x
+                let bottomSpace = view.frame.size.height - location.y
+                let yPosForStartStayRecord = audioRecordView.frame.size.height + audioRecordButton.frame.size.height
+                switch bottomSpace {
+                case yPosForStartStayRecord...view.frame.size.height:
+                    gesture.state = .cancelled
+                    audioRecordView.setTapToCancel()
+                    audioRecordButton.update(center: CGPoint(x: maxRightPosX, y: yPos), state: .stayRecord)
                 default:
-                    audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .end) { [weak self] in
-                        gesture.state = .cancelled
-                        self?.cancelRecordAudio()
+                    switch rightSpace {
+                    case 0...Constants.recordButtonSpace:
+                        audioRecordView.setSwipeToCancel()
+                        audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .record)
+                    case Constants.recordButtonSpace...Constants.deleteButtonSpace:
+                        audioRecordView.slideInfoLabel(offset: xPos)
+                        audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .delete)
+                    default:
+                        audioRecordButton.update(center: CGPoint(x: xPos, y: location.y), state: .end) { [weak self] in
+                            gesture.state = .cancelled
+                            self?.cancelRecordAudio()
+                        }
                     }
                 }
+            case .ended:
+                audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .end) { [weak self] in
+                    gesture.state = .cancelled
+                    self?.endRecordAudio()
+                }
+            default:
+                break
             }
-        case .ended:
-            audioRecordButton.update(center: CGPoint(x: location.x, y: yPos), state: .end) { [weak self] in
-                gesture.state = .cancelled
-                self?.endRecordAudio()
-            }
-        default:
-            break
         }
+    }
+
+    private func confgureAudioRecordForStart() {
+        configureAudioRecordView()
+        vibrate()
+        audioDuration = Date()
+        audioFileName = DateFormatter.ddMMyyyyHHmmss.string(from: Date())
+        AudioRecorder.shared.startRecording(fileName: audioFileName)
+        messageInputBar.isHidden = true
     }
 
     private func endRecordAudio() {
@@ -738,7 +759,7 @@ class NewChatVC: MessagesViewController {
             self?.typingCounterStop()
         }
     }
-    
+
     func typingCounterStop() {
         typingCounter -= 1
         if typingCounter == 0 {
