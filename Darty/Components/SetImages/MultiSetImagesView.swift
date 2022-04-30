@@ -128,15 +128,10 @@ final class MultiSetImagesView: UIView {
                 images.append(item.image)
             }
 
-            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-//            button.tintColor = .systemOra
-            
             // In case of an array of [UIImage]:
             let agrume = Agrume(
                 images: images,
-                startIndex: sender.view?.tag ?? 0,
-                background: .blurred(.systemUltraThinMaterial),
-                dismissal: .withPanAndButton(.standard, button)
+                startIndex: sender.view?.tag ?? 0
             )
             // Or an array of [URL]:
             // let agrume = Agrume(urls: urls, startIndex: indexPath.item, background: .blurred(.light))

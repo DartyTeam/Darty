@@ -11,9 +11,9 @@ final class PartyPriceAndGuestsVC: UIViewController {
 
     // MARK: - Constants
     private enum Constants {
-        static let titleFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
+        static let titleFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
         static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .semibold)
-        static let segmentFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
+        static let segmentFont: UIFont? = .sfProRounded(ofSize: 20, weight: .medium)
     }
     
     // MARK: - UI Elements
@@ -290,9 +290,11 @@ extension PartyPriceAndGuestsVC {
         bottomSafeAreaHeight = window.frame.maxY - safeFrame.maxY
         
         nextButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16))
+            make.top.equalToSuperview().offset(
+                view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16)
+            )
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
+            make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalToSuperview()
         }
         

@@ -12,6 +12,7 @@ protocol AccountCoordinatorDelegate: AnyObject {
     func openChangeInfo(preloadedUserImage: UIImage?, isNeedAnimatedShowImage: Bool)
     func openContactsWithUs()
     func openChangePhone()
+    func openNotificationsSettings()
     func openChangeInterests()
     func popVC()
 }
@@ -64,14 +65,20 @@ extension AccountCoordinator: AccountCoordinatorDelegate {
 
     func openContactsWithUs() {
         let contactWithUsVC = ContactWithUsVC()
-        isEnabledAnimationNavigation = false
+        isEnabledAnimationNavigation = true
         navigationController.pushViewController(contactWithUsVC, animated: true)
     }
 
     func openChangePhone() {
         let changePhoneVC = ChangePhoneVC()
-        isEnabledAnimationNavigation = false
+        isEnabledAnimationNavigation = true
         navigationController.pushViewController(changePhoneVC, animated: true)
+    }
+
+    func openNotificationsSettings() {
+        let notificationsSettingsVC = NotificationSettingsVC()
+        isEnabledAnimationNavigation = true
+        navigationController.pushViewController(notificationsSettingsVC, animated: true)
     }
 
     func popVC() {

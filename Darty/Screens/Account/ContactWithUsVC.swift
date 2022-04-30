@@ -44,7 +44,11 @@ final class ContactWithUsVC: UIViewController {
     }()
     
     private lazy var attachImagesView: MultiSetImagesView = {
-        let multiSetImagesView = MultiSetImagesView(maxPhotos: 10, shape: .rect, color: .systemIndigo)
+        let multiSetImagesView = MultiSetImagesView(
+            maxPhotos: 10,
+            shape: .rect,
+            color: .systemIndigo
+        )
         multiSetImagesView.numberOfItemInPage = 3
         multiSetImagesView.delegate = self
         multiSetImagesView.isPagingEnabled = false
@@ -54,19 +58,26 @@ final class ContactWithUsVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         setupViews()
         setupConstraints()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setupNavigationBar()
         setIsTabBarHidden(true)
     }
-    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.mailAnimationView.play()
+        }
+    }
+
+    // MARK: - Setup
     private func setupNavigationBar() {
-        navigationController?.navigationBar.prefersLargeTitles = false
-        setNavigationBar(withColor: .systemIndigo, title: "Связь с разработчиком")
+        setNavigationBar(withColor: .systemIndigo, title: "Обратная связь")
     }
     
     private func setupViews() {
@@ -77,51 +88,6 @@ final class ContactWithUsVC: UIViewController {
         scrollView.addSubview(sendButton)
         scrollView.addSubview(attachImagesLabel)
         scrollView.addSubview(attachImagesView)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.mailAnimationView.play()
-        }
-    }
-    
-    private func setupConstraints() {
-        mailAnimationView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
-            make.left.right.equalToSuperview().inset(76)
-            make.height.equalTo(223)
-        }
-        
-        scrollView.snp.makeConstraints { make in
-            make.top.equalTo(mailAnimationView.snp.bottom).offset(32)
-            make.edges.equalToSuperview()
-        }
-        
-        messageTextView.snp.makeConstraints { make in
-            make.top.equalTo(mailAnimationView.snp.bottom).offset(32)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(128)
-        }
-        
-        sendButton.snp.makeConstraints { make in
-            make.top.equalTo(messageTextView.snp.bottom).offset(44)
-            make.left.right.equalToSuperview().inset(20)
-            make.width.equalTo(view.frame.size.width - 40)
-            make.height.equalTo(50)
-        }
-        
-        attachImagesLabel.snp.makeConstraints { make in
-            make.top.equalTo(sendButton.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(24)
-        }
-        
-        attachImagesView.snp.makeConstraints { make in
-            make.top.equalTo(attachImagesLabel.snp.bottom).offset(16)
-            make.left.right.equalToSuperview()
-            make.height.equalTo((view.frame.size.width - MultiSetImagesView.Constants.itemSpaceForMultiItemsInPage * attachImagesView.numberOfItemInPage) / attachImagesView.numberOfItemInPage)
-            make.bottom.equalToSuperview().offset(-356)
-        }
     }
     
     // MARK: - Handlers
@@ -138,13 +104,61 @@ final class ContactWithUsVC: UIViewController {
         let mailComposeVC = MFMailComposeViewController()
         mailComposeVC.mailComposeDelegate = self
         for (i, imageItem) in attachImagesView.images.enumerated() {
-            mailComposeVC.addAttachmentData(imageItem.image.jpegData(compressionQuality: CGFloat(1.0))!, mimeType: "image/jpeg", fileName:  "image\(i).jpeg")
+            mailComposeVC.addAttachmentData(
+                imageItem.image.jpegData(compressionQuality: CGFloat(1.0))!,
+                mimeType: "image/jpeg",
+                fileName:  "image\(i).jpeg"
+            )
         }
-        
         mailComposeVC.setToRecipients(["s.ru5c55an.n@gmail.com"])
         mailComposeVC.setSubject("Message from DartyApp")
         mailComposeVC.setMessageBody(messageTextView.text, isHTML: false)
         return mailComposeVC
+    }
+}
+
+// MARK: - Setup constraints
+extension ContactWithUsVC {
+    private func setupConstraints() {
+        mailAnimationView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
+            make.left.right.equalToSuperview().inset(76)
+            make.height.equalTo(223)
+        }
+
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(mailAnimationView.snp.bottom).offset(32)
+            make.edges.equalToSuperview()
+        }
+
+        messageTextView.snp.makeConstraints { make in
+            make.top.equalTo(mailAnimationView.snp.bottom).offset(32)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(128)
+        }
+
+        sendButton.snp.makeConstraints { make in
+            make.top.equalTo(messageTextView.snp.bottom).offset(44)
+            make.left.right.equalToSuperview().inset(20)
+            make.width.equalTo(view.frame.size.width - 40)
+            make.height.equalTo(UIButton.defaultButtonHeight)
+        }
+
+        attachImagesLabel.snp.makeConstraints { make in
+            make.top.equalTo(sendButton.snp.bottom).offset(32)
+            make.left.equalToSuperview().offset(24)
+        }
+
+        attachImagesView.snp.makeConstraints { make in
+            make.top.equalTo(attachImagesLabel.snp.bottom).offset(16)
+            make.left.right.equalToSuperview()
+            make.height.equalTo(
+                (view.frame.size.width -
+                 MultiSetImagesView.Constants.itemSpaceForMultiItemsInPage *
+                 attachImagesView.numberOfItemInPage) / attachImagesView.numberOfItemInPage
+            )
+            make.bottom.equalToSuperview().offset(-356)
+        }
     }
 }
 

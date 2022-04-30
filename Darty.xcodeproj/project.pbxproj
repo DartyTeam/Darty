@@ -57,7 +57,6 @@
 		444A7C6127F0DFAB0073DC2F /* AccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444A7C6027F0DFAB0073DC2F /* AccountCoordinator.swift */; };
 		44507C1127FC4DC600A8F3CB /* AudioRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44507C1027FC4DC600A8F3CB /* AudioRecordView.swift */; };
 		44507C1327FC52A100A8F3CB /* AudioRecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44507C1227FC52A100A8F3CB /* AudioRecordButton.swift */; };
-		44507C1527FC561000A8F3CB /* MicButton.json in Resources */ = {isa = PBXBuildFile; fileRef = 44507C1427FC561000A8F3CB /* MicButton.json */; };
 		445411B426ED016400D7A5D4 /* InstagramAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411B326ED016400D7A5D4 /* InstagramAPI.swift */; };
 		445411B826ED028C00D7A5D4 /* InstagramResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411B726ED028C00D7A5D4 /* InstagramResponse.swift */; };
 		445411BB26ED199300D7A5D4 /* InstagramPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411BA26ED199300D7A5D4 /* InstagramPhotoCell.swift */; };
@@ -160,6 +159,10 @@
 		44D36A1126963F58002886D0 /* SelfConfigutingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */; };
 		44D36A132697A243002886D0 /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A122697A243002886D0 /* TextField.swift */; };
 		44D36A172699A72F002886D0 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D36A162699A72E002886D0 /* TextView.swift */; };
+		44D42BFC281CA75E00FFF478 /* NotificationSettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D42BFB281CA75E00FFF478 /* NotificationSettingsVC.swift */; };
+		44D42BFF281CAE1700FFF478 /* NotificationSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D42BFE281CAE1700FFF478 /* NotificationSettingsCell.swift */; };
+		44D42C01281CAFAB00FFF478 /* NotificationSettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D42C00281CAFAB00FFF478 /* NotificationSettingsModel.swift */; };
+		44D42C03281CCCFB00FFF478 /* Agrume + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D42C02281CCCFB00FFF478 /* Agrume + Extension.swift */; };
 		44D44ACB268A580000EFE76F /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACA268A580000EFE76F /* AuthService.swift */; };
 		44D44ACD268A586000EFE76F /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACC268A586000EFE76F /* Errors.swift */; };
 		44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */; };
@@ -289,7 +292,6 @@
 		444A7C6027F0DFAB0073DC2F /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
 		44507C1027FC4DC600A8F3CB /* AudioRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordView.swift; sourceTree = "<group>"; };
 		44507C1227FC52A100A8F3CB /* AudioRecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordButton.swift; sourceTree = "<group>"; };
-		44507C1427FC561000A8F3CB /* MicButton.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = MicButton.json; sourceTree = "<group>"; };
 		445411B326ED016400D7A5D4 /* InstagramAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramAPI.swift; sourceTree = "<group>"; };
 		445411B726ED028C00D7A5D4 /* InstagramResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramResponse.swift; sourceTree = "<group>"; };
 		445411BA26ED199300D7A5D4 /* InstagramPhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramPhotoCell.swift; sourceTree = "<group>"; };
@@ -394,6 +396,10 @@
 		44D36A1026963F58002886D0 /* SelfConfigutingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfConfigutingCell.swift; sourceTree = "<group>"; };
 		44D36A122697A243002886D0 /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		44D36A162699A72E002886D0 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		44D42BFB281CA75E00FFF478 /* NotificationSettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsVC.swift; sourceTree = "<group>"; };
+		44D42BFE281CAE1700FFF478 /* NotificationSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsCell.swift; sourceTree = "<group>"; };
+		44D42C00281CAFAB00FFF478 /* NotificationSettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsModel.swift; sourceTree = "<group>"; };
+		44D42C02281CCCFB00FFF478 /* Agrume + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Agrume + Extension.swift"; sourceTree = "<group>"; };
 		44D44ACA268A580000EFE76F /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		44D44ACC268A586000EFE76F /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		44D44ACE268A5CFB00EFE76F /* FirestoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreService.swift; sourceTree = "<group>"; };
@@ -723,6 +729,7 @@
 		446A34A2267E58D300528501 /* Account */ = {
 			isa = PBXGroup;
 			children = (
+				44D42BFD281CADE700FFF478 /* NotificationSettings */,
 				444A7C6027F0DFAB0073DC2F /* AccountCoordinator.swift */,
 				4400479326E814CF00BDF8F1 /* ChangeAccountData */,
 				446A3497267E54C100528501 /* AccountVC.swift */,
@@ -816,7 +823,6 @@
 		448180F626B86AFB00A68B72 /* LottieFiles */ = {
 			isa = PBXGroup;
 			children = (
-				44507C1427FC561000A8F3CB /* MicButton.json */,
 				448180F726B86B0700A68B72 /* SendMail.json */,
 				448180F926B871C100A68B72 /* DarkModeButton.json */,
 			);
@@ -1004,8 +1010,19 @@
 				44879B2126D56F4100F2D485 /* Date + Extension.swift */,
 				440670DB26E3F0A0008911EB /* PhoneNumberTextField + Extension.swift */,
 				440670DF26E41C96008911EB /* CLLocation + Extension.swift */,
+				44D42C02281CCCFB00FFF478 /* Agrume + Extension.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		44D42BFD281CADE700FFF478 /* NotificationSettings */ = {
+			isa = PBXGroup;
+			children = (
+				44D42BFB281CA75E00FFF478 /* NotificationSettingsVC.swift */,
+				44D42BFE281CAE1700FFF478 /* NotificationSettingsCell.swift */,
+				44D42C00281CAFAB00FFF478 /* NotificationSettingsModel.swift */,
+			);
+			path = NotificationSettings;
 			sourceTree = "<group>";
 		};
 		44D44AC9268A57F100EFE76F /* Services */ = {
@@ -1211,7 +1228,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44507C1527FC561000A8F3CB /* MicButton.json in Resources */,
 				4430DF75268F1E910016F2A7 /* SF-Pro-Display-Semibold.otf in Resources */,
 				44D44AE7268A684600EFE76F /* GoogleService-Info.plist in Resources */,
 				4430DF73268F1E910016F2A7 /* SF-Pro-Rounded-Semibold.otf in Resources */,
@@ -1321,12 +1337,14 @@
 				449399A227A487970035C69F /* Coordinator.swift in Sources */,
 				44C639C0269CED5400D5CFD5 /* PartyPriceAndGuestsVC.swift in Sources */,
 				44D44ACF268A5CFB00EFE76F /* FirestoreService.swift in Sources */,
+				44D42BFC281CA75E00FFF478 /* NotificationSettingsVC.swift in Sources */,
 				446A34A9267E5B2100528501 /* BottomLineTextField.swift in Sources */,
 				446A34AD267E5D3B00528501 /* AppCoordinator.swift in Sources */,
 				440670CB26E3EA4A008911EB /* LocalePickerViewController.swift in Sources */,
 				44FB27D426A4606A00028602 /* OnboardVC.swift in Sources */,
 				44A171F72690CC6C00C154A0 /* SexSelector.swift in Sources */,
 				4481812326BCA18100A68B72 /* MessageKitDefaults.swift in Sources */,
+				44D42C01281CAFAB00FFF478 /* NotificationSettingsModel.swift in Sources */,
 				440670D826E3EA72008911EB /* PhoneCodeCell.swift in Sources */,
 				4432939627A466D1005ACD19 /* CreateCoordinator.swift in Sources */,
 				44E2AB2826BD9E6900D04FC9 /* LocalMessage.swift in Sources */,
@@ -1337,6 +1355,7 @@
 				446A348C267E53F500528501 /* TabBarController.swift in Sources */,
 				44879B2626D58F9E00F2D485 /* BasicAudioController.swift in Sources */,
 				4413580E26A8ABC800C69C71 /* PartyImageCell.swift in Sources */,
+				44D42C03281CCCFB00FFF478 /* Agrume + Extension.swift in Sources */,
 				444A7C5A27EF70DF0073DC2F /* Colors.swift in Sources */,
 				44D44AD8268A61DB00EFE76F /* PartyModel.swift in Sources */,
 				4408BCDB26B1C8B5006C48AE /* PartyRequestModel.swift in Sources */,
@@ -1359,6 +1378,7 @@
 				44D44AD4268A5F2C00EFE76F /* UIViewController + Extensions.swift in Sources */,
 				4491D4FA26B36D8100D3E98A /* AgrumeHelper.swift in Sources */,
 				44E2AB2A26BDA65F00D04FC9 /* RealmManager.swift in Sources */,
+				44D42BFF281CAE1700FFF478 /* NotificationSettingsCell.swift in Sources */,
 				4491D51B26B6C57B00D3E98A /* UIColor + Extension.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
 				44CCE005280CB0A10059A62D /* ShareUserHelper.swift in Sources */,

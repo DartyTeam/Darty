@@ -13,6 +13,7 @@ final class TextField: UITextField {
         static let textFont: UIFont? = .sfProText(ofSize: 14, weight: .regular)
         static let titleFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .medium)
         static let unselectedBorderColor: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
+        static let height: CGFloat = 50
     }
     private var activeBorderColor: UIColor = UIColor.blue
     
@@ -68,15 +69,14 @@ final class TextField: UITextField {
     }
     
     private func setupViews() {
-        self.backgroundColor = .systemBackground
-        self.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            heightAnchor.constraint(equalToConstant: 50)
-        ])
+        self.backgroundColor = .tertiarySystemBackground
+        snp.makeConstraints { make in
+            make.height.equalTo(Constants.height)
+        }
     }
     
     private func setupShadow() {
-        self.layer.shadowColor =  UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
+        self.layer.shadowColor = UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
         self.layer.shadowRadius = 5
         self.layer.cornerCurve = .continuous
         self.layer.shadowOpacity = 1
@@ -130,7 +130,7 @@ final class TextField: UITextField {
     }
 
     @objc private func removeFloatingLabel() {
-        if self.text == "" {
+        if self.text?.isEmpty ?? true {
             self.placeholder = savedPlaceholder
             if !errorMessage.isEmpty {
                 self.animateBorderColor(toColor: UIColor.systemRed, duration: 0.3)
@@ -145,9 +145,9 @@ final class TextField: UITextField {
                     self.setNeedsDisplay()
                 }
             }
+        } else {
+            changeToBlack()
         }
-        
-        changeToBlack()
     }
     
     private func changeToBlack() {
@@ -201,7 +201,6 @@ final class TextField: UITextField {
     }
 
     func addImage(image: UIImage) {
-
         self.imageView.image = image
         self.imageView.frame = CGRect(x: 20, y: 0, width: 20, height: 20)
         self.imageView.translatesAutoresizingMaskIntoConstraints = true

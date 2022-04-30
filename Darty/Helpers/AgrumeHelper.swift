@@ -17,19 +17,33 @@ final class AgrumeHelper {
         let saveButtonTitle = NSLocalizedString("Сохранить фото", comment: "Save Photo")
         let cancelButtonTitle = NSLocalizedString("Отмена", comment: "Cancel")
         
-        let helper = AgrumePhotoLibraryHelper(saveButtonTitle: saveButtonTitle, cancelButtonTitle: cancelButtonTitle) { error in
+        let helper = AgrumePhotoLibraryHelper(
+            saveButtonTitle: saveButtonTitle,
+            cancelButtonTitle: cancelButtonTitle
+        ) { error in
             guard error == nil else {
                 if PHPhotoLibrary.authorizationStatus() == .notDetermined || PHPhotoLibrary.authorizationStatus() == .denied {
-                    SPAlert.present(title: "Нет доступа к библиотеке Фото", message: "Необходимо предоставить разрешение в настройках", preset: .error, completion: nil)
+                    SPAlert.present(
+                        title: "Нет доступа к библиотеке Фото",
+                        message: "Необходимо предоставить разрешение в настройках",
+                        preset: .error,
+                        completion: nil
+                    )
                 } else {
-                    SPAlert.present(title: "Не удалось сохранить фото в вашу библиотеку", preset: .error)
+                    SPAlert.present(
+                        title: "Не удалось сохранить фото в вашу библиотеку",
+                        preset: .error
+                    )
                 }
         
                 print("Could not save your photo: ", error?.localizedDescription)
                 return
             }
             print("Photo has been saved to your library")
-            SPAlert.present(title: "Фото было сохранено в вашу библиотеку", preset: .done)
+            SPAlert.present(
+                title: "Фото было сохранено в вашу библиотеку",
+                preset: .done
+            )
         }
         return helper
     }

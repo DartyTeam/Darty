@@ -398,14 +398,9 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     @objc private func showFullImageAction(_ sender: UITapGestureRecognizer) {
         sender.view?.showAnimation { [weak self] in
             guard let self = self else { return }
-            
-            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-            
             let agrume = Agrume(
                 urls: self.instagramPhotoUrls,
-                startIndex: sender.view?.tag ?? 0,
-                background: .blurred(.light),
-                dismissal: .withPanAndButton(.standard, button)
+                startIndex: sender.view?.tag ?? 0
             )
 
             agrume.didScroll = { [unowned self] index in
@@ -415,9 +410,6 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
                     animated: false
                 )
             }
-            
-            let helper = AgrumeHelper.shared.makeHelper()
-            agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
             
             agrume.show(from: self)
         }

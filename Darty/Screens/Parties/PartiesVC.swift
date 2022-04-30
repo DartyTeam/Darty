@@ -59,8 +59,18 @@ final class PartiesVC: UIViewController {
     private struct Constants {
         static let segmentPartiesHorizontalInset: CGFloat = 32
         static let segmentPartiesTopOffset: CGFloat = 16
+        static let errorListenerParty = "Ошибка"
     }
     // MARK: - UI Elements
+    private let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "Нет вечеринок"
+        label.font = .sfProDisplay(ofSize: 20, weight: .medium)
+        return label
+    }()
+
     private let searchController = UISearchController(searchResultsController: nil)
 
     private let segmentedPartiesPages: UISegmentedControl = {
@@ -74,6 +84,18 @@ final class PartiesVC: UIViewController {
         segmentedControl.setTitleTextAttributes(attrs, for: UIControl.State())
         return segmentedControl
     }()
+
+    private let filterBarButtonItem = UIBarButtonItem(
+        image: UIImage(.slider.horizontal_3)
+            .withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
+                ofSize: 18,
+                weight: .semibold
+            )))
+            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal),
+        style: .plain,
+        target: self,
+        action: #selector(filterAction)
+    )
     
     // MARK: - Collection view
     private var collectionView: UICollectionView!
@@ -82,10 +104,13 @@ final class PartiesVC: UIViewController {
     // enum по умолчанию hashable
     enum Section: Int, CaseIterable {
         case parties
+        case archived
         func description(partiesCount: Int) -> String {
             switch self {
             case .parties:
                 return partiesCount.parties()
+            case .archived:
+                return "Прошедшие:"
             }
         }
     }
@@ -110,6 +135,8 @@ final class PartiesVC: UIViewController {
     private let currentUser: UserModel
     private var partyType = AboutPartyVCType.search
 
+    private var isEmptyActualPaties = true
+
     // MARK: - Init
     init(currentUser: UserModel) {
         self.currentUser = currentUser
@@ -120,6 +147,7 @@ final class PartiesVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
+        setupViews()
         createDataSource()
         reloadData(with: nil)
         setupListeners()
@@ -134,7 +162,20 @@ final class PartiesVC: UIViewController {
         super.viewDidAppear(animated)
         StoreReviewHelper.checkAndAskForReview()
     }
-    
+
+    // MARK: - Setup
+    private func setupViews() {
+        view.addSubview(emptyLabel)
+        emptyLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(
+                (view.bounds.size.height -
+                 segmentedPartiesPages.frame.maxY + Constants.segmentPartiesTopOffset -
+                 GlobalConstants.tabBarHeight) / 2.5 // Типо по центру, но на угад)
+            )
+        }
+    }
+
     private func setupListeners() {
         rejectedPartiesListener = ListenerService.shared.rejectedPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
@@ -142,7 +183,10 @@ final class PartiesVC: UIViewController {
                 self.rejectedParties = parties
                 self.reloadPartiesType()
             case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                self.showAlert(
+                    title: Constants.errorListenerParty,
+                    message: error.localizedDescription
+                )
             }
         })
         
@@ -152,7 +196,10 @@ final class PartiesVC: UIViewController {
                 self.waitingParties = parties
                 self.reloadPartiesType()
             case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                self.showAlert(
+                    title: Constants.errorListenerParty,
+                    message: error.localizedDescription
+                )
             }
         })
         
@@ -162,7 +209,10 @@ final class PartiesVC: UIViewController {
                 self.approvedParties = parties
                 self.reloadPartiesType()
             case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                self.showAlert(
+                    title: Constants.errorListenerParty,
+                    message: error.localizedDescription
+                )
             }
         })
         
@@ -188,7 +238,10 @@ final class PartiesVC: UIViewController {
                             self.partiesRequestsListenerDelegate?.partyRequestsDidChange(self.myPartyRequests[party.id]!)
                             self.reloadPartiesType()
                         case .failure(let error):
-                            self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                            self.showAlert(
+                                title: Constants.errorListenerParty,
+                                message: error.localizedDescription
+                            )
                         }
                     })
                     if let myPartyRequestsListener = myPartyRequestsListener {
@@ -196,38 +249,35 @@ final class PartiesVC: UIViewController {
                     }
                 }
             case .failure(let error):
-                self.showAlert(title: "Ошибка!", message: error.localizedDescription)
+                self.showAlert(
+                    title: Constants.errorListenerParty,
+                    message: error.localizedDescription
+                )
             }
         })
     }
 
-    private let filterBarButtonItem = UIBarButtonItem(
-        image: UIImage(.slider.horizontal_3)
-            .withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
-                ofSize: 18,
-                weight: .semibold
-            )))
-            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal),
-        style: .plain,
-        target: self,
-        action: #selector(filterAction)
-    )
-
     private func setupNavigationBar() {
         setNavigationBar(withColor: .systemPurple, title: "Поиск вечеринки", withClear: false)
-        navigationItem.rightBarButtonItems = [filterBarButtonItem]
         navigationItem.titleView?.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentedPartiesPages)
         segmentedPartiesPages.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.width.equalTo(view.bounds.size.width - Constants.segmentPartiesHorizontalInset)
-            make.top.equalToSuperview().offset(-segmentedPartiesPages.bounds.size.height - Constants.segmentPartiesTopOffset)
+            make.width.equalTo(
+                view.bounds.size.width - Constants.segmentPartiesHorizontalInset
+            )
+            make.top.equalToSuperview().offset(
+                -segmentedPartiesPages.bounds.size.height - Constants.segmentPartiesTopOffset
+            )
         }
         additionalSafeAreaInsets.top = segmentedPartiesPages.bounds.size.height + Constants.segmentPartiesTopOffset
     }
     
     private func setupCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
+        collectionView = UICollectionView(
+            frame: view.bounds,
+            collectionViewLayout: createCompositionalLayout()
+        )
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view = collectionView
         collectionView.backgroundColor = .systemBackground
@@ -236,10 +286,30 @@ final class PartiesVC: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: SectionHeader.reuseId
         )
-        collectionView.register(PartyCell.self, forCellWithReuseIdentifier: PartyCell.reuseId)
+        collectionView.register(
+            PartyCell.self,
+            forCellWithReuseIdentifier: PartyCell.reuseId
+        )
         collectionView.delegate = self
     }
-    
+
+    private func setupSearchBar() {
+        searchController.searchBar.placeholder = "Поиск"
+
+        definesPresentationContext = true // Позволяет отпустить строку поиска, при переходе на другой экран
+        searchController.searchBar.delegate = self
+
+        searchController.obscuresBackgroundDuringPresentation = false
+        //        searchController.hidesNavigationBarDuringPresentation = true
+
+        // Make sure the search bar is showing, even when scrolling
+        navigationItem.hidesSearchBarWhenScrolling = true
+
+        // Add the search controller to the nav item
+        navigationItem.searchController = searchController
+    }
+
+    // MARK: - Functions
     // Отвечает за заполнение реальными данными. Создает snapshot, добавляет нужные айтемы в нужные секции и регистрируется на dataSource
     private func reloadData(with searchText: String?) {
         let filteredParties = parties.filter { (party) -> Bool in
@@ -247,35 +317,69 @@ final class PartiesVC: UIViewController {
         }
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, PartyModel>()
-        snapshot.appendSections([.parties])
-        snapshot.appendItems(filteredParties, toSection: .parties)
+        let isSearchListParties = segmentedPartiesPages.selectedSegmentIndex == PartyListType.search.index
+        isEmptyActualPaties = filteredParties.isEmpty
+        snapshot.appendSections([.parties, .archived])
+        if !isSearchListParties  {
+            print("asdijiasodjasdjasidjas")
+            let archivedParties = filteredParties.filter( { $0.date < Date() } )
+            let actualParties = filteredParties.filter( { $0.date >= Date() } )
+            if actualParties.isEmpty {
+                isEmptyActualPaties = true
+                snapshot.deleteSections([.parties])
+            } else {
+                isEmptyActualPaties = false
+                snapshot.appendItems(actualParties, toSection: .parties)
+            }
+            if archivedParties.isEmpty {
+                snapshot.deleteSections([.archived])
+            } else {
+                snapshot.appendItems(archivedParties, toSection: .archived)
+            }
+            let isEmpty = actualParties.isEmpty && archivedParties.isEmpty
+            update(isEmpty: isEmpty)
+        } else {
+            if filteredParties.isEmpty {
+                snapshot.deleteSections([.parties])
+                update(isEmpty: true)
+            } else {
+                snapshot.appendItems(filteredParties, toSection: .parties)
+            }
+            snapshot.deleteSections([.archived])
+        }
+        print("asdijaisodaiojsdoijasd: ", snapshot.numberOfSections)
+
+        if dataSource.numberOfSections(in: collectionView) == 0,
+           snapshot.numberOfSections == 0 {
+            return
+        }
+
         dataSource?.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
             if self?.navigationItem.searchController == nil {
                 self?.setupSearchBar()
             }
         })
 
-        guard let sectionHeader = collectionView.supplementaryView(
-            forElementKind: UICollectionView.elementKindSectionHeader,
-            at: [0,0]
-        ) as? SectionHeader else { return }
+        print("asdiojasiodasd: ", isEmptyActualPaties)
+        guard !isEmptyActualPaties,
+              let sectionHeader = collectionView.supplementaryView(
+                forElementKind: UICollectionView.elementKindSectionHeader,
+                at: [0,0]
+              ) as? SectionHeader
+        else {
+            return
+        }
         updateCountFor(sectionHeader: sectionHeader, section: .parties)
     }
-    
-    private func setupSearchBar() {
-        searchController.searchBar.placeholder = "Поиск"
-        
-        definesPresentationContext = true // Позволяет отпустить строку поиска, при переходе на другой экран
-        searchController.searchBar.delegate = self
 
-        searchController.obscuresBackgroundDuringPresentation = false
-        //        searchController.hidesNavigationBarDuringPresentation = true
-        
-        // Make sure the search bar is showing, even when scrolling
-        navigationItem.hidesSearchBarWhenScrolling = true
-
-        // Add the search controller to the nav item
-        navigationItem.searchController = searchController
+    private func update(isEmpty: Bool) {
+        emptyLabel.isHidden = !isEmpty
+        searchController.searchBar.isUserInteractionEnabled = !isEmpty
+        let isNeedShowFilterButton = !isEmpty && partyType == .search
+        navigationItem.setRightBarButton(
+            isNeedShowFilterButton ? filterBarButtonItem : nil,
+            animated: true
+        )
     }
     
     // MARK: - Handlers
@@ -298,8 +402,6 @@ final class PartiesVC: UIViewController {
         case .none:
             break
         }
-        let isSearchListPartyType = partyListType == .search
-        navigationItem.setRightBarButton(isSearchListPartyType ? filterBarButtonItem : nil, animated: true)
         reloadData(with: nil)
     }
 
@@ -309,35 +411,7 @@ final class PartiesVC: UIViewController {
     }
     
     @objc private func filterAction() {
-        let options = SheetOptions(
-            // The full height of the pull bar. The presented view controller will treat this area as a safearea inset on the top
-            pullBarHeight: 0,
-            
-            // The corner radius of the shrunken presenting view controller
-            presentingViewCornerRadius: 30,
-            
-            // Extends the background behind the pull bar or not
-            shouldExtendBackground: false,
-            
-            // Attempts to use intrinsic heights on navigation controllers. This does not work well in combination with keyboards without your code handling it.
-            setIntrinsicHeightOnNavigationControllers: false,
-            
-            // Pulls the view controller behind the safe area top, especially useful when embedding navigation controllers
-            useFullScreenMode: false,
-            
-            // Shrinks the presenting view controller, similar to the native modal
-            shrinkPresentingViewController: false,
-            
-            // Determines if using inline mode or not
-            useInlineMode: false,
-            
-            // Adds a padding on the left and right of the sheet with this amount. Defaults to zero (no padding)
-            horizontalPadding: 0,
-            
-            // Sets the maximum width allowed for the sheet. This defaults to nil and doesn't limit the width.
-            maxWidth: nil
-        )
-
+        let options = GlobalConstants.sheetOptions
         let filterVC = FilterVC(delegate: self)
         let sheetController = SheetViewController(controller: filterVC, sizes: [.intrinsic], options: options)
         sheetController.contentBackgroundColor = .clear
@@ -387,7 +461,12 @@ extension PartiesVC: UISearchBarDelegate {
     private func updateCountFor(sectionHeader: SectionHeader, section: Section) {
         // Достучались до всех объектов в секции parties
         let items = self.dataSource.snapshot().itemIdentifiers(inSection: section)
-        sectionHeader.configure(text: section.description(partiesCount: items.count), font: .sfProRounded(ofSize: 26, weight: .medium), textColor: .label, alignment: .natural)
+        sectionHeader.configure(
+            text: section.description(partiesCount: items.count),
+            font: .sfProRounded(ofSize: 26, weight: .medium),
+            textColor: .label,
+            alignment: .natural
+        )
     }
 }
 
@@ -396,53 +475,70 @@ extension PartiesVC {
     // Отвечает за то, в каких секциях буду те или иные ячейки
     private func createDataSource() {
         dataSource = UICollectionViewDiffableDataSource<Section, PartyModel>(collectionView: collectionView, cellProvider: { [weak self] (collectionView, indexPath, party) -> UICollectionViewCell? in
-            guard let section = Section(rawValue: indexPath.section) else {
-                fatalError("Неизвестная секция для ячейки")
-            }
-            
-            switch section {
-            case .parties:
-                let cell = self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
-                DispatchQueue.global(qos: .default).async {
-                    cell?.snapShotter.start { snapshot, error in
-                        DispatchQueue.main.async {
-                            let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
-                            cell?.setMap(image: snapshot?.image)
-                        }
-                    }
-                }
 
-                FirestoreService.shared.getUser(by: party.userId) { (result) in
-                    switch result {
-                    case .success(let user):
-                        DispatchQueue.main.async {
-                            let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
-                            cell?.setUser(rating: "000000", username: user.username, avatarStringUrl: user.avatarStringURL)
-                        }
-                    case .failure(let error):
-                        print(error.localizedDescription)
+            let cell = self?.configure(collectionView: collectionView, cellType: PartyCell.self, with: party, for: indexPath)
+            DispatchQueue.global(qos: .default).async {
+                cell?.snapShotter.start { snapshot, error in
+                    DispatchQueue.main.async {
+                        let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
+                        cell?.setMap(image: snapshot?.image)
                     }
                 }
-
-                if let party = self?.dataSource.itemIdentifier(for: indexPath) {
-                    if self?.rejectedParties.contains(party) ?? false {
-                        cell?.setRejected()
-                    } else if self?.myParties.contains(party) ?? false {
-                        if let countRequests = self?.myPartyRequests[party.id]?.count {
-                            cell?.setRequests(count: countRequests)
-                        }
-                    }
-                }
-                return cell
             }
+
+            FirestoreService.shared.getUser(by: party.userId) { (result) in
+                switch result {
+                case .success(let user):
+                    DispatchQueue.main.async {
+                        let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
+                        cell?.setUser(
+                            rating: "000000",
+                            username: user.username,
+                            avatarStringUrl: user.avatarStringURL
+                        )
+                    }
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+
+            if let party = self?.dataSource.itemIdentifier(for: indexPath) {
+                if self?.rejectedParties.contains(party) ?? false {
+                    cell?.setRejected()
+                } else if self?.myParties.contains(party) ?? false {
+                    if let countRequests = self?.myPartyRequests[party.id]?.count {
+                        cell?.setRequests(count: countRequests)
+                    }
+                }
+            }
+            return cell
         })
         
         dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
-            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SectionHeader.reuseId, for: indexPath) as? SectionHeader else { fatalError("Cannot create new section header") }
-            guard let section = Section(rawValue: indexPath.section) else { fatalError("Unknown section kind") }
+            guard
+                let sectionHeader = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: SectionHeader.reuseId,
+                for: indexPath
+            ) as? SectionHeader
+            else {
+                fatalError("Cannot create new section header")
+            }
+            let section = self.getSectionFor(index: indexPath.section)
             self.updateCountFor(sectionHeader: sectionHeader, section: section)
             return sectionHeader
         }
+    }
+
+    private func getSectionFor(index: Int) -> Section {
+        guard var section = Section(rawValue: index)
+        else {
+            fatalError("Неизвестная секция для ячейки")
+        }
+        if isEmptyActualPaties, let archivedSection = Section(rawValue: 1) {
+            section = archivedSection
+        }
+        return section
     }
 }
 
@@ -450,12 +546,13 @@ extension PartiesVC {
 extension PartiesVC {
     private func createCompositionalLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { [weak self] (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
-            guard let section = Section(rawValue: sectionIndex) else {
-                fatalError("Неизвестная секция для ячейки")
-            }
+            guard let self = self else { return nil }
+            let section = self.getSectionFor(index: sectionIndex)
             switch section {
             case .parties:
-                return self?.createPartiesSection()
+                return self.createPartiesSection()
+            case .archived:
+                return self.createPartiesSection()
             }
         }
         
@@ -552,7 +649,6 @@ extension PartiesVC {
                     }
                 }
 
-                print("asdijasodijasdioajsdoiasjdaiosdj: ", isPriceInSearch, filterParams.priceLower, filterParams.priceUpper)
                 if !isPriceInSearch,
                    let priceLower = filterParams.priceLower,
                    let priceUpper = filterParams.priceUpper,
@@ -612,7 +708,10 @@ extension PartiesVC {
             case .failure(let error):
                 self?.parties = [PartyModel]()
                 print(error.localizedDescription)
-                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
+                self?.showAlert(
+                    title: Constants.errorListenerParty,
+                    message: error.localizedDescription
+                )
             }
         }
     }

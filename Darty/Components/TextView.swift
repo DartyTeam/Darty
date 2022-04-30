@@ -69,7 +69,7 @@ class TextView: UIView {
     }
 
     private func setupViews() {
-        backgroundColor = .systemBackground
+        backgroundColor = .tertiarySystemBackground
         addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(8)
@@ -95,7 +95,7 @@ class TextView: UIView {
     }
     
     private func setupShadow() {
-        layer.shadowColor =  UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
+        layer.shadowColor = UIColor(red: 0.769, green: 0.769, blue: 0.769, alpha: 0.5).cgColor
         layer.shadowRadius = 5
         layer.shadowOpacity = 1
         layer.shadowOffset = CGSize(width: 0, height: 0)

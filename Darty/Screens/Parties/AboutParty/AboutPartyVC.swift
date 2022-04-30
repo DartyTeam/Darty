@@ -52,19 +52,45 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         scrollView.showsVerticalScrollIndicator = false
         return scrollView
     }()
-    
+
+    private let backView: UIView = {
+        let view = UIView()
+        view.layer.cornerCurve = .continuous
+        view.backgroundColor = .secondarySystemGroupedBackground
+        view.layer.cornerRadius = 16
+        return view
+    }()
+
+    private let dateLabelBackView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 10
+        return view
+    }()
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.titleElementsFont
         return label
     }()
-    
+
+    private let minAgeLabelBackView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 10
+        return view
+    }()
     private let minAgeLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.titleElementsFont
         return label
     }()
-    
+
+    private let timeLabelBackView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+        view.layer.cornerRadius = 10
+        return view
+    }()
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = Constants.titleElementsFont
@@ -129,7 +155,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             renderingMode: .alwaysOriginal
         )
         button.setImage(mapIcon, for: .normal)
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = .tertiarySystemFill
         button.layer.cornerRadius = 16
         button.tintColor = .systemOrange
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
@@ -393,13 +419,17 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private func setupViews() {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
-        scrollView.addSubview(dateLabel)
-        scrollView.addSubview(minAgeLabel)
-        scrollView.addSubview(timeLabel)
-        scrollView.addSubview(themeView)
-        scrollView.addSubview(locationTitleLabel)
-        scrollView.addSubview(locationLabel)
-        scrollView.addSubview(locationButton)
+        scrollView.addSubview(backView)
+        backView.addSubview(dateLabelBackView)
+        dateLabelBackView.addSubview(dateLabel)
+        backView.addSubview(minAgeLabelBackView)
+        minAgeLabelBackView.addSubview(minAgeLabel)
+        backView.addSubview(timeLabelBackView)
+        timeLabelBackView.addSubview(timeLabel)
+        backView.addSubview(themeView)
+        backView.addSubview(locationTitleLabel)
+        backView.addSubview(locationLabel)
+        backView.addSubview(locationButton)
         scrollView.addSubview(imagesTitleLabel)
         scrollView.addSubview(imagesCollectionView)
         scrollView.addSubview(guestsStackView)
@@ -417,20 +447,36 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+
+        backView.snp.makeConstraints { make in
+            make.top.left.right.equalToSuperview().inset(20)
+        }
         
-        dateLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(view.safeAreaInsets.top + 16)
+        dateLabelBackView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
             make.left.equalToSuperview().offset(32)
         }
-        
-        minAgeLabel.snp.makeConstraints { make in
+        dateLabel.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(5)
+        }
+
+        timeLabelBackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.centerY.equalTo(dateLabel.snp.centerY)
+            make.centerY.equalTo(minAgeLabel.snp.centerY)
+        }
+        timeLabel.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(5)
         }
         
-        timeLabel.snp.makeConstraints { make in
+        minAgeLabelBackView.snp.makeConstraints { make in
             make.right.equalToSuperview().offset(-32)
-            make.centerY.equalTo(minAgeLabel.snp.centerY)
+            make.centerY.equalTo(dateLabel.snp.centerY)
+        }
+        minAgeLabel.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(8)
+            make.top.bottom.equalToSuperview().inset(5)
         }
         
         themeView.snp.makeConstraints { make in
@@ -452,6 +498,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             make.top.equalTo(locationLabel.snp.bottom).offset(8)
             make.centerX.equalToSuperview()
             make.height.equalTo(32)
+            make.bottom.equalToSuperview().offset(-20)
         }
         
         imagesTitleLabel.snp.makeConstraints { make in
@@ -534,7 +581,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
             case .archive:
                 break
             }
-//        }
+        }
     }
 
     private func setupCanceledParty() {
@@ -570,35 +617,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     func showMessageVC() {
-        let options = SheetOptions(
-            // The full height of the pull bar. The presented view controller will treat this area as a safearea inset on the top
-            pullBarHeight: 0,
-            
-            // The corner radius of the shrunken presenting view controller
-            presentingViewCornerRadius: 30,
-            
-            // Extends the background behind the pull bar or not
-            shouldExtendBackground: false,
-            
-            // Attempts to use intrinsic heights on navigation controllers. This does not work well in combination with keyboards without your code handling it.
-            setIntrinsicHeightOnNavigationControllers: false,
-            
-            // Pulls the view controller behind the safe area top, especially useful when embedding navigation controllers
-            useFullScreenMode: false,
-            
-            // Shrinks the presenting view controller, similar to the native modal
-            shrinkPresentingViewController: false,
-            
-            // Determines if using inline mode or not
-            useInlineMode: false,
-            
-            // Adds a padding on the left and right of the sheet with this amount. Defaults to zero (no padding)
-            horizontalPadding: 0,
-            
-            // Sets the maximum width allowed for the sheet. This defaults to nil and doesn't limit the width.
-            maxWidth: nil
-        )
-        
+        let options = GlobalConstants.sheetOptions
         let messageForRequestVC = MessageForRequestVC(delegate: self)
         let sheetController = SheetViewController(controller: messageForRequestVC, sizes: [], options: options)
         sheetController.allowPullingPastMaxHeight = false
@@ -667,25 +686,21 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
                 guard let imageUrl = URL(string: imageUrlString) else { return }
                 imageUrls.append(imageUrl)
             }
-
-            let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-            //            button.tintColor = .systemOra
             
             // In case of an array of [URLs]:
 #warning("Может нужно при получении изобрважений по ссылке в collection view записывать их в массив images и сюда пихать этот массив")
             let agrume = Agrume(
                 urls: imageUrls,
-                startIndex: sender.view?.tag ?? 0,
-                background: .blurred(.systemUltraThinMaterial),
-                dismissal: .withPanAndButton(.standard, button)
+                startIndex: sender.view?.tag ?? 0
             )
 
             agrume.didScroll = { [unowned self] index in
-                self?.imagesCollectionView.scrollToItem(at: IndexPath(item: index, section: 0), at: [], animated: false)
+                self?.imagesCollectionView.scrollToItem(
+                    at: IndexPath(item: index, section: 0),
+                    at: [],
+                    animated: false
+                )
             }
-            
-            let helper = AgrumeHelper.shared.makeHelper()
-            agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
             
             guard let self = self else { return }
             agrume.show(from: self)

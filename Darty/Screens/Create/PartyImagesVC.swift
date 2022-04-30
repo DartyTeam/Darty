@@ -14,12 +14,6 @@ final class PartyImagesVC: UIViewController {
 
     // MARK: - Constants
     private enum Constants {
-        static let titleFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
-        static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .semibold)
-        static let segmentFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
-        static let countGuestsText = "Кол-во гостей"
-        static let minAgeText = "Мин. возраст"
-        static let priceText = "Цена за вход"
         static let maxPhotosForSelect = 5
     }
     
@@ -87,7 +81,7 @@ extension PartyImagesVC {
     private func setupConstraints() {
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
+            make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         

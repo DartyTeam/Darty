@@ -18,13 +18,7 @@ extension NewChatVC: MessageCellDelegate {
             
             if let photoItem = mkMessage.photoItem, let photoItemImage = photoItem.image {
                 cell.showAnimation { [weak self] in
-
-                    let button = UIBarButtonItem(barButtonSystemItem: .close, target: nil, action: nil)
-                    
-                    let agrume = Agrume(images: [photoItemImage], background: .blurred(.light), dismissal: .withPhysicsAndButton(button))
-                    let helper = AgrumeHelper.shared.makeHelper()
-                    agrume.onLongPress = helper.makeSaveToLibraryLongPressGesture
-                    
+                    let agrume = Agrume(images: [photoItemImage])
                     self?.present(agrume, animated: true, completion: nil)
                 }
             } else if let videoItem = mkMessage.videoItem, let videoItemUrl = videoItem.url {

@@ -22,10 +22,29 @@ class MessagesVC: UIViewController {
     
     // MARK: - UI Elements
     private var collectionView: UICollectionView!
+    private let noMessagesLabel: UILabel = {
+        let label = UILabel()
+        label.font = .sfProDisplay(ofSize: 24, weight: .medium)
+        label.text = "Сообщений нет"
+        label.textColor = .white
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let searchController = UISearchController(searchResultsController: nil)
 
     // MARK: - Properties
-    private var activeChats = [RecentChatModel]()
-    private var waitingChats = [RecentChatModel]()
+    private var activeChats = [RecentChatModel]() {
+        didSet {
+            updateEmptyView()
+        }
+    }
+    private var waitingChats = [RecentChatModel]() {
+        didSet {
+            updateEmptyView()
+        }
+    }
     
     private var waitingChatsListener: ListenerRegistration?
     private var activeChatsListener: ListenerRegistration?
@@ -49,7 +68,7 @@ class MessagesVC: UIViewController {
     
     private let currentUser: UserModel
     
-    // MARK: - Lifecycle
+    // MARK: - Init
     init(currentUser: UserModel) {
         self.currentUser = currentUser
         super.init(nibName: nil, bundle: nil)
@@ -58,7 +77,8 @@ class MessagesVC: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Lifecycle
     deinit {
         print("deinit", MessagesVC.self)
         waitingChatsListener?.remove()
@@ -68,8 +88,10 @@ class MessagesVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
+        setupViews()
         createDataSource()
         setupListeners()
+        updateEmptyView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -77,7 +99,8 @@ class MessagesVC: UIViewController {
         setupNavBar()
         setIsTabBarHidden(false)
     }
-    
+
+    // MARK: - Setup
     private func setupNavBar() {
         setNavigationBar(withColor:.systemTeal, title: "Сообщения", withClear: true)
     }
@@ -110,10 +133,8 @@ class MessagesVC: UIViewController {
             }
         })
     }
-    
-    // MARK: - Setup views
+
     private func setupSearchBar() {
-        let searchController = UISearchController(searchResultsController: nil)
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = true
         searchController.hidesNavigationBarDuringPresentation = true
@@ -122,6 +143,14 @@ class MessagesVC: UIViewController {
         searchController.searchBar.placeholder = "Поиск"
         definesPresentationContext = true
     }
+
+    private func setupViews() {
+        view.addSubview(noMessagesLabel)
+        noMessagesLabel.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(32)
+            make.centerY.equalToSuperview()
+        }
+    }
         
     private func setupCollectionView() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
@@ -129,7 +158,7 @@ class MessagesVC: UIViewController {
         collectionView.backgroundColor = .systemBackground
         collectionView.contentInset = UIEdgeInsets(top: 32, left: 0, bottom: 0, right: 0)
         
-        view = collectionView
+        view.addSubview(collectionView)
         
         collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeader.reuseId)
         
@@ -138,7 +167,8 @@ class MessagesVC: UIViewController {
         
         collectionView.delegate = self
     }
-    
+
+    // MARK: - Functions
     // Отвечает за заполнение реальными данными. Создает snapshot, добавляет нужные айтемы в нужные секции и регистрируется на dataSource
     private func reloadData(with searchText: String?) {
         let filteredActiveChats = activeChats.filter { (chat) -> Bool in
@@ -168,6 +198,14 @@ class MessagesVC: UIViewController {
                 self?.setupSearchBar()
             }
         }
+    }
+
+    private func getSectionFor(index: Int) -> Section {
+        guard var section = Section(rawValue: index) else { fatalError("Неизвестная секция для ячейки") }
+        if self.waitingChats.isEmpty, let activeSection = Section(rawValue: 1) {
+            section = activeSection
+        }
+        return section
     }
     
     // MARK: - Handlers
@@ -211,12 +249,10 @@ class MessagesVC: UIViewController {
         navigationController?.pushViewController(privateChatVC, animated: true)
     }
 
-    private func getSectionFor(index: Int) -> Section {
-        guard var section = Section(rawValue: index) else { fatalError("Неизвестная секция для ячейки") }
-        if self.waitingChats.isEmpty, let activeSection = Section(rawValue: 1) {
-            section = activeSection
-        }
-        return section
+    func updateEmptyView() {
+        let isNoChats = waitingChats.isEmpty && activeChats.isEmpty
+        noMessagesLabel.isHidden = !isNoChats
+        searchController.searchBar.isHidden = isNoChats
     }
 }
 

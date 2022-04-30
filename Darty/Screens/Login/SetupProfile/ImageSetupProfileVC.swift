@@ -44,7 +44,6 @@ final class ImageSetupProfileVC: UIViewController {
         }
         
         view.backgroundColor = .systemBackground
-        
         view.addSubview(setImageView)
         view.addSubview(nextButton)
     }

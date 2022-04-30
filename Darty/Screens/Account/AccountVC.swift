@@ -28,8 +28,8 @@ final class AccountVC: UIViewController {
         static let ratingFont: UIFont? = .sfProRounded(ofSize: 18, weight: .semibold)
         
         static let nameLabelColor: UIColor = .label
-        static let cityLabelColor: UIColor = .secondaryLabel
-        static let ageLabelColor: UIColor = .tertiaryLabel
+        static let cityLabelColor: UIColor = .label
+        static let ageLabelColor: UIColor = .secondaryLabel
         static let ratingLabelColor: UIColor = .secondaryLabel
         static let ratingButtonColor: UIColor = .systemTeal
         
@@ -62,6 +62,8 @@ final class AccountVC: UIViewController {
         static let productUrl = URL(string: "https://itunes.apple.com/app/id375380948")!
         
         static let menuButtonsSpacing: CGFloat = 16
+
+        static let menuButtonTextColor: UIColor = .label
     }
     
     // MARK: - UI Elements
@@ -70,7 +72,7 @@ final class AccountVC: UIViewController {
     private lazy var autoIcon = UIImage(systemName: "a.circle.fill", withConfiguration: iconConfig)?.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal)
     
     private let segmentedControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: ["􀍣 Подписка", "􀋲 Меню"])
+        let segmentedControl = UISegmentedControl(items: ["􀋲 Меню", "􀍣 Подписка"])
         segmentedControl.selectedSegmentIndex = 0
         let attr = NSDictionary(object: Constants.segmentFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
@@ -376,7 +378,7 @@ final class AccountVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Поставить оценку", for: UIControl.State())
         let rateIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let rateIcon = UIImage(systemName: "hand.thumbsup.fill", withConfiguration: rateIconConfig)?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        let rateIcon = UIImage(systemName: "hand.thumbsup.fill", withConfiguration: rateIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
         button.setImage(rateIcon, for: UIControl.State())
         button.backgroundColor = .systemYellow
         button.layer.cornerRadius = 12
@@ -385,7 +387,7 @@ final class AccountVC: UIViewController {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(rateUsAction), for: .touchUpInside)
         button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = .systemBackground
+        button.tintColor = Constants.menuButtonTextColor
         return button
     }()
     
@@ -393,7 +395,7 @@ final class AccountVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Связь с разрабом", for: UIControl.State())
         let rateIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let rateIcon = UIImage(systemName: "person.fill.questionmark", withConfiguration: rateIconConfig)?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        let rateIcon = UIImage(systemName: "person.fill.questionmark", withConfiguration: rateIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
         button.setImage(rateIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
@@ -402,7 +404,7 @@ final class AccountVC: UIViewController {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(contactWithUsAction), for: .touchUpInside)
         button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = .systemBackground
+        button.tintColor = Constants.menuButtonTextColor
         button.isUserInteractionEnabled = true
         return button
     }()
@@ -419,16 +421,32 @@ final class AccountVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Уведомления", for: UIControl.State())
         let bellIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let bellIcon = UIImage(systemName: "bell.fill", withConfiguration: bellIconConfig)?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        let bellIcon = UIImage(
+            systemName: "bell.fill",
+            withConfiguration: bellIconConfig
+        )?.withTintColor(
+            Constants.menuButtonTextColor,
+            renderingMode: .alwaysOriginal
+        )
         button.setImage(bellIcon, for: UIControl.State())
         button.backgroundColor = .systemTeal
         button.layer.cornerRadius = 12
         button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(rateUsAction), for: .touchUpInside)
+        button.contentEdgeInsets = UIEdgeInsets(
+            top: 0,
+            left: 20,
+            bottom: 0,
+            right: 12
+        )
+        button.imageEdgeInsets = UIEdgeInsets(
+            top: 0,
+            left: -8,
+            bottom: 0,
+            right: 8
+        )
+        button.addTarget(self, action: #selector(notificationsAction), for: .touchUpInside)
         button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = .systemBackground
+        button.tintColor = Constants.menuButtonTextColor
         return button
     }()
     
@@ -436,7 +454,7 @@ final class AccountVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Сменить номер", for: UIControl.State())
         let bellIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let bellIcon = UIImage(systemName: "phone.fill.arrow.right", withConfiguration: bellIconConfig)?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        let bellIcon = UIImage(systemName: "phone.fill.arrow.right", withConfiguration: bellIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
         button.setImage(bellIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
@@ -445,7 +463,7 @@ final class AccountVC: UIViewController {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(changePhone), for: .touchUpInside)
         button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = .systemBackground
+        button.tintColor = Constants.menuButtonTextColor
         return button
     }()
     
@@ -461,7 +479,7 @@ final class AccountVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Поделиться приложением", for: UIControl.State())
         let paperplaneIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let paperplaneIcon = UIImage(systemName: "paperplane.circle.fill", withConfiguration: paperplaneIconConfig)?.withTintColor(.systemBackground, renderingMode: .alwaysOriginal)
+        let paperplaneIcon = UIImage(systemName: "paperplane.circle.fill", withConfiguration: paperplaneIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
         button.setImage(paperplaneIcon, for: UIControl.State())
         button.backgroundColor = .systemIndigo
         button.layer.cornerRadius = 12
@@ -470,7 +488,7 @@ final class AccountVC: UIViewController {
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(self, action: #selector(shareApp), for: .touchUpInside)
         button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = .systemBackground
+        button.tintColor = Constants.menuButtonTextColor
         return button
     }()
     
@@ -552,8 +570,8 @@ final class AccountVC: UIViewController {
         view.addSubview(segmentedControl)
         view.addSubview(scrollView)
         scrollView.addSubview(horizontalScrollableStackView)
-        horizontalScrollableStackView.addArrangedSubview(subscribeSegmentContainer)
         horizontalScrollableStackView.addArrangedSubview(menuSegmentContainer)
+        horizontalScrollableStackView.addArrangedSubview(subscribeSegmentContainer)
         menuSegmentContainer.addSubview(firstLineSettingButtonsStackView)
         firstLineSettingButtonsStackView.addArrangedSubview(rateUsButton)
         firstLineSettingButtonsStackView.addArrangedSubview(contactWithUsButton)
@@ -619,13 +637,13 @@ final class AccountVC: UIViewController {
         isAfterTappedToSegmentedControl = true
         if sender.selectedSegmentIndex == 0 {
             UIView.animate(withDuration: 0.3, delay: 0, options: [.allowAnimatedContent]) {
-                self.scrollView.setContentOffset(CGPoint(x: self.subscribeSegmentContainer.frame.minX, y: 0), animated: false)
+                self.scrollView.setContentOffset(CGPoint(x: self.menuSegmentContainer.frame.minX, y: 0), animated: false)
             } completion: { flag in
                 self.isAfterTappedToSegmentedControl = false
             }
         } else {
             UIView.animate(withDuration: 0.3, delay: 0, options: [.allowAnimatedContent]) {
-                self.scrollView.setContentOffset(CGPoint(x: self.menuSegmentContainer.frame.minX, y: 0), animated: false)
+                self.scrollView.setContentOffset(CGPoint(x: self.subscribeSegmentContainer.frame.minX, y: 0), animated: false)
             } completion: { flag in
                 self.isAfterTappedToSegmentedControl = false
             }
@@ -656,6 +674,10 @@ final class AccountVC: UIViewController {
     
     @objc private func contactWithUsAction() {
         delegate?.openContactsWithUs()
+    }
+
+    @objc private func notificationsAction() {
+        delegate?.openNotificationsSettings()
     }
     
     @objc private func openAboutUser(_ sender: UITapGestureRecognizer) {

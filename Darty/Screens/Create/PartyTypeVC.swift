@@ -11,13 +11,23 @@ final class PartyTypeVC: UIViewController {
 
     // MARK: - Constants
     private enum Constants {
-        static let textFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .semibold)
+        static let textFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
     }
     
     // MARK: - UI Elements
     private let logoView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "darty.logo"))
         return imageView
+    }()
+
+    private let typeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Тематика"
+        label.font = Constants.textFont
+        label.textColor = .label
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
     }()
     
     private lazy var nextButton: DButton = {
@@ -62,6 +72,7 @@ final class PartyTypeVC: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(logoView)
         view.addSubview(nextButton)
+        view.addSubview(typeLabel)
         view.addSubview(typePicker)
     }
     
@@ -85,13 +96,18 @@ extension PartyTypeVC {
         
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
+            make.height.equalTo(UIButton.defaultButtonHeight)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         
         typePicker.snp.makeConstraints { make in
             make.bottom.equalTo(nextButton.snp.top).offset(-32)
             make.left.right.equalToSuperview().inset(20)
+        }
+
+        typeLabel.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(32)
+            make.centerY.equalToSuperview()
         }
     }
 }

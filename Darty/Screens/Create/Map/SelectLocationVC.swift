@@ -224,38 +224,42 @@ final class SelectLocationVC: UIViewController {
     }
 
     func selectLocation(location: CLLocation) {
+        print("asdiojasoidjoasidoijaids")
+
+
+
         // add point annotation to map
         let annotation = MKPointAnnotation()
         annotation.coordinate = location.coordinate
         self.mapView.addAnnotation(annotation)
-        
+
         geocoder.cancelGeocode()
-        
+
         geocoder.reverseGeocodeLocation(location) { response, error in
             if let error = error as NSError?, error.code != 10 { // ignore cancelGeocode errors
+                #warning("Добавить проверку что есть интернет, если нет, то выводить свою ошибку о том, что интернет не доступен")
                 // show error and remove annotation
                 let alert = UIAlertController(style: .alert, title: nil, message: error.localizedDescription)
                 alert.addAction(title: "OK", style: .cancel) { action in
                     self.mapView.removeAnnotation(annotation)
                 }
                 alert.show()
-
             } else if let placemark = response?.first {
                 // get POI name from placemark if any
                 let name = placemark.areasOfInterest?.first
 
                 // pass user selected location too
                 self.location = Location(name: name, location: location, placemark: placemark)
-                
+
                 let address = Address(placemark: placemark)
                 annotation.title = address.line1
                 annotation.subtitle = address.line2
             } else {
                 let placemark = MKPlacemark(coordinate: location.coordinate)
-                                
+
                 // pass user selected location too
                 self.location = Location(name: "Координаты выбраны", location: location, placemark: placemark)
-                
+
                 annotation.title = "Координаты выбраны"
                 annotation.subtitle = "Координаты выбраны"
             }
