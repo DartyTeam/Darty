@@ -18,13 +18,21 @@ public class Location: NSObject {
     public let location: CLLocation
     public let placemark: CLPlacemark
     
-    public var address: String {
+    public var address: String? {
         if let postalAddress = placemark.postalAddress {
             let formatter = CNPostalAddressFormatter()
             formatter.style = .mailingAddress
             return formatter.string(from: postalAddress)
         } else {
-            return "\(coordinate.latitude), \(coordinate.longitude)"
+            return nil
+        }
+    }
+
+    public var city: String? {
+        if let city = placemark.postalAddress?.city {
+            return city
+        } else {
+            return nil
         }
     }
     
@@ -45,5 +53,9 @@ extension Location: MKAnnotation {
     
     public var title: String? {
         return address
+    }
+
+    public var subtitle: String? {
+        return nil
     }
 }

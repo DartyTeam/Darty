@@ -323,6 +323,44 @@ class StorageService {
         let docUrl = getDocumentsUrl().appendingPathComponent(fileName, isDirectory: false)
         fileData.write(to: docUrl, atomically: true)
     }
+
+
+    // MARK: - Delete data
+    func removeCurrentUserAvatars(completion: @escaping (Result<Void, Error>) -> Void) {
+        let currentUserId = AuthService.shared.currentUser.id
+        avatarsRef.listAll { storageListResult, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            let dg = DispatchGroup()
+            let userAvatars = storageListResult.items.filter({ $0.name.hasPrefix("_\(currentUserId)")})
+            userAvatars.forEach { userAvatar in
+                dg.enter()
+                self.removeFileWith(name: userAvatar.name) { result in
+                    dg.leave()
+                }
+            }
+            dg.notify(queue: .main) {
+                completion(.success(()))
+            }
+        }
+    }
+
+    func removeFileWith(name: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        avatarsRef.child(name).delete { error in
+            if let error = error {
+                print("ERROR_LOG Error delete avatar with name \(name)")
+                completion(.failure(error))
+                return
+            }
+
+            print("Successfull delete avatar user with name: \(name)")
+
+            completion(.success(()))
+        }
+    }
 }
 
 // Helpers

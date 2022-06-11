@@ -8,7 +8,7 @@
 import UIKit
 import MapKit
 import SkeletonView
-import SPSafeSymbols
+import SafeSFSymbols
 
 class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
@@ -47,6 +47,12 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         label.font = Constants.textFont
         return label
     }()
+
+    private lazy var aboutUserStackView = UIStackView(
+        arrangedSubviews: [userNameLabel, userRatingLabel],
+        axis: .vertical,
+        spacing: 4
+    )
     
     private let userImageView: UIImageView = {
         let imageView = UIImageView()
@@ -129,6 +135,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         let view = UIView()
         view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
         view.layer.cornerRadius = 10
+        view.isHidden = true
         return view
     }()
 
@@ -166,20 +173,6 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     func configure<U>(with value: U) where U : Hashable {
         guard let party: PartyModel = value as? PartyModel else { return }
-
-        FirestoreService.shared.getUser(by: party.userId) { [weak self] (result) in
-            switch result {
-            case .success(let user):
-                if !user.avatarStringURL.isEmpty {
-                    self?.userImageView.setImage(stringUrl: user.avatarStringURL)
-                }
-                self?.userNameLabel.text = user.username
-                self?.userRatingLabel.text = "00000000"
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
-        
         dateLabel.text = DateFormatter.ddMMMM.string(from: party.date)
         typeLabel.text = party.type
         titleLabel.text = party.name
@@ -256,6 +249,13 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         userImageView.setImage(stringUrl: avatarStringUrl)
         userNameLabel.text = username
         userRatingLabel.text = rating
+        userRatingLabel.isHidden = userRatingLabel.text?.isEmpty ?? true
+    }
+
+    func setDeletedUser() {
+        userImageView.image = "👾".textToImage(bgColor: .random)
+        userNameLabel.text = "Пользователь удален"
+        userRatingLabel.isHidden = true
     }
     
     func setRejected() {
@@ -296,8 +296,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         contentView.addSubview(mapImageView)
         contentView.addSubview(dateLabel)
         contentView.addSubview(timeLabel)
-        contentView.addSubview(userNameLabel)
-        contentView.addSubview(userRatingLabel)
+        contentView.addSubview(aboutUserStackView)
         contentView.addSubview(userImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(priceView)
@@ -331,15 +330,11 @@ extension PartyCell {
             make.bottom.equalToSuperview().offset(-8)
             make.left.equalToSuperview().offset(8)
         }
-        
-        userNameLabel.snp.makeConstraints { make in
-            make.centerY.equalTo(dateLabel.snp.centerY)
+
+        aboutUserStackView.snp.makeConstraints { make in
             make.left.equalTo(userImageView.snp.right).offset(8)
-        }
-        
-        userRatingLabel.snp.makeConstraints { make in
-            make.left.equalTo(userNameLabel.snp.left)
-            make.centerY.equalTo(timeLabel.snp.centerY)
+            make.top.equalTo(dateLabel.snp.top)
+            make.bottom.equalTo(timeLabel.snp.bottom)
         }
         
         mapImageView.snp.makeConstraints { make in

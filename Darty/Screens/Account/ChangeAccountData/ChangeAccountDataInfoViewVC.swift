@@ -8,6 +8,7 @@
 import UIKit
 import SPAlert
 import Agrume
+import FirebaseAuth
 
 final class ChangeAccountDataInfoViewVC: UIViewController {
 
@@ -193,6 +194,13 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         button.addTarget(self, action: #selector(connectAppleMusic), for: .touchUpInside)
         return button
     }()
+
+    private let deleteAccountButton: DButton = {
+        let button = DButton(title: "Удалить аккаунт")
+        button.backgroundColor = .systemRed
+        button.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
+        return button
+    }()
     
     private let blurEffect = UIBlurEffect(style: .systemUltraThinMaterial)
     private lazy var blurEffectView = UIVisualEffectView(effect: blurEffect)
@@ -308,6 +316,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         scrollView.addSubview(playlistTitleLabel)
         scrollView.addSubview(playlistCollectionView)
         scrollView.addSubview(connectAppleMusicButton)
+        scrollView.addSubview(deleteAccountButton)
     }
     
     // MARK: - Handlers
@@ -444,6 +453,69 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
         UIView.animate(withDuration: 0.3, animations: { [weak self] in
             self?.blurEffectView.contentView.layoutIfNeeded()
         })
+    }
+
+    @objc private func deleteAccount() {
+        let alertController = UIAlertController(
+            title: "Вы уверены?",
+            message: "Все ваши данные будут безвозвратно удалены\nНеобходимо выполнить повторную аутентификацию перед удалением",
+            preferredStyle: .actionSheet
+        )
+        let yesAction = UIAlertAction(title: "Да", style: .destructive) { _ in
+            self.view.isUserInteractionEnabled = false
+            AuthService.shared.deleteAccount(viewController: self, uiDelegate: self, completion: { result in
+                switch result {
+                case .success:
+                    DispatchQueue.main.async {
+                        ListenerService.shared.removeAllObservers()
+                        self.view.isUserInteractionEnabled = true
+                        print("Successfull delete user account")
+                        SPAlert.present(message: "Все данные успешно удалены", haptic: .success) {
+                            do {
+                                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                                appDelegate.appCoordinator?.openAuthFlow()
+                                try Auth.auth().signOut()
+                            } catch {
+                                print("Error signing out: \(error.localizedDescription)")
+                            }
+                        }
+                    }
+                case .failure(let error):
+                    print("ERROR_LOG Error delete user account: ", error.localizedDescription)
+
+                    let alertController = UIAlertController(
+                        title: "Возникла ошибка при удалении данных",
+                        message: "Попробуйте еще раз или свяжитесь с нами",
+                        preferredStyle: .alert
+                    )
+                    let touchWithUsAction = UIAlertAction(title: "Связаться", style: .default) { _ in
+                        self.openContactWithUs()
+                    }
+                    let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+
+                    let repeatDeleationAction = UIAlertAction(title: "Повторить удаление", style: .default) { _ in
+                        self.deleteAccount()
+                    }
+                    alertController.addAction(touchWithUsAction)
+                    alertController.addAction(cancelAction)
+                    alertController.addAction(repeatDeleationAction)
+                    DispatchQueue.main.async {
+                        self.view.isUserInteractionEnabled = true
+                        SPAlert.dismiss()
+                        self.present(alertController, animated: true)
+                    }
+                }
+            })
+        }
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel)
+        alertController.addAction(yesAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true)
+    }
+
+    private func openContactWithUs() {
+        let contactWithUsVC = ContactWithUsVC()
+        navigationController?.pushViewController(contactWithUsVC, animated: true)
     }
 }
 
@@ -658,7 +730,17 @@ extension ChangeAccountDataInfoViewVC {
             make.top.equalTo(playlistTitleLabel.snp.bottom).offset(16)
             make.height.equalTo(44)
             make.left.right.equalToSuperview().inset(20)
+        }
+
+        deleteAccountButton.snp.makeConstraints { make in
+            make.top.equalTo(connectAppleMusicButton.snp.bottom).offset(16)
+            make.height.equalTo(44)
+            make.left.right.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().offset(-96)
         }
     }
+}
+
+extension ChangeAccountDataInfoViewVC: AuthUIDelegate {
+    
 }

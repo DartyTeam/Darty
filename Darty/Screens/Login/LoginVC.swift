@@ -50,7 +50,7 @@ final class LoginVC: UIViewController {
         let button = SocialButton(social: .google)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = Constants.socialButtonSize / 2
-        button.addTarget(self, action: #selector(googleLoginAction), for: .touchUpInside)
+        button.addTarget(self, action: #selector(googleLoginAction(_:)), for: .touchUpInside)
         return button
     }()
     
@@ -163,13 +163,8 @@ final class LoginVC: UIViewController {
         videoPlayer?.play()
     }
 
-
     @objc private func signInAction() {
         coordinator?.signIn()
-    }
-    
-    @objc private func appleLoginAction(_ sender: SocialButton) {
-        
     }
 
     private func startSetupProfile(for user: User) {
@@ -195,92 +190,46 @@ final class LoginVC: UIViewController {
             self.coordinator?.changeToMainFlow(with: user)
         }
     }
-}
 
-// MARK: - GIDSignInDelegate
-extension LoginVC {
-    @objc private func googleLoginAction() {
+    private func login(with provider: AuthProviderType, _ sender: SocialButton) {
         view.isUserInteractionEnabled = false
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        let config = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.signIn(with: config, presenting: self) { [unowned self] user, error in
-            signIntoToFirebase(didSignInFor: user, withError: error)
-        }
-    }
-    
-    func signIntoToFirebase(didSignInFor user: GIDGoogleUser!, withError error: Error!) {
-        AuthService.shared.googleLogin(user: user, error: error) { [weak self] (result) in
-            switch result {
-            case .success(let user):
-                FirestoreService.shared.getUserData(user: user) { (result) in
-                    self?.googleButton.hideLoading()
-                    switch result {
-                    case .success(let user):
-                        self?.didSuccessfullLogin(with: user)
-                    case .failure(_):
-                        self?.startSetupProfile(for: user)
+        AuthService.shared.login(with: provider, viewController: self, authAlertDelegate: self) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let user):
+                    FirestoreService.shared.getUserData(user: user) { (result) in
+                        sender.hideLoading()
+                        switch result {
+                        case .success(let user):
+                            self?.didSuccessfullLogin(with: user)
+                        case .failure:
+                            self?.startSetupProfile(for: user)
+                        }
                     }
+                case .failure(let error):
+                    sender.hideLoading()
+                    self?.view.isUserInteractionEnabled = true
+                    self?.showAlert(title: "Ошибка", message: error.localizedDescription)
                 }
-            case .failure(let error):
-                self?.googleButton.hideLoading()
-                self?.view.isUserInteractionEnabled = true
-                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
             }
         }
     }
 }
 
-// MARK: Facebook SDK
 extension LoginVC {
-    func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
-        print("Did log out of facebook")
+    // MARK: - Google sign in
+    @objc private func googleLoginAction(_ sender: SocialButton) {
+        login(with: .google, sender)
     }
-    
+
+    // MARK: Facebook SDK
     @objc private func facebookLoginAction(_ sender: SocialButton) {
-        view.isUserInteractionEnabled = false
-        
-        if let token = AccessToken.current, !token.isExpired {
-            facebookLoginFirebase(sender)
-        } else {
-            let loginManager = LoginManager()
-            loginManager.logIn(permissions: [.publicProfile, .userBirthday, .userGender], viewController: self, completion: { [weak self] loginResult in
-                switch loginResult {
-                case .failed(let error):
-                    print("\(error)")
-                    sender.hideLoading()
-                    self?.view.isUserInteractionEnabled = true
-                case .cancelled:
-                    print("cancelled fb login")
-                    sender.hideLoading()
-                    self?.view.isUserInteractionEnabled = true
-                case .success(let grantedPermissions, let declinedPermissions, let accessToken):
-                    print("\(grantedPermissions) \(declinedPermissions) \(accessToken)")
-                    self?.facebookLoginFirebase(sender)
-                }
-            })
-        }
+        login(with: .facebook, sender)
     }
-    
-    private func facebookLoginFirebase(_ sender: SocialButton) {
-        AuthService.shared.facebookLogin(error: Error?.self as? Error) { [weak self] result in
-            switch result {
-            case .success(let user):
-                FirestoreService.shared.getUserData(user: user) { (result) in
-                    sender.hideLoading()
-                    switch result {
-                    case .success(let user):
-                        self?.didSuccessfullLogin(with: user)
-                    case .failure(let error):
-                        print("ERROR_LOG get user data: ", error.localizedDescription)
-                        self?.startSetupProfile(for: user)
-                    }
-                }
-            case .failure(let error):
-                sender.hideLoading()
-                self?.view.isUserInteractionEnabled = true
-                self?.showAlert(title: "Ошибка", message: error.localizedDescription)
-            }
-        }
+
+    // MARK: - Apple Login
+    @objc private func appleLoginAction(_ sender: SocialButton) {
+        login(with: .apple, sender)
     }
 }
 
@@ -336,5 +285,11 @@ extension LoginVC {
             continueWithSocLabel.bottomAnchor.constraint(equalTo: appleButton.topAnchor, constant: -20),
             continueWithSocLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
+    }
+}
+
+extension LoginVC: AuthAlertDelegate {
+    func show(alert: UIAlertController) {
+        present(alert, animated: true)
     }
 }

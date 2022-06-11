@@ -49,10 +49,11 @@ final class SearchInterestsSetupProfileVC: UIViewController {
         return collectionView
     }()
 
-    private let bottomView: BlurEffectView = {
-        let blurEffectView = BlurEffectView()
+    private let bottomView: UIVisualEffectView = {
+        let blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
         blurEffectView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         blurEffectView.layer.cornerRadius = 30
+        blurEffectView.layer.cornerCurve = .continuous
         blurEffectView.layer.masksToBounds = true
         return blurEffectView
     }()

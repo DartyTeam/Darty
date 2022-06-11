@@ -105,3 +105,23 @@ extension ChatErrors: LocalizedError {
         }
     }
 }
+
+enum AuthError: LocalizedError {
+    case noSavedCredential
+    case noSavedVerificationID
+    case noUserData
+    case userCanceledAuth
+
+    var errorDescription: String? {
+        switch self {
+        case .noSavedCredential:
+            return NSLocalizedString("Отсуствует сохраненные данные авторизации пользователя", comment: "")
+        case .noSavedVerificationID:
+            return NSLocalizedString("Попробуйте запросить код из СМС снова", comment: "")
+        case .noUserData:
+            return NSLocalizedString("Не удалось получить данные пользователя", comment: "")
+        case .userCanceledAuth:
+            return NSLocalizedString("Вход был отменен", comment: "")
+        }
+    }
+}

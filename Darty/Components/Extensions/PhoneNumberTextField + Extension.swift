@@ -8,7 +8,7 @@
 import Foundation
 import PhoneNumberKit
 
-class PhoneNumberTF: PhoneNumberTextField {
+final class PhoneNumberTF: PhoneNumberTextField {
     
     // MARK: - Constants
     private enum Constants {

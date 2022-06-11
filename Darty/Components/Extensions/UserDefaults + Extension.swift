@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 
 // MARK: – Custom objects extension
 extension UserDefaults {
@@ -33,6 +34,7 @@ extension UserDefaults {
         case appOpenedCount
         case lastReviewRequestAppVersion
         case instagramAccessToken
+        case phoneAuthVerificationID
     }
         
     var isPrevLaunched: Bool? {
@@ -53,5 +55,10 @@ extension UserDefaults {
     var instagramAccessToken: String? {
         set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.instagramAccessToken.rawValue) }
         get { return getCustomObject(forKey: UserDefaultsKeys.instagramAccessToken.rawValue) }
+    }
+
+    var phoneAuthVerificationID: String? {
+        set { setCustomObject(customObject: newValue, forKey: UserDefaultsKeys.phoneAuthVerificationID.rawValue) }
+        get { return getCustomObject(forKey: UserDefaultsKeys.phoneAuthVerificationID.rawValue) }
     }
 }

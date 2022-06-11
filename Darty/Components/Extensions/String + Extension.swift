@@ -10,7 +10,7 @@ import UIKit
 extension String {
     func textToImage(bgColor: UIColor = .clear, needMoreSmallText: Bool = false) -> UIImage? {
         let nsString = (self as NSString)
-        let fontSize: CGFloat = 1024
+        let fontSize: CGFloat = 100
         let font = UIFont.systemFont(ofSize: fontSize) // you can change your font size here
         let stringAttributes = [NSAttributedString.Key.font: font]
         let imageSize = nsString.size(withAttributes: stringAttributes)

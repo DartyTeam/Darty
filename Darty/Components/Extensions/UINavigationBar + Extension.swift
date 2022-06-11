@@ -9,7 +9,9 @@ import UIKit
 
 extension UINavigationBar {
     func setup(withColor color: UIColor, withClear: Bool) {
-        let attrs: [NSAttributedString.Key : Any] = [.font: UIFont.sfProDisplay(ofSize: 22, weight: .semibold) ?? .systemFont(ofSize: 22)]
+        let attrs: [NSAttributedString.Key : Any] = [
+            .font: UIFont.sfProDisplay(ofSize: 22, weight: .semibold) ?? .systemFont(ofSize: 22)
+        ]
         let appearance = UINavigationBarAppearance()
 
         let appearanceWhenScrolling = UINavigationBarAppearance()

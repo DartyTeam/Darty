@@ -48,6 +48,7 @@ final class SetAddImagesViewCell: UICollectionViewCell {
             }
             
             setImageView.layer.cornerRadius = 20
+            setImageView.layer.cornerCurve = .continuous
         }
         
         setImageView.layer.borderColor = color.withAlphaComponent(0.5).cgColor

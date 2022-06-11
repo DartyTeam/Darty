@@ -10,11 +10,12 @@ import FirebaseAuth
 import PhoneNumberKit
 import SPAlert
 
-final class SignInVC: UIViewController {
+final class SignInVC: UIViewController, AuthUIDelegate {
 
+    weak var coordinator: AuthCoordinator?
+    
     // MARK: - Constants
     private enum Constants {
-        static let socialButtonSize: CGFloat = 50
         static let infoTextFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .regular)
         static let textFieldFont: UIFont? = .sfProText(ofSize: 25, weight: .medium)
     }
@@ -123,6 +124,10 @@ final class SignInVC: UIViewController {
         if let phone = phoneTextField.text {
             if phoneNumberKit.isValidPhoneNumber(phone) {
                 print("asdijoasjoidoasdojias: ", phone)
+                AuthService.shared.sendSmsCodeFor(phoneNumber: phone, uiDelegate: self) { result in
+                    let enterOTPVC = EnterOTPVC()
+                    self.navigationController?.pushViewController(enterOTPVC, animated: true)
+                }
             } else {
                 SPAlert.present(title: "Введен некорректный номер телефона", preset: .error)
             }

@@ -11,9 +11,9 @@ final class PartyPriceAndGuestsVC: UIViewController {
 
     // MARK: - Constants
     private enum Constants {
-        static let titleFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
-        static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .semibold)
-        static let segmentFont: UIFont? = .sfProRounded(ofSize: 20, weight: .medium)
+        static let titleFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .medium)
+        static let countFont: UIFont? = .sfProDisplay(ofSize: 22, weight: .medium)
+        static let segmentFont: UIFont? = .sfProRounded(ofSize: 16, weight: .regular)
     }
     
     // MARK: - UI Elements

@@ -36,12 +36,14 @@ final class PartyTimeVC: UIViewController {
         label.text = Constants.startTime
         return label
     }()
+    
     private let startTimePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .time
         datePicker.preferredDatePickerStyle = .inline
         return datePicker
     }()
+
     private lazy var startTimeStackView = UIStackView(
         arrangedSubviews: [startLabel, startTimePicker],
         axis: .horizontal,
@@ -54,12 +56,14 @@ final class PartyTimeVC: UIViewController {
         label.text = Constants.endTime
         return label
     }()
+
     private let endTimeSwitch: UISwitch = {
         let switcher = UISwitch()
         switcher.isOn = !Constants.defaultDisabledEndTimePicker
         switcher.addTarget(self, action: #selector(endTimeSwitcherChanged(_:)), for: .valueChanged)
         return switcher
     }()
+
     private let endTimePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .time
@@ -68,6 +72,7 @@ final class PartyTimeVC: UIViewController {
         datePicker.addTarget(self, action: #selector(endTimeChanged(_:)), for: .valueChanged)
         return datePicker
     }()
+
     private lazy var endTimeStackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [endLabel, endTimeSwitch, endTimePicker],
@@ -100,6 +105,7 @@ final class PartyTimeVC: UIViewController {
         label.text = "Дата"
         return label
     }()
+
     private let datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date

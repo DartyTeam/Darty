@@ -8,7 +8,7 @@
 import UIKit
 import MapKit
 import CoreLocation
-import SPSafeSymbols
+import SafeSFSymbols
 
 protocol MapViewControllerDelegate: AnyObject {
     func getAddress(_ address: String?)

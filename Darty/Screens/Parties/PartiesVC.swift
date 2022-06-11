@@ -60,13 +60,15 @@ final class PartiesVC: UIViewController {
         static let segmentPartiesHorizontalInset: CGFloat = 32
         static let segmentPartiesTopOffset: CGFloat = 16
         static let errorListenerParty = "Ошибка"
+        static let emptyParties = "Нет вечеринок"
+        static let searchPlaceholder = "Поиск"
     }
     // MARK: - UI Elements
     private let emptyLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.text = "Нет вечеринок"
+        label.text = Constants.emptyParties
         label.font = .sfProDisplay(ofSize: 20, weight: .medium)
         return label
     }()
@@ -119,16 +121,11 @@ final class PartiesVC: UIViewController {
     private var parties = [PartyModel]()
     private var searchedParties = [PartyModel]()
     
-    private var rejectedPartiesListener: ListenerRegistration?
     private var rejectedParties = [PartyModel]()
-    private var waitingPartiesListener: ListenerRegistration?
     private var waitingParties = [PartyModel]()
-    private var approvedPartiesListener: ListenerRegistration?
     private var approvedParties = [PartyModel]()
-    private var myPartiesListener: ListenerRegistration?
     private var myParties = [PartyModel]()
-    
-    private var myPartyRequestsListeners: [ListenerRegistration]?
+
     private var myPartyRequests = [String: [PartyRequestModel]]()
     private var partiesRequestsListenerDelegate: PartiesRequestsListenerProtocol?
     
@@ -177,7 +174,7 @@ final class PartiesVC: UIViewController {
     }
 
     private func setupListeners() {
-        rejectedPartiesListener = ListenerService.shared.rejectedPartiesObserve(parties: waitingParties, completion: { (result) in
+        ListenerService.shared.rejectedPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
             case .success(let parties):
                 self.rejectedParties = parties
@@ -190,7 +187,7 @@ final class PartiesVC: UIViewController {
             }
         })
         
-        waitingPartiesListener = ListenerService.shared.waitingPartiesObserve(parties: waitingParties, completion: { (result) in
+        ListenerService.shared.waitingPartiesObserve(parties: waitingParties, completion: { (result) in
             switch result {
             case .success(let parties):
                 self.waitingParties = parties
@@ -203,7 +200,7 @@ final class PartiesVC: UIViewController {
             }
         })
         
-        approvedPartiesListener = ListenerService.shared.approvedPartiesObserve(parties: approvedParties, completion: { (result) in
+        ListenerService.shared.approvedPartiesObserve(parties: approvedParties, completion: { (result) in
             switch result {
             case .success(let parties):
                 self.approvedParties = parties
@@ -216,22 +213,18 @@ final class PartiesVC: UIViewController {
             }
         })
         
-        myPartiesListener = ListenerService.shared.myPartiesObserve(parties: myParties, completion: { (result) in
+        ListenerService.shared.myPartiesObserve(parties: myParties, completion: { (result) in
             switch result {
             case .success(let parties):
                 self.myParties = parties
                 self.reloadPartiesType()
-                self.myPartyRequestsListeners?.forEach({ myPartyRequestListener in
-                    myPartyRequestListener.remove()
-                })
-                self.myPartyRequestsListeners?.removeAll()
                 
                 parties.forEach { party in
                     var partyRequests = [PartyRequestModel]()
                     if let partyRequestsForParty = self.myPartyRequests[party.id] {
                         partyRequests = partyRequestsForParty
                     }
-                    let myPartyRequestsListener = ListenerService.shared.waitingGuestsRequestsObserve(waitingGuestsRequests: partyRequests, partyId: party.id, completion: { (result) in
+                    ListenerService.shared.waitingGuestsRequestsObserve(waitingGuestsRequests: partyRequests, partyId: party.id, completion: { (result) in
                         switch result {
                         case .success(let partyRequests):
                             self.myPartyRequests[party.id] = partyRequests
@@ -244,9 +237,6 @@ final class PartiesVC: UIViewController {
                             )
                         }
                     })
-                    if let myPartyRequestsListener = myPartyRequestsListener {
-                        self.myPartyRequestsListeners?.append(myPartyRequestsListener)
-                    }
                 }
             case .failure(let error):
                 self.showAlert(
@@ -258,7 +248,11 @@ final class PartiesVC: UIViewController {
     }
 
     private func setupNavigationBar() {
-        setNavigationBar(withColor: .systemPurple, title: "Поиск вечеринки", withClear: false)
+        setNavigationBar(
+            withColor: .systemPurple,
+            title: PartyListType.search.title,
+            withClear: false
+        )
         navigationItem.titleView?.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentedPartiesPages)
         segmentedPartiesPages.snp.makeConstraints { make in
@@ -294,8 +288,8 @@ final class PartiesVC: UIViewController {
     }
 
     private func setupSearchBar() {
-        searchController.searchBar.placeholder = "Поиск"
-
+        searchController.searchBar.placeholder = Constants.searchPlaceholder
+        searchController.searchBar.tintColor = .systemOrange
         definesPresentationContext = true // Позволяет отпустить строку поиска, при переходе на другой экран
         searchController.searchBar.delegate = self
 
@@ -336,16 +330,17 @@ final class PartiesVC: UIViewController {
             } else {
                 snapshot.appendItems(archivedParties, toSection: .archived)
             }
+            print("asduhasdhuauhsdiuhasd: ", actualParties.isEmpty, archivedParties.isEmpty)
             let isEmpty = actualParties.isEmpty && archivedParties.isEmpty
             update(isEmpty: isEmpty)
         } else {
             if filteredParties.isEmpty {
                 snapshot.deleteSections([.parties])
-                update(isEmpty: true)
             } else {
                 snapshot.appendItems(filteredParties, toSection: .parties)
             }
             snapshot.deleteSections([.archived])
+            update(isEmpty: filteredParties.isEmpty)
         }
         print("asdijaisodaiojsdoijasd: ", snapshot.numberOfSections)
 
@@ -356,6 +351,7 @@ final class PartiesVC: UIViewController {
 
         dataSource?.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
             if self?.navigationItem.searchController == nil {
+                print("It finished. Setup is making")
                 self?.setupSearchBar()
             }
         })
@@ -434,13 +430,6 @@ final class PartiesVC: UIViewController {
     
     deinit {
         print("deinit", PartiesVC.self)
-        rejectedPartiesListener?.remove()
-        waitingPartiesListener?.remove()
-        approvedPartiesListener?.remove()
-        myPartiesListener?.remove()
-        myPartyRequestsListeners?.forEach({ listener in
-            listener.remove()
-        })
     }
     
     required init?(coder: NSCoder) {
@@ -498,7 +487,8 @@ extension PartiesVC {
                         )
                     }
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    print("ERROR_LOG Error get ucer for party \(party.id) cell: ", error.localizedDescription)
+                    cell?.setDeletedUser()
                 }
             }
 

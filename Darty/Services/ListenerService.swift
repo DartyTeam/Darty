@@ -50,13 +50,15 @@ class ListenerService {
     //
     //        return usersLestener
     //    }
-    
-    func rejectedPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
+
+    private var rejectedPartiesListener: ListenerRegistration!
+
+    func rejectedPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) {
         
         var parties = parties
         let partiesRef = db.collection(["users", Auth.auth().currentUser!.uid, "rejectedParties"].joined(separator: "/"))
         
-        let partiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
+        self.rejectedPartiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -93,16 +95,16 @@ class ListenerService {
                 completion(.success(parties))
             }
         } //let partiesListener = partiesRef.addSnapshotListener
-        
-        return partiesListener
     }
-    
-    func waitingPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
+
+    private var waitingPartiesListener: ListenerRegistration!
+
+    func waitingPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) {
         
         var parties = parties
         let partiesRef = db.collection(["users", Auth.auth().currentUser!.uid, "waitingParties"].joined(separator: "/"))
         
-        let partiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
+        self.waitingPartiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -140,16 +142,16 @@ class ListenerService {
                 completion(.success(parties))
             }
         } //let partiesListener = partiesRef.addSnapshotListener
-        
-        return partiesListener
     }
-    
-    func approvedPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
+
+    private var approvedPartiesListener: ListenerRegistration!
+
+    func approvedPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) {
         
         var parties = parties
         let partiesRef = db.collection(["users", Auth.auth().currentUser!.uid, "approvedParties"].joined(separator: "/"))
         
-        let partiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
+        self.approvedPartiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -187,17 +189,24 @@ class ListenerService {
                 completion(.success(parties))
             }
         } //let partiesListener = partiesRef.addSnapshotListener
-        
-        return partiesListener
     }
-    
-    func myPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) -> ListenerRegistration? {
+
+
+    private var myPartiesListener: ListenerRegistration!
+
+    func myPartiesObserve(parties: [PartyModel], completion: @escaping (Result<[PartyModel], Error>) -> Void) {
+        self.myPartyRequestsListeners?.forEach({ myPartyRequestListener in
+            myPartyRequestListener.remove()
+        })
+        self.myPartyRequestsListeners?.removeAll()
+
+
         var parties = parties
         let partiesRef = db.collection(["users", currentUserId, "myParties"].joined(separator: "/"))
         
         let dg = DispatchGroup()
         
-        let partiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
+        self.myPartiesListener = partiesRef.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -232,16 +241,18 @@ class ListenerService {
                 completion(.success(parties))
             }
         } //let partiesListener = partiesRef.addSnapshotListener
-        
-        return partiesListener
     }
+
+    private var myPartyRequestsListeners: [ListenerRegistration]!
     
-    func waitingGuestsRequestsObserve(waitingGuestsRequests: [PartyRequestModel], partyId: String, completion: @escaping (Result<[PartyRequestModel], Error>) -> Void) -> ListenerRegistration? {
+    func waitingGuestsRequestsObserve(waitingGuestsRequests: [PartyRequestModel],
+                                      partyId: String,
+                                      completion: @escaping (Result<[PartyRequestModel], Error>) -> Void) {
         
         var waitingGuestsRequests = waitingGuestsRequests
         let reference = db.collection(["parties", partyId, "waitingGuests"].joined(separator: "/"))
 
-        let requestsListener = reference.addSnapshotListener { (querySnapshot, error) in
+        let myPartyRequestsListener = reference.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -266,17 +277,18 @@ class ListenerService {
             completion(.success(waitingGuestsRequests))
             
         } //let requestsListener = partiesRef.addSnapshotListener
-        
-        return requestsListener
+
+        self.myPartyRequestsListeners?.append(myPartyRequestsListener)
     }
     
-    
-    // MARK: - Chats    
-    func recentChatsObserve(recents: [RecentChatModel], completion: @escaping (Result<[RecentChatModel], Error>) -> Void) -> ListenerRegistration? {
+    // MARK: - Chats
+    private var recentChatsListener: ListenerRegistration!
+
+    func recentChatsObserve(recents: [RecentChatModel], completion: @escaping (Result<[RecentChatModel], Error>) -> Void) {
         var recents = recents
 
         let ref = recentsRef.whereField("senderId", isEqualTo: currentUserId)
-        let recentsListener = ref.addSnapshotListener { (querySnapshot, error) in
+        self.recentChatsListener = ref.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -301,14 +313,14 @@ class ListenerService {
             recents.sort(by: {$0.date > $1.date })
             completion(.success(recents))
         }
-        
-        return recentsListener
     }
-    
-    func recentWaitingChatsObserve(chats: [RecentChatModel], completion: @escaping (Result<[RecentChatModel], Error>) -> Void) -> ListenerRegistration? {
+
+    private var recentWaitingChatsListener: ListenerRegistration!
+
+    func recentWaitingChatsObserve(chats: [RecentChatModel], completion: @escaping (Result<[RecentChatModel], Error>) -> Void) {
         var chats = chats
         let chatsRef = db.collection(["users", currentUserId, "waitingChats"].joined(separator: "/"))
-        let chatsListener = chatsRef.addSnapshotListener { (querySnapshot, error) in
+        self.recentWaitingChatsListener = chatsRef.addSnapshotListener { (querySnapshot, error) in
             guard let snapshot = querySnapshot else {
                 completion(.failure(error!))
                 return
@@ -331,8 +343,6 @@ class ListenerService {
             
             completion(.success(chats))
         }
-        
-        return chatsListener
     }
     
     // MARK: - Chat listeners
@@ -350,7 +360,6 @@ class ListenerService {
                     }
                     
                     switch result {
-                    
                     case .success(let messageObject):
                         if let message = messageObject {
                             if message.senderId != AuthService.shared.currentUser!.id {
@@ -366,9 +375,9 @@ class ListenerService {
             }
         })
     }
-    
+
     func listenForReadStatusChange(_ documentId: String, collectionId: String, completion: @escaping (_ updateMessage: LocalMessage) -> Void) {
-        updatedChatListener = messagesRef.document(documentId).collection(collectionId).addSnapshotListener({ querySnapshot, error in
+        self.updatedChatListener = messagesRef.document(documentId).collection(collectionId).addSnapshotListener({ querySnapshot, error in
             guard let snaphot = querySnapshot else { return }
             
             for change in snaphot.documentChanges {
@@ -378,7 +387,6 @@ class ListenerService {
                     }
                     
                     switch result {
-                        
                     case .success(let messageObject):
                         if let message = messageObject {
                             completion(message)
@@ -394,8 +402,8 @@ class ListenerService {
     }
     
     func removeChatListeners() {
-        self.newChatListener.remove()
-        self.updatedChatListener.remove()
+        self.newChatListener?.remove()
+        self.updatedChatListener?.remove()
     }
     
     // MARK: - Typing listener
@@ -424,6 +432,22 @@ class ListenerService {
     }
     
     func removeTypingListener() {
-        self.typingListener.remove()
+        self.typingListener?.remove()
+    }
+
+    // MARK: - Remove all listeners for exit from account function
+    func removeAllObservers() {
+        removeChatListeners()
+        removeTypingListener()
+        rejectedPartiesListener?.remove()
+        waitingPartiesListener?.remove()
+        approvedPartiesListener?.remove()
+        myPartiesListener?.remove()
+        myPartyRequestsListeners?.forEach({ listener in
+            listener.remove()
+        })
+
+        recentWaitingChatsListener?.remove()
+        recentChatsListener?.remove()
     }
 }

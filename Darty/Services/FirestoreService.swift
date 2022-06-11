@@ -197,7 +197,26 @@ class FirestoreService {
 
         dg.notify(queue: .main) { [weak self] in
             // Сохранение данных в Firestore
-            let party = PartyModel(city: party.city, location: GeoPoint(latitude: party.latitude, longitude: party.longitude), address: party.address, userId: party.userId, imageUrlStrings: imagesUrlStrings, type: party.type.rawValue, maxGuests: party.maxGuests, curGuests: 0, id: partyId, date: party.date, startTime: party.startTime, endTime: party.endTime, name: party.name, moneyPrice: party.moneyPrice, anotherPrice: party.anotherPrice, priceType: party.priceType.rawValue, description: party.description, minAge: party.minAge)
+            let party = PartyModel(
+                city: party.city,
+                location: GeoPoint(latitude: party.latitude, longitude: party.longitude),
+                address: party.address,
+                userId: party.userId,
+                imageUrlStrings: imagesUrlStrings,
+                type: party.type.rawValue,
+                maxGuests: party.maxGuests,
+                curGuests: 0,
+                id: partyId,
+                date: party.date,
+                startTime: party.startTime,
+                endTime: party.endTime,
+                name: party.name,
+                moneyPrice: party.moneyPrice,
+                anotherPrice: party.anotherPrice,
+                priceType: party.priceType.rawValue,
+                description: party.description,
+                minAge: party.minAge
+            )
             
             self?.partiesRef.document(party.id).setData(party.representation) { (error) in
                 if let error = error {
@@ -217,6 +236,7 @@ class FirestoreService {
     
     func getPartyBy(uid: String, completion: @escaping (Result<PartyModel, Error>) -> Void) {
         let docRef = partiesRef.document(uid)
+        print("asdoijasoidjaosidjaoisdj: ", uid)
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
                 guard let party = PartyModel(document: document) else {
@@ -225,6 +245,7 @@ class FirestoreService {
                 }
                 completion(.success(party))
             } else {
+                print("aspdoijasidjasiodjasoidjasoidj")
                 completion(.failure(PartyError.cannotGetPartyInfo))
             }
         }
@@ -514,6 +535,7 @@ class FirestoreService {
                 completion(.failure(error))
                 print("Error canceled party \(partyId): ", error)
             }
+            #warning("TODO Реализовать отправку уведомления о том что вечеринки отменена")
             print("Successfull canceled paty \(partyId)")
             completion(.success(Void()))
         }
@@ -739,7 +761,13 @@ class FirestoreService {
         createRecentItems(chatRoomId: chatRoomId, users: [user1, user2], lastMessage: lastMessage, countMessages: countMessages, completion: completion)
     }
     
-    func recreateChat(chatRoomId: String, memberIds: [String], lastMessage: String = "", countMessages: Int = 0, completion: @escaping (Result<String, Error>) -> Void) {
+    func recreateChat(
+        chatRoomId: String,
+        memberIds: [String],
+        lastMessage: String = "",
+        countMessages: Int = 0,
+        completion: @escaping (Result<String, Error>) -> Void
+    ) {
         getUsers(by: memberIds) { [weak self] result in
             switch result {
             
@@ -959,6 +987,78 @@ class FirestoreService {
                 completion(.success(recentChat))
             } else {
                 completion(.failure(ChatErrors.noDocForRecent))
+            }
+        }
+    }
+
+
+    // MARK: - Delete user data
+    func deleteCurrentUser(completion: @escaping (Result<Void, Error>) -> Void) {
+        let id = AuthService.shared.currentUser.id
+        let docRef = usersRef.document(id)
+        let partiesRef = db.collection(["users", id, "myParties"].joined(separator: "/"))
+        partiesRef.getDocuments { queryDocument, error in
+            if let error = error {
+                print("asduhasduhashus")
+                completion(.failure(error))
+                return
+            }
+
+            print("asdasdhiuasduhasuhasdhuiasdhui; ", queryDocument)
+            if let queryDocument = queryDocument {
+                let myPartyIds: [MyPartyIdModel] = queryDocument.documents.compactMap { queryDocumentSnapshot in
+                    return MyPartyIdModel(document: queryDocumentSnapshot)
+                }
+                print("asdijasdiajsdioasjdiaosd: ", myPartyIds)
+
+                let deleteUserDataDG = DispatchGroup()
+                myPartyIds.forEach { myPartyIdModel in
+                    deleteUserDataDG.enter()
+                    self.getPartyBy(uid: myPartyIdModel.uid, completion: { result in
+                        switch result {
+                        case .success(let partyModel):
+                            if partyModel.date >= Date() {
+                                self.changeToCanceled(party: partyModel) { result in
+                                    switch result {
+                                    case .success:
+                                        print("Successfull canceled party with id \(partyModel.id) when delete user with id \(id)")
+                                    case .failure(let error):
+                                        completion(.failure(error))
+                                        return
+                                    }
+                                    deleteUserDataDG.leave()
+                                }
+                            } else {
+                                deleteUserDataDG.leave()
+                            }
+                        case .failure(let error):
+                            completion(.failure(error))
+                            return
+                        }
+                    })
+                }
+
+                deleteUserDataDG.enter()
+                StorageService.shared.removeCurrentUserAvatars { result in
+                    switch result {
+                    case .success:
+                        deleteUserDataDG.leave()
+                    case .failure(let error):
+                        completion(.failure(error))
+                        return
+                    }
+                }
+
+                deleteUserDataDG.notify(queue: .main) {
+                    docRef.delete { error in
+                        if let error = error {
+                            completion(.failure(error))
+                            return
+                        }
+                        
+                        completion(.success(()))
+                    }
+                }
             }
         }
     }

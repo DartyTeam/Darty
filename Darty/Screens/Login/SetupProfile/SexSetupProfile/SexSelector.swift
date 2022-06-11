@@ -43,6 +43,7 @@ final class SexSelector: UIView {
     
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()

@@ -9,6 +9,7 @@ import UIKit
 import PhotosUI
 import Agrume
 import SPAlert
+import SafeSFSymbols
 
 final class PartyImagesVC: UIViewController {
 
@@ -65,7 +66,12 @@ final class PartyImagesVC: UIViewController {
     @objc private func nextButtonTapped() {
         let images = imagesListView.images.map({ $0.image })
         guard !images.isEmpty else {
-            showAlert(title: "Необходимо выбрать не менее одного изображения", message: "")
+            SPAlert.present(
+                title: "",
+                message: "Необходимо выбрать не менее одного изображения",
+                preset: .custom(UIImage(.photo)),
+                haptic: .warning
+            )
             return
         }
         delegate?.goNext(with: images)

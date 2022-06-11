@@ -10,40 +10,18 @@ import FirebaseAuth
 import SPAlert
 
 final class AboutSetupProfileVC: UIViewController {
-    
-    // MARK: - Constants
-    private enum Constants {
-        static let textPlaceholder = "Text here about you..."
-        static let textFont: UIFont? = .sfProText(ofSize: 26, weight: .semibold)
-    }
-    
+
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
         button.backgroundColor = .systemBlue
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    private let aboutTitleLabel: UILabel = {
-        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = Constants.textPlaceholder
-        label.font = Constants.textFont
-        label.isUserInteractionEnabled = true
-        return label
-    }()
-    
-    private lazy var aboutTextView: UITextView = {
-        let textView = UITextView()
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.font = Constants.textFont
+    private lazy var aboutTextView: TextView = {
+        let textView = TextView(placeholder: "Описание вас", isEditable: true, color: .systemBlue)
         textView.delegate = self
-        textView.showsVerticalScrollIndicator = false
-        textView.backgroundColor = .clear
-        textView.isUserInteractionEnabled = false
-        textView.usesStandardTextScaling = true
         return textView
     }()
 
@@ -53,13 +31,13 @@ final class AboutSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(aboutTitleAction))
-        aboutTitleLabel.addGestureRecognizer(tapGesture)
-        
-        setNavigationBar(withColor: .systemBlue, title: "О вас")
         setupViews()
         setupConstraints()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNavigationBar(withColor: .systemBlue, title: "О вас")
     }
 
     // MARK: - Setup views
@@ -69,7 +47,6 @@ final class AboutSetupProfileVC: UIViewController {
         }
         view.backgroundColor = .systemBackground
         view.addSubview(aboutTextView)
-        view.addSubview(aboutTitleLabel)
         view.addSubview(nextButton)
     }
     
@@ -79,73 +56,58 @@ final class AboutSetupProfileVC: UIViewController {
     }
     
     @objc private func nextButtonTapped() {
-        guard let descriptionText = aboutTextView.text, !descriptionText.isEmptyOrWhitespaceOrNewLines() else {
-            SPAlert.present(title: "Расскажите о себе", message: "Поле не может быть пустым", preset: .custom(UIImage(.text.bubble)), haptic: .error)
+        let descriptionText = aboutTextView.text
+        guard !descriptionText.isEmptyOrWhitespaceOrNewLines() else {
+            SPAlert.present(
+                title: "Расскажите о себе",
+                message: "Поле не может быть пустым",
+                preset: .custom(UIImage(.text.bubble)),
+                haptic: .error
+            )
             return
         }
         delegate?.goNext(description: descriptionText)
-    }
-    
-    @objc private func aboutTitleAction() {
-        aboutTitleLabel.isHidden = true
-        aboutTextView.becomeFirstResponder()
-        aboutTextView.centerVertically()
-        aboutTextView.text = ""
-        aboutTextView.isUserInteractionEnabled = true
     }
 }
 
 // MARK: - Setup constraints
 extension AboutSetupProfileVC {
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
-        ])
-        
-        NSLayoutConstraint.activate([
-            aboutTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 44),
-            aboutTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -44),
-            aboutTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            aboutTextView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44),
-        ])
-        
-        NSLayoutConstraint.activate([
-            aboutTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 44),
-            aboutTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -44),
-            aboutTitleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 44),
-            aboutTitleLabel.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -44),
-        ])
+        nextButton.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().offset(-44)
+            make.height.equalTo(UIButton.defaultButtonHeight)
+        }
+
+        aboutTextView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(20)
+            make.bottom.equalTo(nextButton.snp.top).offset(-44)
+            make.height.equalTo(256)
+        }
     }
 }
 
 // MARK: - UITextViewDelegate
-extension AboutSetupProfileVC: UITextViewDelegate {
-    
-    func textViewDidChange(_ textView: UITextView) {
-        if let font = aboutTextView.font {
-            let maxChars = aboutTextView.frame.width / font.pointSize
-            let maxLines = aboutTextView.frame.height / font.lineHeight
-            
-            let currentChars = aboutTextView.contentSize.width / font.pointSize
-            let currentLines = aboutTextView.contentSize.height / font.lineHeight
-            
-            let currentValue = Int(currentChars) * Int(currentLines)
-            let maxValue = Int(maxLines) * Int(maxChars)
-            if currentValue >= maxValue {
-                textView.updateTextFont()
-            } else {
-                textView.centerVertically()
-            }
-        }
-    }
-    
+extension AboutSetupProfileVC: TextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            aboutTitleLabel.isHidden = false
-            aboutTextView.isUserInteractionEnabled = false
-        }
+
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+//        if let font = aboutTextView.font {
+//            let maxChars = aboutTextView.frame.width / font.pointSize
+//            let maxLines = aboutTextView.frame.height / font.lineHeight
+//
+//            let currentChars = aboutTextView.contentSize.width / font.pointSize
+//            let currentLines = aboutTextView.contentSize.height / font.lineHeight
+//
+//            let currentValue = Int(currentChars) * Int(currentLines)
+//            let maxValue = Int(maxLines) * Int(maxChars)
+//            if currentValue >= maxValue {
+//                textView.updateTextFont()
+//            } else {
+//                textView.centerVertically()
+//            }
+//        }
     }
 }

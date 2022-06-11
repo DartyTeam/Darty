@@ -15,7 +15,7 @@ final class NameSetupProfileVC: UIViewController {
     private enum Constants {
         static let textPlaceholder = "Введите имя..."
         static let textFont: UIFont? = .sfProText(ofSize: 24, weight: .medium)
-        static let maxIllustrationHeight: CGFloat = 604
+        static let maxIllustrationHeight: CGFloat = 544
     }
     
     // MARK: - UI Elements
@@ -82,7 +82,7 @@ final class NameSetupProfileVC: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemBlue, withClear: false)
+        setNavigationBar(withColor: .systemBlue, title: "Имя", withClear: false)
 
     }
 
@@ -190,7 +190,7 @@ extension NameSetupProfileVC {
         }
 
         illustrationImageView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
             make.width.equalToSuperview().inset(44)
             make.centerX.equalToSuperview().offset(10)
             make.height.equalTo(Constants.maxIllustrationHeight)

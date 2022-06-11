@@ -202,7 +202,7 @@ struct PartyModel: Hashable, Decodable {
     var anotherPrice: String?
     var description: String
     var minAge: Int
-    var isCanceled: Bool = false
+    var isCanceled: Bool
     
     init(city: String,
          location: GeoPoint,
@@ -220,7 +220,9 @@ struct PartyModel: Hashable, Decodable {
          moneyPrice: Int?,
          anotherPrice: String?,
          priceType: PriceType.RawValue,
-         description: String, minAge: Int) {
+         description: String,
+         minAge: Int,
+         isCanceled: Bool = false) {
         self.city = city
         self.location = location
         self.address = address
@@ -239,6 +241,7 @@ struct PartyModel: Hashable, Decodable {
         self.description = description
         self.minAge = minAge
         self.priceType = priceType
+        self.isCanceled = isCanceled
     }
     
     init?(document: DocumentSnapshot) {
@@ -259,7 +262,6 @@ struct PartyModel: Hashable, Decodable {
             let curGuests = data[PartyModelKeys.curGuests] as? Int,
             let date = (data[PartyModelKeys.date] as? Timestamp)?.dateValue(),
             let startTime = (data[PartyModelKeys.startTime] as? Timestamp)?.dateValue(),
-            let endTime = (data[PartyModelKeys.endTime] as? Timestamp)?.dateValue(),
             let name = data[PartyModelKeys.name] as? String,
             let priceType = data[PartyModelKeys.priceType] as? PriceType.RawValue,
             let description = data[PartyModelKeys.description] as? String,
@@ -267,10 +269,12 @@ struct PartyModel: Hashable, Decodable {
             let minAge = data[PartyModelKeys.minAge] as? Int,
             let isCanceled = data[PartyModelKeys.isCanceled] as? Bool
         else {
+            print("asdoijasoidjaosidjaoisdjaiosjd")
             return nil
         }
         
         // Optional values
+        let endTime = (data[PartyModelKeys.endTime] as? Timestamp)?.dateValue()
         let moneyPrice = data[PartyModelKeys.moneyPrice] as? Int
         let anotherPrice = data[PartyModelKeys.anotherPrice] as? String
             
@@ -332,5 +336,20 @@ struct PartyModel: Hashable, Decodable {
         if filter.isEmpty { return true }
         let lowercasedFilter = filter.lowercased()
         return name.lowercased().contains(lowercasedFilter) || type.lowercased().contains(lowercasedFilter)
+    }
+}
+
+struct MyPartyIdModel: Decodable {
+
+    var uid: String
+
+    init?(document: DocumentSnapshot) {
+        guard let data = document.data(),
+              let uid = data["uid"] as? String
+        else {
+            return nil
+        }
+
+        self.uid = uid
     }
 }

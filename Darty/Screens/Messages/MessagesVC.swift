@@ -26,7 +26,7 @@ class MessagesVC: UIViewController {
         let label = UILabel()
         label.font = .sfProDisplay(ofSize: 24, weight: .medium)
         label.text = "Сообщений нет"
-        label.textColor = .white
+        label.textColor = .label
         label.numberOfLines = 0
         label.textAlignment = .center
         return label
@@ -45,9 +45,6 @@ class MessagesVC: UIViewController {
             updateEmptyView()
         }
     }
-    
-    private var waitingChatsListener: ListenerRegistration?
-    private var activeChatsListener: ListenerRegistration?
     
     // enum по умолчанию hashable
     enum Section: Int, CaseIterable {
@@ -81,8 +78,6 @@ class MessagesVC: UIViewController {
     // MARK: - Lifecycle
     deinit {
         print("deinit", MessagesVC.self)
-        waitingChatsListener?.remove()
-        activeChatsListener?.remove()
     }
     
     override func viewDidLoad() {
@@ -106,7 +101,7 @@ class MessagesVC: UIViewController {
     }
     
     private func setupListeners() {
-        waitingChatsListener = ListenerService.shared.recentWaitingChatsObserve(chats: waitingChats, completion: { [weak self] (result) in
+        ListenerService.shared.recentWaitingChatsObserve(chats: waitingChats, completion: { [weak self] (result) in
             switch result {
             case .success(let chats):
                 if let waitingChats = self?.waitingChats, waitingChats != [], waitingChats.count <= chats.count {
@@ -123,7 +118,7 @@ class MessagesVC: UIViewController {
             }
         })
         
-        activeChatsListener = ListenerService.shared.recentChatsObserve(recents: activeChats, completion: { [weak self] (result) in
+        ListenerService.shared.recentChatsObserve(recents: activeChats, completion: { [weak self] (result) in
             switch result {
             case .success(let chats):
                 self?.activeChats = chats

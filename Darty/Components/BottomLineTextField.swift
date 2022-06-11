@@ -7,16 +7,16 @@
 
 import UIKit
 
-private enum Constants {
-    static let borderHeight: CGFloat = 4
-}
+class BottomLineTextField: UITextField {
 
-final class BottomLineTextField: UITextField {
-    
+    // MARK: - Constants
+    private enum Constants {
+        static let borderHeight: CGFloat = 4
+    }
+
     // MARK: - UI Elements
     private var bottomBorder: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemGray
         view.layer.cornerRadius = Constants.borderHeight / 2
         return view
@@ -29,15 +29,17 @@ final class BottomLineTextField: UITextField {
     init(color: UIColor) {
         self.color = color
         super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
-        
+
         addSubview(bottomBorder)
 
-        NSLayoutConstraint.activate([
-            bottomBorder.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 6),
-            bottomBorder.leftAnchor.constraint(equalTo: leftAnchor, constant: -4),
-            bottomBorder.rightAnchor.constraint(equalTo: rightAnchor, constant: 4),
-            bottomBorder.heightAnchor.constraint(equalToConstant: Constants.borderHeight)
-        ])
+        textColor = color
+        tintColor = color
+
+        bottomBorder.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(4)
+            make.height.equalTo(Constants.borderHeight)
+            make.bottom.equalToSuperview().offset(6)
+        }
     }
     
     @available(*, unavailable)

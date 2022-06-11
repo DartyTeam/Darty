@@ -10,7 +10,7 @@ import FirebaseAuth
 import MapKit
 import SPAlert
 import FlyoverKit
-import SPSafeSymbols
+import SafeSFSymbols
 import Inject
 
 final class CityAndCountrySetupProfileVC: UIViewController {

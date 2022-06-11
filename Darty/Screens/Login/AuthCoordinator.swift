@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import Inject
+import SPAlert
 
 protocol NameSetupProfileDelegate: AnyObject {
     func goNext(name: String)
@@ -140,6 +141,9 @@ final class AuthCoordinator: Coordinator {
     }
 
     private func saveUserInfo() {
+        let alertView = SPAlertView(title: "Сохранение данных...", preset: .spinner)
+        alertView.present(haptic: .none)
+        alertView.presentWindow?.isUserInteractionEnabled = false
         FirestoreService.shared.saveProfileWith(id: user.uid,
                                                 phone: user.phoneNumber ?? "",
                                                 username: userInfo.name,
@@ -150,13 +154,17 @@ final class AuthCoordinator: Coordinator {
                                                 interestsList: userInfo.interests,
                                                 city: userInfo.city,
                                                 country: userInfo.country) { [weak self] (result) in
-            switch result {
-            case .success(let user):
-                self?.navigationController.showAlert(title: "Успешно", message: "Веселитесь!") {
-                    self?.changeToMainFlow(with: user)
+            DispatchQueue.main.async {
+                alertView.dismiss()
+                switch result {
+                case .success(let user):
+                    SPAlert.present(title: "", message: "Все готово. Веселитесь!", preset: .done) {
+                        alertView.presentWindow?.isUserInteractionEnabled = true
+                        self?.changeToMainFlow(with: user)
+                    }
+                case .failure(let error):
+                    SPAlert.present(title: "Ошибка", message: error.localizedDescription, preset: .error)
                 }
-            case .failure(let error):
-                self?.navigationController.showAlert(title: "Ошибка", message: error.localizedDescription)
             }
         }
     }

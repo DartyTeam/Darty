@@ -17,9 +17,10 @@ final class InterestNode: Node {
     override init(text: String? = nil, image: UIImage? = nil, color: UIColor, path: CGPath, marginScale: CGFloat = 1.01) {
         super.init(text: text, image: image, color: color, path: path, marginScale: marginScale)
         selectedColor = .white.withAlphaComponent(0.5)
-        selectedFontColor = .black
+        selectedFontColor = .label
         label.fontName = "SFProRounded-Bold"
         label.fontSize = 10
+        label.fontColor = .systemBackground
         scaleToFitContent = true
     }
 

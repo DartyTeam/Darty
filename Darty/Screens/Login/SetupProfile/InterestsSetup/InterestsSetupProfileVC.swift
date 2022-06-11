@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 import Magnetic
-import SPSafeSymbols
+import SafeSFSymbols
 import SpriteKit
 import SPAlert
 
@@ -23,8 +23,8 @@ final class InterestsSetupProfile: UIViewController {
         return button
     }()
 
-    private let bottomView: BlurEffectView = {
-        let blurEffectView = BlurEffectView(style: .systemUltraThinMaterial)
+    private let bottomView: UIVisualEffectView = {
+        let blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
         blurEffectView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         blurEffectView.layer.cornerRadius = 30
         blurEffectView.layer.cornerCurve = .continuous
@@ -54,7 +54,6 @@ final class InterestsSetupProfile: UIViewController {
     override func loadView() {
         super.loadView()
         let magneticView = MagneticView(frame: self.view.bounds)
-        magneticView.backgroundColor = .systemBackground
         magnetic = magneticView.magnetic
         magnetic?.magneticDelegate = self
         self.view.addSubview(magneticView)
@@ -84,13 +83,31 @@ final class InterestsSetupProfile: UIViewController {
     }
 
     private func setupViews() {
+        magnetic?.backgroundColor = .systemBackground
         view.addSubview(bottomView)
         bottomView.contentView.addSubview(nextButton)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        magnetic?.backgroundColor = .systemBackground
+        updateChildNodesAfterChangeDarkMode()
+    }
+
+    private func updateChildNodesAfterChangeDarkMode() {
+        let alertView = SPAlertView(title: "Обновление интересов после смены темы", preset: .spinner)
+        alertView.duration = 3
+        alertView.dismissInTime = true
+        alertView.dismissByTap = true
+        alertView.present()
+        self.magnetic?.removeAllChildren()
+        setupInterests()
     }
 
     private func setupInterests() {
         guard !ConfigService.shared.interestsArray.isEmpty else {
             let alertView = SPAlertView(title: "Загрузка списка интересов", preset: .spinner)
+            alertView.present()
             ConfigService.shared.getInterests { result in
                 DispatchQueue.main.async {
                     alertView.dismiss()
@@ -131,8 +148,16 @@ final class InterestsSetupProfile: UIViewController {
                 )
                 interestNode.index = i
                 self.magnetic?.addChild(interestNode)
+                if self.selectedInterests.contains(i) {
+                    interestNode.isSelected = true
+                }
             }
         }
+    }
+
+    private func getAllNodes() -> [InterestNode] {
+        guard let magnetic = magnetic else { return [] }
+        return magnetic.children.compactMap { $0 as? InterestNode }
     }
 
     // MARK: - Handlers
@@ -176,8 +201,7 @@ extension InterestsSetupProfile: MagneticDelegate {
 extension InterestsSetupProfile: SearchInterestsSetupProfileSelectionDelegate {
     func selected(interests: [Int]) {
         selectedInterests = interests
-        guard let magnetic = magnetic else { return }
-        let children = magnetic.children.compactMap { $0 as? InterestNode }
+        let children = getAllNodes()
         for item in children {
             if selectedInterests.contains(item.index), !item.isSelected {
                 item.isSelected = true

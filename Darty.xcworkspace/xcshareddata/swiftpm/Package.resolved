@@ -1,86 +1,88 @@
 {
-  "pins" : [
-    {
-      "identity" : "dswaveformimage",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dmrschmidt/DSWaveformImage",
-      "state" : {
-        "revision" : "c2ea7a31634a8a0485f32ca3ec8e576c15b7415a",
-        "version" : "10.0.0"
+  "object": {
+    "pins": [
+      {
+        "package": "DSWaveformImage",
+        "repositoryURL": "https://github.com/dmrschmidt/DSWaveformImage",
+        "state": {
+          "branch": null,
+          "revision": "a9199a7a198de45313926ca62ae7691db07b6042",
+          "version": "10.0.1"
+        }
+      },
+      {
+        "package": "FlyoverKit",
+        "repositoryURL": "https://github.com/SvenTiigi/FlyoverKit.git",
+        "state": {
+          "branch": null,
+          "revision": "a7932f64b5c994864262ecc24724cde0a5153ca2",
+          "version": "1.3.1"
+        }
+      },
+      {
+        "package": "Inject",
+        "repositoryURL": "https://github.com/krzysztofzablocki/Inject.git",
+        "state": {
+          "branch": null,
+          "revision": "c0ed5f5de62475e286a3b7c676cec99fa34533ce",
+          "version": "1.1.1"
+        }
+      },
+      {
+        "package": "RealmDatabase",
+        "repositoryURL": "https://github.com/realm/realm-core",
+        "state": {
+          "branch": null,
+          "revision": "fd48276f88f3d55dbdcdc9e8cbf32541811d5865",
+          "version": "12.1.0"
+        }
+      },
+      {
+        "package": "Realm",
+        "repositoryURL": "https://github.com/realm/realm-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "c54cc0bda9fb1aa94667022a46c3d079121476fc",
+          "version": "10.28.0"
+        }
+      },
+      {
+        "package": "SafeSFSymbols",
+        "repositoryURL": "https://github.com/sparrowcode/SafeSFSymbols",
+        "state": {
+          "branch": null,
+          "revision": "8a34aa7edc2106c0961252b164fb0824086799bf",
+          "version": "1.0.6"
+        }
+      },
+      {
+        "package": "SkeletonView",
+        "repositoryURL": "https://github.com/Juanpe/SkeletonView.git",
+        "state": {
+          "branch": null,
+          "revision": "b640c1d8eee79c3a5ad6e0ae1afd2ae0fea30423",
+          "version": "1.29.3"
+        }
+      },
+      {
+        "package": "SPAlert",
+        "repositoryURL": "https://github.com/ivanvorobei/SPAlert",
+        "state": {
+          "branch": null,
+          "revision": "5fd3e2923d26f0f0b40f0e6c10fca458a61a73c4",
+          "version": "4.2.0"
+        }
+      },
+      {
+        "package": "SPIndicator",
+        "repositoryURL": "https://github.com/ivanvorobei/SPIndicator",
+        "state": {
+          "branch": null,
+          "revision": "43600857729d9efff046dc6673e6f94e095882c7",
+          "version": "1.6.4"
+        }
       }
-    },
-    {
-      "identity" : "flyoverkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SvenTiigi/FlyoverKit.git",
-      "state" : {
-        "revision" : "a7932f64b5c994864262ecc24724cde0a5153ca2",
-        "version" : "1.3.1"
-      }
-    },
-    {
-      "identity" : "inject",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzysztofzablocki/Inject.git",
-      "state" : {
-        "revision" : "c0ed5f5de62475e286a3b7c676cec99fa34533ce",
-        "version" : "1.1.1"
-      }
-    },
-    {
-      "identity" : "realm-core",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/realm/realm-core",
-      "state" : {
-        "revision" : "472d325a2e844fcb48c400db74e6b9646f92ca93",
-        "version" : "11.15.0"
-      }
-    },
-    {
-      "identity" : "realm-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/realm/realm-swift.git",
-      "state" : {
-        "revision" : "41fe221e2209ad31bee35593513d957dc3e6e458",
-        "version" : "10.25.2"
-      }
-    },
-    {
-      "identity" : "skeletonview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Juanpe/SkeletonView.git",
-      "state" : {
-        "revision" : "9e61ff3a85a3780a2cdfceae0257ad32fa8ae4d3",
-        "version" : "1.29.2"
-      }
-    },
-    {
-      "identity" : "spalert",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ivanvorobei/SPAlert",
-      "state" : {
-        "revision" : "5fd3e2923d26f0f0b40f0e6c10fca458a61a73c4",
-        "version" : "4.2.0"
-      }
-    },
-    {
-      "identity" : "spindicator",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ivanvorobei/SPIndicator",
-      "state" : {
-        "revision" : "43600857729d9efff046dc6673e6f94e095882c7",
-        "version" : "1.6.4"
-      }
-    },
-    {
-      "identity" : "spsafesymbols",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sparrowcode/SPSafeSymbols",
-      "state" : {
-        "revision" : "efd5d659c1c1e7ee501873c8524f95ba2293c666",
-        "version" : "1.0.5"
-      }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }

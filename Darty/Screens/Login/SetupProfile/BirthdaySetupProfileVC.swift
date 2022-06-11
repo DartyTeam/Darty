@@ -27,6 +27,7 @@ final class BirthdaySetupProfileVC: UIViewController {
         } else {
             // Fallback on earlier versions
         }
+        datePicker.locale = .current
         datePicker.maximumDate = Date()
         
         return datePicker

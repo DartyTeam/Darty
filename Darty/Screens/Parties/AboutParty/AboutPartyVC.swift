@@ -9,7 +9,7 @@ import UIKit
 import Agrume
 import SPAlert
 import FittedSheets
-import SPSafeSymbols
+import SafeSFSymbols
 import Hero
 
 enum AboutPartyVCType {

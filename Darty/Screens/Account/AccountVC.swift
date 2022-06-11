@@ -63,7 +63,7 @@ final class AccountVC: UIViewController {
         
         static let menuButtonsSpacing: CGFloat = 16
 
-        static let menuButtonTextColor: UIColor = .label
+        static let menuButtonTextColor: UIColor = .white
     }
     
     // MARK: - UI Elements
