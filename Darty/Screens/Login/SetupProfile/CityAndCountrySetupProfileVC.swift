@@ -13,7 +13,7 @@ import FlyoverKit
 import SafeSFSymbols
 import Inject
 
-final class CityAndCountrySetupProfileVC: UIViewController {
+final class CityAndCountrySetupProfileVC: BaseController {
 
     private struct CityAndCountry {
         var city: String?
@@ -75,7 +75,8 @@ final class CityAndCountrySetupProfileVC: UIViewController {
         didSet {
             cityLabel.text = cityAndCountry.city
             countryLabel.text = cityAndCountry.country
-            nextButton.backgroundColor = (cityAndCountry.country != nil && cityAndCountry.city != nil) ? nextButton.enabledBackground : nextButton.disabledBackround
+            let haveCityAndCountry = cityAndCountry.country != nil && cityAndCountry.city != nil
+            nextButton.backgroundColor = haveCityAndCountry ? DButtonType.main.color : Colors.Elements.disabledElement
         }
     }
     
@@ -85,6 +86,7 @@ final class CityAndCountrySetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Страна и город"
         locationManager.delegate = self
         setupFlyover()
         setupViews()
@@ -93,7 +95,6 @@ final class CityAndCountrySetupProfileVC: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemBlue, title: "Страна и город")
         checkLocationServices()
     }
 

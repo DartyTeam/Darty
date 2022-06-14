@@ -13,7 +13,11 @@ import Firebase
 import AVFoundation
 import SPAlert
 
-final class LoginVC: UIViewController {
+final class LoginVC: BaseController {
+
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
 
     // MARK: - Constants
     private enum Constants {

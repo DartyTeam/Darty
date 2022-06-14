@@ -28,25 +28,25 @@ protocol OTPDelegate: AnyObject {
 class OTPStackView: UIStackView {
 
     //Customise the OTPField here
-    let numberOfFields = 6
     var textFieldsCollection: [OTPTextField] = []
     weak var delegate: OTPDelegate?
     var showsWarningColor = false
 
     //Colors
-    let inactiveFieldBorderColor = UIColor(white: 1, alpha: 0.3)
-    let textBackgroundColor = UIColor(white: 1, alpha: 0.5)
-    let activeFieldBorderColor = UIColor.white
-    var remainingStrStack: [String] = []
+    private var remainingStrStack: [String] = []
 
-    required init(coder: NSCoder) {
-        super.init(coder: coder)
-    }
+    private let codeLength: Int
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(codeLength: Int) {
+        self.codeLength = codeLength
+        super.init(frame: .zero)
         setupStackView()
         addOTPFields()
+    }
+
+    required init(coder: NSCoder) {
+        self.codeLength = 6
+        super.init(coder: coder)
     }
 
     //Customisation and setting stackView
@@ -61,7 +61,7 @@ class OTPStackView: UIStackView {
 
     //Adding each OTPfield to stack view
     private final func addOTPFields() {
-        for index in 0..<numberOfFields{
+        for index in 0..<codeLength {
             let field = OTPTextField(color: .systemPurple)
             setupTextField(field)
             textFieldsCollection.append(field)
@@ -81,11 +81,9 @@ class OTPStackView: UIStackView {
         textField.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         textField.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
         textField.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        textField.backgroundColor = textBackgroundColor
         textField.textAlignment = .center
         textField.adjustsFontSizeToFitWidth = false
         textField.font = .sfProText(ofSize: 25, weight: .medium)
-        textField.layer.borderColor = inactiveFieldBorderColor.cgColor
         textField.keyboardType = .numberPad
         textField.autocorrectionType = .yes
         textField.textContentType = .oneTimeCode
@@ -93,9 +91,9 @@ class OTPStackView: UIStackView {
     }
 
     //checks if all the OTPfields are filled
-    private final func checkForValidity(){
-        for fields in textFieldsCollection{
-            if (fields.text == ""){
+    private final func checkForValidity() {
+        for fields in textFieldsCollection {
+            if (fields.text == "") {
                 delegate?.didChangeValidity(isValid: false)
                 return
             }
@@ -114,8 +112,9 @@ class OTPStackView: UIStackView {
 
     //set isWarningColor true for using it as a warning color
     final func setAllFieldColor(isWarningColor: Bool = false, color: UIColor){
-        for textField in textFieldsCollection{
-            textField.layer.borderColor = color.cgColor
+        for textField in textFieldsCollection {
+            #warning("Почему-то сука не работает")
+            textField.setErrorBottomColor()
         }
         showsWarningColor = isWarningColor
     }
@@ -141,16 +140,15 @@ extension OTPStackView: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if showsWarningColor {
-            setAllFieldColor(color: inactiveFieldBorderColor)
+            setAllFieldColor(isWarningColor: true, color: .systemRed)
             showsWarningColor = false
         }
-        textField.layer.borderColor = activeFieldBorderColor.cgColor
         (textField as? OTPTextField)?.select(true)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
         checkForValidity()
-        textField.layer.borderColor = inactiveFieldBorderColor.cgColor
+//        textField.layer.borderColor = inactiveFieldBorderColor.cgColor
         (textField as? OTPTextField)?.select(!(textField.text?.isEmpty ?? true))
     }
 

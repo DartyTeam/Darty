@@ -11,7 +11,7 @@ protocol InstaAuthDelegate {
     func didGetUserData(_ instaUser: InstagramTestUser)
 }
 
-class InstaAuthViewController: UIViewController, WKNavigationDelegate {
+class InstaAuthViewController: BaseController, WKNavigationDelegate {
     
     // MARK: - UI Elements
     private lazy var webView: WKWebView = {

@@ -173,7 +173,7 @@ final class AuthService {
     }
 
     func getPhoneLoginCredential(with verificationCode: String,
-                                 completion: @escaping (Result<AuthCredential, Error>) -> Void) {
+                                 completion: @escaping (Result<PhoneAuthCredential, Error>) -> Void) {
         guard let verificationID = UserDefaults.standard.phoneAuthVerificationID else {
             completion(.failure(AuthError.noSavedVerificationID))
             return
@@ -329,6 +329,23 @@ final class AuthService {
                 UserDefaults.standard.phoneAuthVerificationID = verificationID
                 completion(.success(()))
             }
+    }
+
+    func updatePhoneNumber(verificationCode: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        getPhoneLoginCredential(with: verificationCode) { result in
+            switch result {
+            case .success(let phoneCredential):
+                self.auth.currentUser?.updatePhoneNumber(phoneCredential, completion: { (error) in
+                    if let error = error {
+                        completion(.failure(error))
+                        return
+                    }
+                    completion(.success(()))
+                })
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     private func login(with credential: AuthCredential, authAlertDelegate: AuthAlertDelegate, completion: @escaping (Result<User, Error>) -> Void) {

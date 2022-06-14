@@ -49,8 +49,16 @@ class BottomLineTextField: UITextField {
     
     // MARK: - Handlers
     func select(_ flag: Bool) {
+        print("asd978as7y8das67d6a7sd")
         UIView.animate(withDuration: 0.3) {
             self.bottomBorder.backgroundColor = flag ? self.color : .systemGray
+        }
+    }
+
+    func setErrorBottomColor() {
+        print("asduiasduasdiuasduahsdasuidsuahiasdsad")
+        UIView.animate(withDuration: 0.3) {
+            self.bottomBorder.backgroundColor = .systemRed
         }
     }
 }

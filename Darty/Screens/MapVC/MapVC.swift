@@ -19,7 +19,7 @@ enum MapType {
     case locationMessage
 }
 
-final class MapVC: UIViewController {
+final class MapVC: BaseController {
 
     // MARK: - Constants
     private struct Constants {
@@ -127,6 +127,8 @@ final class MapVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Местоположение"
+        clearNavBar = false
         mapView.delegate = self
         setupMapView()
         setupConstraints()
@@ -134,12 +136,7 @@ final class MapVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupNavBar()
         setIsTabBarHidden(true)
-    }
-    
-    private func setupNavBar() {
-        setNavigationBar(withColor: accentColor, title: "Местоположение", withClear: false)
     }
     
     private func setupMapView() {

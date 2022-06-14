@@ -17,7 +17,7 @@ enum MainButtonType {
 import UIKit
 import FirebaseAuth
 
-final class SearchInterestsSetupProfileVC: UIViewController {
+final class SearchInterestsSetupProfileVC: BaseController {
         
     // MARK: - Constants
     private enum Constants {
@@ -97,6 +97,8 @@ final class SearchInterestsSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Интересы"
+        clearNavBar = false
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillAppear),
@@ -109,7 +111,6 @@ final class SearchInterestsSetupProfileVC: UIViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
-        setNavigationBar(withColor: .systemBlue, title: "Интересы", withClear: false)
         setupSearchBar()
         setupViews()
         setupConstraints()

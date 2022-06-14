@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class PartyTimeVC: UIViewController {
+final class PartyTimeVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -120,6 +120,7 @@ final class PartyTimeVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Создание вечеринки"
         setupViews()
         setupConstraints()
     }
@@ -127,7 +128,6 @@ final class PartyTimeVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setIsTabBarHidden(true)
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
     }
 
     // MARK: - Setup views

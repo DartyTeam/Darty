@@ -8,42 +8,6 @@
 import UIKit
 import rubber_range_picker
 
-enum QuerySign: String, CaseIterable {
-    case isGreaterThanOrEqualTo
-    case isLessThanOrEqualTo
-    case isEqual
-
-    var index: Int {
-        switch self {
-        case .isGreaterThanOrEqualTo:
-            return 0
-        case .isLessThanOrEqualTo:
-            return 1
-        case .isEqual:
-            return 2
-        }
-    }
-
-    var segmentTitle: String {
-        switch self {
-        case .isGreaterThanOrEqualTo:
-            return "от"
-        case .isLessThanOrEqualTo:
-            return "до"
-        case .isEqual:
-            return "="
-        }
-    }
-
-    static var allCasesForSegmentedControl: [String] {
-        var array = [String]()
-        for item in self.allCases {
-            array.append(item.segmentTitle)
-        }
-        return array
-    }
-}
-
 protocol FilterVCDelegate {
     func didChangeFilter(_ filterParams: FilterManager.FilterParams)
 }
@@ -57,7 +21,7 @@ final class FilterManager {
     var filterParams = FilterParams()
 
     struct FilterParams: Equatable {
-        var dateSign: QuerySign = .isLessThanOrEqualTo
+        var dateSign: QuerySign = .isGreaterThanOrEqualTo
         var priceLower: Int?
         var priceUpper: Int?
         var maxGuestsLower: Int?
@@ -124,6 +88,42 @@ final class FilterManager {
             return AscendingType.allCases.first(where: { $0.index == index })
         }
     }
+
+    enum QuerySign: String, CaseIterable {
+        case isGreaterThanOrEqualTo
+        case isLessThanOrEqualTo
+        case isEqual
+
+        var index: Int {
+            switch self {
+            case .isGreaterThanOrEqualTo:
+                return 0
+            case .isLessThanOrEqualTo:
+                return 1
+            case .isEqual:
+                return 2
+            }
+        }
+
+        var segmentTitle: String {
+            switch self {
+            case .isGreaterThanOrEqualTo:
+                return "от"
+            case .isLessThanOrEqualTo:
+                return "до"
+            case .isEqual:
+                return "="
+            }
+        }
+
+        static var allCasesForSegmentedControl: [String] {
+            var array = [String]()
+            for item in self.allCases {
+                array.append(item.segmentTitle)
+            }
+            return array
+        }
+    }
 }
 
 final class FilterVC: UIViewController {
@@ -141,6 +141,8 @@ final class FilterVC: UIViewController {
         static let priceTypeText = "Цена"
         static let sortingText = "Сортировка"
     }
+
+    private let currentDate = Date()
     
     // MARK: - UI Elements
     private lazy var topLineView: UIView = {
@@ -237,9 +239,9 @@ final class FilterVC: UIViewController {
         return label
     }()
     
-    private let datePicker: UIDatePicker = {
+    private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
-        datePicker.minimumDate = Date()
+        datePicker.minimumDate = self.currentDate
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
         datePicker.locale = .current
@@ -248,7 +250,7 @@ final class FilterVC: UIViewController {
     }()
     
     private lazy var dateSegmentControl: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: QuerySign.allCasesForSegmentedControl)
+        let segmentedControl = UISegmentedControl(items: FilterManager.QuerySign.allCasesForSegmentedControl)
         let attr = NSDictionary(object: Constants.paramNameFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any], for: .normal)
         segmentedControl.addTarget(self, action: #selector(dateSegmentChanged), for: .valueChanged)
@@ -354,6 +356,8 @@ final class FilterVC: UIViewController {
         maxGuestsPicker.lowerValue = Double(filterParams.maxGuestsLower ?? 1)
         maxGuestsPicker.upperValue = Double(filterParams.maxGuestsUpper ?? GlobalConstants.maximumGuests)
         maxGuestsUpdated(maxGuestsPicker)
+        datePicker.date = currentDate
+        dateChanged(datePicker)
     }
 
     // MARK: - Setup views
@@ -464,11 +468,11 @@ final class FilterVC: UIViewController {
     @objc private func dateSegmentChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
-            filterParams.dateSign = QuerySign.isGreaterThanOrEqualTo
+            filterParams.dateSign = FilterManager.QuerySign.isGreaterThanOrEqualTo
         case 1:
-            filterParams.dateSign = QuerySign.isLessThanOrEqualTo
+            filterParams.dateSign = FilterManager.QuerySign.isLessThanOrEqualTo
         case 2:
-            filterParams.dateSign = QuerySign.isEqual
+            filterParams.dateSign = FilterManager.QuerySign.isEqual
         default:
             break
         }
@@ -476,6 +480,7 @@ final class FilterVC: UIViewController {
     
     @objc private func dateChanged(_ sender: UIDatePicker) {
         filterParams.date = sender.date
+        updateRemoveDateDescSortingForDate()
     }
 
     @objc private func sortingTypeChanged(_ sender: UISegmentedControl) {
@@ -484,6 +489,25 @@ final class FilterVC: UIViewController {
 
     @objc private func ascendingTypeChanged(_ sender: UISegmentedControl) {
         filterParams.ascendingType = FilterManager.AscendingType[sender.selectedSegmentIndex] ?? filterParams.ascendingType
+    }
+
+    private func updateRemoveDateDescSortingForDate() {
+        if datePicker.date == datePicker.minimumDate,
+           sortingTypeSegment.selectedSegmentIndex == FilterManager.SortingType.date.index,
+           dateSegmentControl.numberOfSegments == FilterManager.QuerySign.allCases.count {
+            if dateSegmentControl.selectedSegmentIndex == FilterManager.QuerySign.isLessThanOrEqualTo.index {
+                dateSegmentControl.selectedSegmentIndex = FilterManager.QuerySign.isGreaterThanOrEqualTo.index
+                dateSegmentChanged(dateSegmentControl)
+            }
+            dateSegmentControl.removeSegment(at: FilterManager.QuerySign.isLessThanOrEqualTo.index, animated: true)
+        } else if datePicker.date != datePicker.minimumDate,
+                  dateSegmentControl.numberOfSegments < FilterManager.QuerySign.allCases.count {
+            dateSegmentControl.insertSegment(
+                withTitle: FilterManager.QuerySign.isLessThanOrEqualTo.segmentTitle,
+                at: FilterManager.QuerySign.isLessThanOrEqualTo.index,
+                animated: true
+            )
+        }
     }
 }
 

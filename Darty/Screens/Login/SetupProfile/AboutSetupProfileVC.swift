@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import SPAlert
 
-final class AboutSetupProfileVC: UIViewController {
+final class AboutSetupProfileVC: BaseController {
 
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
@@ -31,13 +31,9 @@ final class AboutSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "О вас"
         setupViews()
         setupConstraints()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemBlue, title: "О вас")
     }
 
     // MARK: - Setup views

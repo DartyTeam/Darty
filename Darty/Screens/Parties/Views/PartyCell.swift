@@ -253,7 +253,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     }
 
     func setDeletedUser() {
-        userImageView.image = "👾".textToImage(bgColor: .random)
+        userImageView.image = "🕸".textToImage(bgColor: .systemGray4, needMoreSmallText: true)
         userNameLabel.text = "Пользователь удален"
         userRatingLabel.isHidden = true
     }

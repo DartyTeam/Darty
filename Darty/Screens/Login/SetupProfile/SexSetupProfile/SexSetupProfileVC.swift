@@ -15,7 +15,7 @@ private struct SexButtonModel {
 import UIKit
 import FirebaseAuth
 
-final class SexSetupProfileVC: UIViewController {
+final class SexSetupProfileVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -78,7 +78,7 @@ final class SexSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemBlue, title: "Пол")
+        title = "Пол"
         setupViews()
         setupConstraints()
         setupSexes()

@@ -193,13 +193,14 @@ class NewChatVC: MessagesViewController {
     // MARK: - Lifecicle
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        configureNavBar()
         setIsTabBarHidden(true)
         startSkeleton()
         getRecipientData()
         createTypingObserver()
         configureMessageCollectionView()
         configureMessageInputBar()
-        configureLeftBarButton()
         loadChats()
         listenForNewChats()
         listenForReadStatusChange()
@@ -211,7 +212,7 @@ class NewChatVC: MessagesViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        configureNavBar()
+
         FirestoreService.shared.resetRecentCounter(chatRoomId: chatId) { result in
             switch result {
             case .success(_):
@@ -305,86 +306,12 @@ class NewChatVC: MessagesViewController {
         }
     }
     
-    func configureMessageInputBar() {
-        messageInputBar.delegate = self
-        updateMicButtonStatus(show: true)
-        messageInputBar.inputTextView.isImagePasteEnabled = false
-        messageInputBar.isTranslucent = true
-        messageInputBar.separatorLine.isHidden = true
-        messageInputBar.backgroundView.backgroundColor = .clear
-        messageInputBar.backgroundColor = .clear
-        
-        messageInputBar.inputTextView.backgroundColor = .systemBackground
-        messageInputBar.inputTextView.placeholderTextColor = Constants.messagePlaceholderColor
-        messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 16, left: 44, bottom: 16, right: 12)
-        messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 16, left: 50, bottom: 16, right: 12)
-        messageInputBar.inputTextView.layer.borderColor = UIColor.systemTeal.cgColor
-        messageInputBar.inputTextView.layer.borderWidth = 1
-        messageInputBar.inputTextView.layer.cornerRadius = 24.0
-        messageInputBar.inputTextView.layer.masksToBounds = true
-        messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
-        messageInputBar.inputTextView.placeholder = Constants.messagePlaceholder
-        messageInputBar.inputTextView.font = .sfProDisplay(ofSize: 14, weight: .medium)
-//        messageInputBar.layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
-//        messageInputBar.layer.shadowRadius = 5
-//        messageInputBar.layer.shadowOpacity = 0.3
-//        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
-        configureSendButton()
-        configureAttachButton()
-    }
-
-    private func configureAudioRecordView() {
-        if !view.contains(audioRecordView) {
-            view.addSubview(audioRecordView)
-            audioRecordView.snp.makeConstraints { make in
-                make.height.equalTo(messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom)
-                make.left.right.bottom.equalToSuperview()
-            }
-            audioRecordView.isUserInteractionEnabled = false
-            audioRecordView.delegate = self
-            audioRecordButton.delegate = self
-            view.addSubview(audioRecordButton)
-        }
-        audioRecordView.isHidden = false
-    }
-    
-    func configureAttachButton() {
-        let attachButton = InputBarButtonItem(type: .system)
-        attachButton.tintColor = .systemTeal
-        let attachButtonImage = UIImage(systemName: "paperclip")!
-        attachButton.image = attachButtonImage
-        attachButton.setSize(Constants.inputBarButtonsSize, animated: false)
-        attachButton.addTarget(self, action: #selector(actionAttachMessage),
-                               for: .primaryActionTriggered)
-        
-        messageInputBar.setStackViewItems([attachButton], forStack: .left, animated: false)
-        messageInputBar.middleContentViewPadding.left = -66
-        messageInputBar.setLeftStackViewWidthConstant(to: 76, animated: false)
-    }
-    
-    func configureSendButton() {
-        messageInputBar.sendButton.setImage(UIImage(named: "paperplane"), for: UIControl.State())
-        messageInputBar.sendButton.setSize(Constants.inputBarButtonsSize, animated: false)
-        messageInputBar.sendButton.title = nil
-        messageInputBar.middleContentViewPadding.right = -66
-        messageInputBar.setRightStackViewWidthConstant(to: 76, animated: false)
-    }
-    
     func updateMicButtonStatus(show: Bool) {
         messageInputBar.setStackViewItems([show ? micButton : messageInputBar.sendButton], forStack: .right, animated: false)
     }
-    
-    private func configureLeftBarButton() {
-        self.navigationItem.leftBarButtonItems = [UIBarButtonItem(image: UIImage(systemName: "chevron.left"), style: .plain, target: self, action: #selector(backButtonPressed))]
-    }
         
     private func configureNavBar() {
-        setNavigationBar(withColor: .systemTeal, title: nil, withClear: false)
-        let attrs = [
-            NSAttributedString.Key.font: UIFont.sfProRounded(ofSize: 16, weight: .bold)
-        ]
-        navigationController?.navigationBar.standardAppearance.titleTextAttributes = attrs as [NSAttributedString.Key : Any]
-        navigationItem.setRightBarButtonItems([facetimeBarButtonItem, callBarButtonItem], animated: true)
+        setupBaseNavBar(rightBarButtonItems: [facetimeBarButtonItem, callBarButtonItem])
         configureCustomTitle()
     }
     
@@ -593,11 +520,6 @@ class NewChatVC: MessagesViewController {
             )
             print("ERROR_LOG Error get url from phone number: ", recipientData.phone)
         }
-    }
-    
-    @objc private func backButtonPressed() {
-        // TODO: remove listeners
-        self.navigationController?.popToRootViewController(animated: true)
     }
     
     @objc private func actionAttachMessage() {
@@ -938,5 +860,82 @@ extension NewChatVC: AudioRecordButtonDelegate {
     func sendButtonTapped() {
         endRecordAudio()
         audioRecordButton.update(center: .zero, state: .end)
+    }
+}
+
+// MARK: - Configure MessageInputBar
+extension NewChatVC {
+    func configureMessageInputBar() {
+        messageInputBar.delegate = self
+        updateMicButtonStatus(show: true)
+        messageInputBar.isTranslucent = true
+        messageInputBar.separatorLine.isHidden = true
+        messageInputBar.backgroundView.backgroundColor = .clear
+        messageInputBar.backgroundColor = .clear
+        messageInputBar.layer.cornerRadius = 40
+        messageInputBar.layer.cornerCurve = .continuous
+        messageInputBar.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+        messageInputBar.layer.masksToBounds = true
+        messageInputBar.padding = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        messageInputBar.blurView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+//        messageInputBar.layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+//        messageInputBar.layer.shadowRadius = 5
+//        messageInputBar.layer.shadowOpacity = 0.3
+//        messageInputBar.layer.shadowOffset = CGSize(width: 0, height: 4)
+        configureInputTextView()
+        configureSendButton()
+        configureAttachButton()
+    }
+
+    private func configureInputTextView() {
+        messageInputBar.inputTextView.isImagePasteEnabled = false
+        messageInputBar.inputTextView.backgroundColor = .systemBackground
+        messageInputBar.inputTextView.placeholderTextColor = Constants.messagePlaceholderColor
+        messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 16, left: 44, bottom: 16, right: 12)
+        messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 16, left: 50, bottom: 16, right: 12)
+        messageInputBar.inputTextView.layer.borderColor = UIColor.systemTeal.cgColor
+        messageInputBar.inputTextView.layer.borderWidth = 1
+        messageInputBar.inputTextView.layer.cornerRadius = 24.0
+        messageInputBar.inputTextView.layer.masksToBounds = true
+        messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
+        messageInputBar.inputTextView.placeholder = Constants.messagePlaceholder
+        messageInputBar.inputTextView.font = .sfProDisplay(ofSize: 14, weight: .medium)
+    }
+
+    private func configureAudioRecordView() {
+        if !view.contains(audioRecordView) {
+            view.addSubview(audioRecordView)
+            audioRecordView.snp.makeConstraints { make in
+                make.height.equalTo(messageInputBar.calculateIntrinsicContentSize().height + view.safeAreaInsets.bottom)
+                make.left.right.bottom.equalToSuperview()
+            }
+            audioRecordView.isUserInteractionEnabled = false
+            audioRecordView.delegate = self
+            audioRecordButton.delegate = self
+            view.addSubview(audioRecordButton)
+        }
+        audioRecordView.isHidden = false
+    }
+
+    func configureAttachButton() {
+        let attachButton = InputBarButtonItem(type: .system)
+        attachButton.tintColor = .systemTeal
+        let attachButtonImage = UIImage(systemName: "paperclip")!
+        attachButton.image = attachButtonImage
+        attachButton.setSize(Constants.inputBarButtonsSize, animated: false)
+        attachButton.addTarget(self, action: #selector(actionAttachMessage),
+                               for: .primaryActionTriggered)
+
+        messageInputBar.setStackViewItems([attachButton], forStack: .left, animated: false)
+        messageInputBar.middleContentViewPadding.left = -66
+        messageInputBar.setLeftStackViewWidthConstant(to: 76, animated: false)
+    }
+
+    func configureSendButton() {
+        messageInputBar.sendButton.setImage(UIImage(named: "paperplane"), for: UIControl.State())
+        messageInputBar.sendButton.setSize(Constants.inputBarButtonsSize, animated: false)
+        messageInputBar.sendButton.title = nil
+        messageInputBar.middleContentViewPadding.right = -66
+        messageInputBar.setRightStackViewWidthConstant(to: 76, animated: false)
     }
 }

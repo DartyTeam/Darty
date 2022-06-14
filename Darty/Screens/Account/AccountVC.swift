@@ -14,7 +14,7 @@ enum ThemeChangeMode {
     case auto
 }
 
-final class AccountVC: UIViewController {
+final class AccountVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -551,7 +551,7 @@ final class AccountVC: UIViewController {
     }
     
     private func setupNavigationBar() {
-        setNavigationBar(withColor: .systemIndigo, title: AuthService.shared.currentUser.username, withClear: true)
+        title = AuthService.shared.currentUser.username
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationItem.leftBarButtonItems = [UIBarButtonItem(customView: shareButton), UIBarButtonItem(customView: signOutButton)]

@@ -8,7 +8,7 @@
 import UIKit
 import SPAlert
 
-class WaitingGuestsVC: UIViewController, PartiesRequestsListenerProtocol {
+class WaitingGuestsVC: BaseController, PartiesRequestsListenerProtocol {
 
     // enum по умолчанию hashable
     enum Section: Int, CaseIterable {
@@ -35,21 +35,14 @@ class WaitingGuestsVC: UIViewController, PartiesRequestsListenerProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemGroupedBackground
+        title = waitingGuestsRequests.count.parties()
+        clearNavBar = false
         getFirstUser()
         setupCollectionView()
         createDataSource()
         reloadData()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setupNavBar()
-    }
-    
-    private func setupNavBar() {
-        setNavigationBar(withColor: .systemOrange, title: waitingGuestsRequests.count.parties(), withClear: false)
-    }
-    
+
     private func getFirstUser() {
         if let firstUserId = waitingGuestsRequests.first?.userId {
             getUser(by: firstUserId)

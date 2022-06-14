@@ -9,7 +9,7 @@ import UIKit
 import FirebaseFirestore
 import SPAlert
 
-class MessagesVC: UIViewController {
+class MessagesVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -82,6 +82,7 @@ class MessagesVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Сообщения"
         setupCollectionView()
         setupViews()
         createDataSource()
@@ -91,15 +92,10 @@ class MessagesVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupNavBar()
         setIsTabBarHidden(false)
     }
 
     // MARK: - Setup
-    private func setupNavBar() {
-        setNavigationBar(withColor:.systemTeal, title: "Сообщения", withClear: true)
-    }
-    
     private func setupListeners() {
         ListenerService.shared.recentWaitingChatsObserve(chats: waitingChats, completion: { [weak self] (result) in
             switch result {
@@ -107,9 +103,9 @@ class MessagesVC: UIViewController {
                 if let waitingChats = self?.waitingChats, waitingChats != [], waitingChats.count <= chats.count {
                     guard let chatData = chats.last else { return }
                     let userId = chatData.senderId
-                    let aboutUserVC =  AboutUserVC(userId: userId, chatData: chatData)
+                    let aboutUserVC = AboutUserVC(userId: userId, chatData: chatData)
                     aboutUserVC.chatRequestDelegate = self
-                    self?.present(aboutUserVC, animated: true, completion: nil)
+                    self?.navigationController?.pushViewController(aboutUserVC, animated: true)
                 }
                 self?.waitingChats = chats
                 self?.reloadData(with: nil)
@@ -320,7 +316,10 @@ extension MessagesVC {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(Constants.waitingChatHeight), heightDimension: .absolute(Constants.waitingChatHeight))
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .absolute(Constants.waitingChatHeight),
+            heightDimension: .absolute(Constants.waitingChatHeight)
+        )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -338,12 +337,16 @@ extension MessagesVC {
     
     private func createActiveChats(layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         // section -> group -> item -> size
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                              heightDimension: .fractionalHeight(1))
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .fractionalHeight(1)
+        )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                               heightDimension: .absolute(Constants.activeChatHeight))
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .absolute(Constants.activeChatHeight)
+        )
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
@@ -359,11 +362,15 @@ extension MessagesVC {
     }
     
     private func createSectionHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
-        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                                       heightDimension: .estimated(1))
-        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize,
-                                                                        elementKind: UICollectionView.elementKindSectionHeader,
-                                                                        alignment: .top)
+        let sectionHeaderSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(1)
+        )
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: sectionHeaderSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
         return sectionHeader
     }
 }
@@ -383,7 +390,7 @@ extension MessagesVC: UICollectionViewDelegate {
         case .waitingChats:
             let aboutUserVC = AboutUserVC(userId: chat.senderId, chatData: chat)
             aboutUserVC.chatRequestDelegate = self
-            present(aboutUserVC, animated: true, completion: nil)
+            navigationController?.pushViewController(aboutUserVC, animated: true)
         case .activeChats:
             open(chat: chat)
         }

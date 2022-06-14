@@ -255,7 +255,7 @@ class FirestoreService {
         city: String? = nil,
         type: PartyType? = nil,
         date: Date,
-        dateSign: QuerySign? = nil,
+        dateSign: FilterManager.QuerySign? = nil,
         maxGuestsLower: Int? = nil,
         maxGuestsUpper: Int? = nil,
         priceType: PriceType? = nil,

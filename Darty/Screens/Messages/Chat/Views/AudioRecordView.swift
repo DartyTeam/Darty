@@ -16,12 +16,13 @@ final class AudioRecordView: UIVisualEffectView {
     // MARK: - Constants
     private enum Constants {
         static let statusRecordViewSize: CGFloat = 8
+        static let startTimerText = "00:00"
     }
 
     // MARK: - UI Elements
     private let timerLabel: UILabel = {
         let label = UILabel()
-        label.text = "00:00"
+        label.text = Constants.startTimerText
         return label
     }()
     private let infoLabel: UILabel = {
@@ -124,7 +125,7 @@ final class AudioRecordView: UIVisualEffectView {
         recordAudioTimer?.invalidate()
         recordAudioTimer = nil
         recordAudioCounter = 0
-        timerLabel.text = "0:00"
+        timerLabel.text = Constants.startTimerText
     }
 
     func setTapToCancel() {

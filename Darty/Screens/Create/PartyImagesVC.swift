@@ -11,7 +11,7 @@ import Agrume
 import SPAlert
 import SafeSFSymbols
 
-final class PartyImagesVC: UIViewController {
+final class PartyImagesVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -49,7 +49,7 @@ final class PartyImagesVC: UIViewController {
 
     // MARK: - Setup views
     private func setupNavBar() {
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
+        title = "Создание вечеринки"
         let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
         let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
         let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))

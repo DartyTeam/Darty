@@ -11,8 +11,9 @@ import Agrume
 import SPAlert
 import MessageUI
 import PhoneNumberKit
+import FirebaseAuth
 
-final class ChangePhoneVC: UIViewController {
+final class ChangePhoneVC: BaseController, AuthUIDelegate {
     
     // MARK: - Constants
     private enum Constants {
@@ -62,10 +63,18 @@ final class ChangePhoneVC: UIViewController {
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
     }()
+
+    private var enterOTPVC: EnterOTPVC {
+        let context = EnterOTPVC.Context(resendTime: 60, codeLenght: 6)
+        let enterOTPVC = EnterOTPVC(context: context)
+        enterOTPVC.delegate = self
+        return enterOTPVC
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Номер телефона"
         setupPhone()
         setupViews()
         setupConstraints()
@@ -73,7 +82,6 @@ final class ChangePhoneVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemIndigo, title: "Номер телефона")
         setIsTabBarHidden(true)
     }
 
@@ -101,8 +109,25 @@ final class ChangePhoneVC: UIViewController {
     }
     
     // MARK: - Handlers
-    @objc private func acceptAction() {
-        
+    @objc private func acceptAction(isNoNeedShowEnterOTP: Bool) {
+        if let phone = phoneTextField.text {
+            if phoneNumberKit.isValidPhoneNumber(phone) {
+                AuthService.shared.sendSmsCodeFor(phoneNumber: phone, uiDelegate: self) { result in
+                    switch result {
+                    case .success:
+                        print("Successfull send sms code for number: \(phone)")
+                        guard !isNoNeedShowEnterOTP else { return }
+                        self.navigationController?.pushViewController(self.enterOTPVC, animated: true)
+                    case .failure(let error):
+                        SPAlert.present(title: "Ошибка", message: error.localizedDescription, preset: .error)
+                    }
+                }
+            } else {
+                SPAlert.present(title: "Введен некорректный номер телефона", preset: .error)
+            }
+        } else {
+            print("ERROR_LOG Error get phone number")
+        }
     }
     
     @objc private func openCountrySelector() {
@@ -125,6 +150,10 @@ final class ChangePhoneVC: UIViewController {
         }
         alert.addAction(title: "OK", style: .cancel)
         alert.show()
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
     }
 }
 
@@ -161,6 +190,26 @@ extension ChangePhoneVC {
         enterPhoneStackView.snp.makeConstraints { make in
             make.bottom.equalTo(acceptButton.snp.top).offset(-44)
             make.left.right.equalToSuperview().inset(20)
+        }
+    }
+}
+
+extension ChangePhoneVC: EnterOTPVCDelegate {
+    func resendCodeTapped() {
+        acceptAction(isNoNeedShowEnterOTP: true)
+    }
+
+    func didGet(verificationCode: String) {
+        AuthService.shared.updatePhoneNumber(verificationCode: verificationCode) { result in
+            switch result {
+            case .success:
+                SPAlert.present(title: "Номер обновлен", message: nil, preset: .done) {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            case .failure(let error):
+                print("Failure update phone number: ", error.localizedDescription)
+                self.enterOTPVC.errorCodeValidation()
+            }
         }
     }
 }

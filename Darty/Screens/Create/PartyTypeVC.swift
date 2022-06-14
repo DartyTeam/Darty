@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class PartyTypeVC: UIViewController {
+final class PartyTypeVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -61,9 +61,9 @@ final class PartyTypeVC: UIViewController {
 
     // MARK: - Setup views
     private func setupNavBar() {
-        setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
-        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
+        title = "Создание вечеринки"
+        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
+        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal)
         let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
         navigationItem.rightBarButtonItem = cancelBarButtonItem
     }

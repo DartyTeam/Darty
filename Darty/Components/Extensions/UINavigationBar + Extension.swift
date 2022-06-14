@@ -8,30 +8,47 @@
 import UIKit
 
 extension UINavigationBar {
-    func setup(withColor color: UIColor, withClear: Bool) {
+    func setup(withClear: Bool) {
         let attrs: [NSAttributedString.Key : Any] = [
-            .font: UIFont.sfProDisplay(ofSize: 22, weight: .semibold) ?? .systemFont(ofSize: 22)
+            .font: UIFont.sfProDisplay(ofSize: 28, weight: .semibold) ?? .systemFont(ofSize: 22)
         ]
         let appearance = UINavigationBarAppearance()
-
-        let appearanceWhenScrolling = UINavigationBarAppearance()
-        appearanceWhenScrolling.configureWithDefaultBackground()
-        appearanceWhenScrolling.titleTextAttributes = attrs
 
         if withClear {
             appearance.configureWithTransparentBackground()
             appearance.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: 2)
             appearance.titleTextAttributes = attrs
-            standardAppearance = appearanceWhenScrolling
-            compactAppearance = appearance
             scrollEdgeAppearance = appearance
+            let appearanceWhenScrolling = UINavigationBarAppearance()
+            appearanceWhenScrolling.configureWithDefaultBackground()
+            appearanceWhenScrolling.titleTextAttributes = attrs
+            appearanceWhenScrolling.backgroundEffect = .some(.init(style: .systemUltraThinMaterial))
+            standardAppearance = appearanceWhenScrolling
         } else {
             appearance.configureWithDefaultBackground()
             appearance.titlePositionAdjustment = UIOffset(horizontal: 0, vertical: 2)
             appearance.titleTextAttributes = attrs
             standardAppearance = appearance
-            compactAppearance = appearance
             scrollEdgeAppearance?.configureWithDefaultBackground()
         }
+
+        compactAppearance = appearance
     }
+}
+
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    let appearance = UINavigationBarAppearance()
+    appearance.configureWithTransparentBackground()
+    appearance.backgroundColor = UIColor.clear
+    appearance.backgroundEffect = UIBlurEffect(style: .light) // or dark
+
+    let scrollingAppearance = UINavigationBarAppearance()
+    scrollingAppearance.configureWithTransparentBackground()
+    scrollingAppearance.backgroundColor = .white // your view (superview) color
+
+    UINavigationBar.appearance().standardAppearance = appearance
+    UINavigationBar.appearance().scrollEdgeAppearance = scrollingAppearance
+    UINavigationBar.appearance().compactAppearance = scrollingAppearance
+
+    return true
 }

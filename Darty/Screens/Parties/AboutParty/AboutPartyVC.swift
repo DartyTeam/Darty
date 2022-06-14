@@ -24,7 +24,7 @@ protocol PartiesRequestsListenerProtocol {
     func partyRequestsDidChange(_ partyRequests: [PartyRequestModel])
 }
 
-final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
+final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
 
     private enum Constants {
         static let titleElementsFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
@@ -56,7 +56,7 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     private let backView: UIView = {
         let view = UIView()
         view.layer.cornerCurve = .continuous
-        view.backgroundColor = .secondarySystemGroupedBackground
+        view.backgroundColor = .tertiarySystemGroupedBackground
         view.layer.cornerRadius = 16
         return view
     }()
@@ -305,9 +305,8 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         expandTabBar(false)
-
         getApprovedGuests()
-        
+
         setupParty()
         setupViews()
         setupConstraints()
@@ -386,6 +385,9 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
                 self?.ownerData = user
                 self?.addTapToOwner()
             case .failure(let error):
+                self?.ownerImageView.image = "🕸".textToImage(bgColor: .systemGray4, needMoreSmallText: true)
+                self?.ownerNameLabel.text = "Владелец удален"
+                self?.ownerRatingLabel.isHidden = true
                 print("ERROR_LOG Failure get user data from party: ", error.localizedDescription)
             }
         }
@@ -399,13 +401,14 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     }
     
     private func setupNavigationBar() {
-        setNavigationBar(withColor: .systemOrange, title: party.name, withClear: false)
-        let shareIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
+        title = party.name
+        clearNavBar = false
+        let shareIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
         let shareBarButtonItem = UIBarButtonItem(
             image: UIImage(systemName: "square.and.arrow.up",
                            withConfiguration: shareIconConfig
                           )?.withTintColor(
-                            .systemOrange,
+                            Colors.Elements.element,
                             renderingMode: .alwaysOriginal
                           ),
             style: .plain,
@@ -608,7 +611,6 @@ final class AboutPartyVC: UIViewController, PartiesRequestsListenerProtocol {
     
     private func changeToApprovedButton() {
         actionButton.setTitle("Вы приглашены 􀯧", for: .normal)
-        actionButton.disabledBackround = .systemGreen
         actionButton.isEnabled = false
     }
     

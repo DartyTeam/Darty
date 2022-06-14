@@ -12,7 +12,7 @@ import SafeSFSymbols
 import SpriteKit
 import SPAlert
 
-final class InterestsSetupProfile: UIViewController {
+final class InterestsSetupProfile: BaseController {
 
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
@@ -61,6 +61,7 @@ final class InterestsSetupProfile: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Интересы"
         setupNavigationBar()
         setupViews()
         setupConstraints()
@@ -68,7 +69,7 @@ final class InterestsSetupProfile: UIViewController {
     }
 
     private func setupNavigationBar() {
-        setNavigationBar(withColor: .systemBlue, title: "Интересы", withClear: false)
+        clearNavBar = false
         let image = UIImage(.magnifyingglass, font: .boldSystemFont(ofSize: 18))
         let magniyingglassButton = UIBarButtonItem(
             image: image.withTintColor(

@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import SPAlert
 
-final class NameSetupProfileVC: UIViewController {
+final class NameSetupProfileVC: BaseController {
 
     // MARK: - Constraints
     private enum Constants {
@@ -61,6 +61,12 @@ final class NameSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Имя"
+        setupKeyboardLogic()
+        setupViews()
+    }
+
+    private func setupKeyboardLogic() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillAppear),
@@ -77,13 +83,6 @@ final class NameSetupProfileVC: UIViewController {
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.numberOfTouchesRequired = 1
         scrollView.addGestureRecognizer(tapRecognizer)
-        setupViews()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemBlue, title: "Имя", withClear: false)
-
     }
 
     override func viewDidLayoutSubviews() {

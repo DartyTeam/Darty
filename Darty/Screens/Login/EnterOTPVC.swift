@@ -9,13 +9,17 @@ import UIKit
 import SPAlert
 import FirebaseAuth
 
-final class EnterOTPVC: UIViewController {
+protocol EnterOTPVCDelegate: AnyObject {
+    func resendCodeTapped()
+    func didGet(verificationCode: String)
+}
 
-    weak var coordinator: AuthCoordinator?
+final class EnterOTPVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
         static let infoTextFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .regular)
+        static let resendButtonTitle = "Переотправить код"
     }
 
     // MARK: - UI Elements
@@ -33,9 +37,11 @@ final class EnterOTPVC: UIViewController {
     }()
 
     private let resendCodeButton: DButton = {
-        let button = DButton(title: "Переотправить код")
+        let button = DButton(title: Constants.resendButtonTitle)
         button.backgroundColor = .systemPurple
-        button.addTarget(self, action: #selector(recendCodeAction), for: .touchUpInside)
+        button.addTarget(self, action: #selector(resendCodeAction), for: .touchUpInside)
+        button.isEnabled = false
+        button.setTitle(Constants.resendButtonTitle, for: .normal)
         return button
     }()
 
@@ -53,7 +59,7 @@ final class EnterOTPVC: UIViewController {
     }()
 
     private lazy var otpStackView: OTPStackView = {
-        let otpStackView = OTPStackView()
+        let otpStackView = OTPStackView(codeLength: context.codeLenght)
         otpStackView.delegate = self
         return otpStackView
     }()
@@ -65,9 +71,42 @@ final class EnterOTPVC: UIViewController {
         return view
     }()
 
+    private lazy var resendTimeCounter = context.resendTime {
+        didSet {
+            let attrs1: [NSAttributedString.Key: Any] = [
+                .font: UIFont.sfProDisplay(ofSize: 14, weight: .semibold),
+                .foregroundColor: UIColor.white
+            ]
+            let attrs2: [NSAttributedString.Key: Any] = [
+                .font: UIFont.sfProDisplay(ofSize: 14, weight: .semibold),
+                .foregroundColor: UIColor.systemPurple
+            ]
+            let attributedString1 = NSMutableAttributedString(string: "Переотправить код ", attributes: attrs1)
+            let attributedString2 = NSMutableAttributedString(string: resendTimeCounter.asString(), attributes: attrs2)
+            attributedString1.append(attributedString2)
+            resendCodeButton.setAttributedTitle(attributedString1, for: .disabled)
+        }
+    }
+
+    // MARK: - Properties
+    weak var delegate: EnterOTPVCDelegate?
+    private let context: Context
+
+    // MARK: - Init
+    init(context: Context) {
+        self.context = context
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Введите код"
+        Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateCounter), userInfo: nil, repeats: true)
         setupViews()
         setupConstraints()
     }
@@ -75,7 +114,6 @@ final class EnterOTPVC: UIViewController {
     // MARK: - Setup views
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        setNavigationBar(withColor: .systemPurple, title: "Введите код", withClear: true)
         buttonsStackView.distribution = .fillEqually
         view.addSubview(buttonsStackView)
         view.addSubview(dartyLogo)
@@ -115,28 +153,28 @@ final class EnterOTPVC: UIViewController {
         }
     }
 
-    private func startSetupProfile(for user: User) {
-        SPAlert.present(
-            title: "Успешно",
-            message: "Осталось заполнить профиль",
-            preset: .custom(UIImage(.face.smiling)),
-            haptic: .success
-        ) {
-            self.view.isUserInteractionEnabled = true
-            self.coordinator?.startSetupProfile(for: user)
+    @objc private func updateCounter() {
+        if resendTimeCounter > 0 {
+            resendTimeCounter -= 1
+        } else {
+            resendCodeButton.isEnabled = true
         }
     }
 
-    private func didSuccessfullLogin(with user: UserModel) {
-        SPAlert.present(
-            title: "Успешно",
-            message: "Вы авторизованы",
-            preset: .custom(UIImage(.face.smiling)),
-            haptic: .success
-        ) {
+    func errorCodeValidation() {
+        view.isUserInteractionEnabled = false
+        let alertView = SPAlertView(
+            title: "Ошибка проверки кода",
+            message: "Проверьте корректность введенных дынных и попробуйте снова",
+            preset: .custom(UIImage(.textformat._123))
+        )
+        alertView.duration = 3
+        alertView.dismissByTap = true
+        alertView.dismissInTime = true
+        alertView.present(haptic: .error) {
             self.view.isUserInteractionEnabled = true
-            self.coordinator?.changeToMainFlow(with: user)
         }
+        otpStackView.setAllFieldColor(color: .systemRed)
     }
 
     // MARK: - Handlers
@@ -146,32 +184,13 @@ final class EnterOTPVC: UIViewController {
 
     @objc private func acceptAction() {
         let verificationCode = otpStackView.getOTP()
-        self.view.isUserInteractionEnabled = false
-        AuthService.shared.login(
-            with: .phone(verificationCode: verificationCode),
-            viewController: self,
-            authAlertDelegate: self) { [weak self] result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let user):
-                        FirestoreService.shared.getUserData(user: user) { (result) in
-                            switch result {
-                            case .success(let user):
-                                self?.didSuccessfullLogin(with: user)
-                            case .failure:
-                                self?.startSetupProfile(for: user)
-                            }
-                        }
-                    case .failure(let error):
-                        self?.view.isUserInteractionEnabled = true
-                        self?.showAlert(title: "Ошибка", message: error.localizedDescription)
-                    }
-                }
-            }
+        delegate?.didGet(verificationCode: verificationCode)
     }
 
-    @objc private func recendCodeAction() {
-
+    @objc private func resendCodeAction() {
+        delegate?.resendCodeTapped()
+        resendTimeCounter = context.resendTime
+        resendCodeButton.isEnabled = false
     }
 }
 
@@ -184,5 +203,22 @@ extension EnterOTPVC: AuthAlertDelegate {
 extension EnterOTPVC: OTPDelegate {
     func didChangeValidity(isValid: Bool) {
         acceptButton.isEnabled = isValid
+    }
+}
+
+fileprivate extension Double {
+    func asString() -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.minute, .second]
+        formatter.unitsStyle = .positional
+        formatter.zeroFormattingBehavior = .pad
+        return formatter.string(from: self) ?? ""
+    }
+}
+
+extension EnterOTPVC {
+    struct Context {
+        let resendTime: Double
+        let codeLenght: Int
     }
 }

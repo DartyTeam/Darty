@@ -54,7 +54,7 @@ enum PartyListType: String, CaseIterable {
     }
 }
 
-final class PartiesVC: UIViewController {
+final class PartiesVC: BaseController {
 
     private struct Constants {
         static let segmentPartiesHorizontalInset: CGFloat = 32
@@ -87,7 +87,7 @@ final class PartiesVC: UIViewController {
         return segmentedControl
     }()
 
-    private let filterBarButtonItem = UIBarButtonItem(
+    private lazy var filterBarButtonItem = UIBarButtonItem(
         image: UIImage(.slider.horizontal_3)
             .withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
                 ofSize: 18,
@@ -248,11 +248,8 @@ final class PartiesVC: UIViewController {
     }
 
     private func setupNavigationBar() {
-        setNavigationBar(
-            withColor: .systemPurple,
-            title: PartyListType.search.title,
-            withClear: false
-        )
+        title = PartyListType.search.title
+        clearNavBar = false
         navigationItem.titleView?.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentedPartiesPages)
         segmentedPartiesPages.snp.makeConstraints { make in

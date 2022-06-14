@@ -80,6 +80,7 @@ final class AuthCoordinator: Coordinator {
 
     func signIn() {
         let signInVC = SignInVC()
+        signInVC.coordinator = self
         navigationController.pushViewController(signInVC, animated: true)
     }
 

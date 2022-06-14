@@ -10,7 +10,7 @@ import FirebaseAuth
 import PhoneNumberKit
 import SPAlert
 
-final class SignInVC: UIViewController, AuthUIDelegate {
+final class SignInVC: BaseController, AuthUIDelegate {
 
     weak var coordinator: AuthCoordinator?
     
@@ -64,10 +64,19 @@ final class SignInVC: UIViewController, AuthUIDelegate {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+
+    private var enterOTPVC: EnterOTPVC {
+        let context = EnterOTPVC.Context(resendTime: 60, codeLenght: 6)
+        let enterOTPVC = EnterOTPVC(context: context)
+        enterOTPVC.delegate = self
+        return enterOTPVC
+    }
    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Введите номер"
+        clearNavBar = false
         setupViews()
         setupConstraints()
     }
@@ -75,7 +84,6 @@ final class SignInVC: UIViewController, AuthUIDelegate {
     // MARK: - Setup views
     private func setupViews() {
         view.backgroundColor = .systemBackground
-        setNavigationBar(withColor: .systemPurple, title: "Введите номер", withClear: true)
         view.addSubview(acceptButton)
         view.addSubview(dartyLogo)
         view.addSubview(warningLabel)
@@ -120,13 +128,20 @@ final class SignInVC: UIViewController, AuthUIDelegate {
         self.view.endEditing(true)
     }
     
-    @objc private func acceptAction() {
+    @objc private func acceptAction(isNoNeedShowEnterOTP: Bool = false) {
         if let phone = phoneTextField.text {
             if phoneNumberKit.isValidPhoneNumber(phone) {
                 print("asdijoasjoidoasdojias: ", phone)
                 AuthService.shared.sendSmsCodeFor(phoneNumber: phone, uiDelegate: self) { result in
-                    let enterOTPVC = EnterOTPVC()
-                    self.navigationController?.pushViewController(enterOTPVC, animated: true)
+                    switch result {
+                    case .success:
+                        print("Successfull send sms code for number: \(phone)")
+                        print("aspodkasiodksaiodasiodjasiodajsdoiasjdoiasd: ", isNoNeedShowEnterOTP)
+                        guard !isNoNeedShowEnterOTP else { return }
+                        self.navigationController?.pushViewController(self.enterOTPVC, animated: true)
+                    case .failure(let error):
+                        SPAlert.present(title: "Ошибка", message: error.localizedDescription, preset: .error)
+                    }
                 }
             } else {
                 SPAlert.present(title: "Введен некорректный номер телефона", preset: .error)
@@ -152,5 +167,67 @@ final class SignInVC: UIViewController, AuthUIDelegate {
         
         alert.addAction(title: "OK", style: .cancel)
         alert.show()
+    }
+
+    private func startSetupProfile(for user: User) {
+        SPAlert.present(
+            title: "Успешно",
+            message: "Осталось заполнить профиль",
+            preset: .custom(UIImage(.face.smiling)),
+            haptic: .success
+        ) {
+            self.view.isUserInteractionEnabled = true
+            self.coordinator?.startSetupProfile(for: user)
+        }
+    }
+
+    private func didSuccessfullLogin(with user: UserModel) {
+        SPAlert.present(
+            title: "Успешно",
+            message: "Вы авторизованы",
+            preset: .custom(UIImage(.face.smiling)),
+            haptic: .success
+        ) {
+            self.view.isUserInteractionEnabled = true
+            self.coordinator?.changeToMainFlow(with: user)
+        }
+    }
+}
+
+extension SignInVC: EnterOTPVCDelegate {
+    func resendCodeTapped() {
+        acceptAction(isNoNeedShowEnterOTP: true)
+    }
+
+    func didGet(verificationCode: String) {
+        self.view.isUserInteractionEnabled = false
+        AuthService.shared.login(
+            with: .phone(verificationCode: verificationCode),
+            viewController: self,
+            authAlertDelegate: self) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let user):
+                        FirestoreService.shared.getUserData(user: user) { (result) in
+                            switch result {
+                            case .success(let user):
+                                self?.didSuccessfullLogin(with: user)
+                            case .failure:
+                                self?.startSetupProfile(for: user)
+                            }
+                        }
+                    case .failure(let error):
+                        print("ERROR_LOG Error login with verificationCode \(verificationCode): ", error.localizedDescription)
+                        self?.view.isUserInteractionEnabled = true
+                        self?.enterOTPVC.errorCodeValidation()
+                    }
+                }
+            }
+    }
+}
+
+extension SignInVC: AuthAlertDelegate {
+    func show(alert: UIAlertController) {
+        present(alert, animated: true)
     }
 }

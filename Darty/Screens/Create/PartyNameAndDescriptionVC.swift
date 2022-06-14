@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class PartyNameAndDescriptionVC: UIViewController {
+final class PartyNameAndDescriptionVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -53,6 +53,7 @@ final class PartyNameAndDescriptionVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Создание вечеринки"
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction))
@@ -72,7 +73,6 @@ final class PartyNameAndDescriptionVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.setIsTabBarHidden(false)
-        self.setNavigationBar(withColor: .systemPurple, title: "Создание вечеринки")
     }
 
     // MARK: - Setup views

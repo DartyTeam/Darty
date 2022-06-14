@@ -10,7 +10,7 @@ import FirebaseAuth
 import PhotosUI
 import Agrume
 
-final class ImageSetupProfileVC: UIViewController {
+final class ImageSetupProfileVC: BaseController {
         
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
@@ -33,7 +33,7 @@ final class ImageSetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemBlue, title: "Изображение")
+        title = "Изображение"
         setupViews()
         setupConstraints()
     }

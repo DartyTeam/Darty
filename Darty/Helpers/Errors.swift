@@ -125,3 +125,14 @@ enum AuthError: LocalizedError {
         }
     }
 }
+
+enum URLError: LocalizedError {
+    case errorGetUrlFromString
+
+    var errorDescription: String? {
+        switch self {
+        case .errorGetUrlFromString:
+            return NSLocalizedString("Не удалось получить URL из строки", comment: "")
+        }
+    }
+}

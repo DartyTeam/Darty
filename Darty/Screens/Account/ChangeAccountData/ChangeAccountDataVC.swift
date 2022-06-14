@@ -95,7 +95,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         case .minimum:
             arrow?.update(to: .middle, animated: true)
             self.view.endEditing(true)
-        case .maximum:
+        case .maximum, .medium:
             arrow?.update(to: .down, animated: true)
         case .some(_), .none:
             break
@@ -140,8 +140,10 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         switch OverlayNotch.allCases[index] {
         case .minimum:
             return availableSpace - view.frame.size.width + 32
-        case .maximum:
+        case .medium:
             return availableSpace - view.safeAreaInsets.top - 64
+        case .maximum:
+            return availableSpace - view.safeAreaInsets.top
         }
     }
     
@@ -156,7 +158,7 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
     }
     
     @objc private func keyboardWillAppear(notification: NSNotification) {
-        moveOverlay(toNotchAt: .maximum)
+        moveOverlay(toNotchAt: .medium)
         drivingScrollView?.isScrollEnabled = false
     }
     
@@ -228,10 +230,6 @@ final class ChangeAccountDataVC: OverlayContainerViewController, OverlayContaine
         } else {
             present(imagePicker, animated: true, completion: nil)
         }
-    }
-    
-    @objc private func backAction() {
-        navigationController?.popViewController(animated: true)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

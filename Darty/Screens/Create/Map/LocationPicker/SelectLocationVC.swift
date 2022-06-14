@@ -9,7 +9,7 @@ import UIKit
 import MapKit
 import CoreLocation
 
-final class SelectLocationVC: UIViewController {
+final class SelectLocationVC: BaseController {
 
     private enum Constants {
         static let selectButtonTitle = "Выбрать"
@@ -144,6 +144,7 @@ final class SelectLocationVC: UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Выбор местоположения"
         setupNavBar()
         
         mapView.addSubview(locationButton)
@@ -167,7 +168,6 @@ final class SelectLocationVC: UIViewController {
     }
     
     private func setupNavBar() {
-        setNavigationBar(withColor: .systemPurple, title: "Выбор местоположения")
         navigationItem.searchController = searchController
         let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
         let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)

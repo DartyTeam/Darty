@@ -9,7 +9,7 @@ import UIKit
 import ComplimentaryGradientView
 import Hero
 
-final class PhotosUserVC: UIViewController {
+final class PhotosUserVC: BaseController {
     
     // MARK: - UI Elements
     let imageView: UIImageView = {
@@ -68,9 +68,13 @@ final class PhotosUserVC: UIViewController {
     }
 
     func setupWith(imageStringUrl: String) {
-        imageView.setImage(stringUrl: imageStringUrl) { image in
-            self.setupGradientAndFocusWith(image: image)
-            self.imageView.hideSkeleton()
+        imageView.setImage(stringUrl: imageStringUrl) { result in
+            switch result {
+            case .success(let image):
+                self.setupGradientAndFocusWith(image: image)
+            case .failure:
+                #warning("Сделать установку изображения об ошибке загрузки изображения")
+            }
         }
     }
 
@@ -87,6 +91,7 @@ final class PhotosUserVC: UIViewController {
     }
     
     private func setupViews() {
+        view.backgroundColor = Colors.Elements.disabledElement
         view.addSubview(imageView)
         view.addSubview(complimentaryGradientView)
     }

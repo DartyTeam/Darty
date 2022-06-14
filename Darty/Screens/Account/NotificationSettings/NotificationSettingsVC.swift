@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class NotificationSettingsVC: UIViewController {
+final class NotificationSettingsVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
@@ -39,13 +39,13 @@ final class NotificationSettingsVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Уведомления"
         setupViews()
         setupConstraints()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setNavigationBar(withColor: .systemIndigo, title: "Уведомления")
         setIsTabBarHidden(true)
     }
 

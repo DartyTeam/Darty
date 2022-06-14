@@ -8,6 +8,75 @@
 import UIKit
 import Inject
 
+class BaseController: UIViewController {
+
+    var rightBarButtonItems: [UIBarButtonItem]? {
+        didSet {
+            navigationItem.setRightBarButtonItems(rightBarButtonItems, animated: true)
+        }
+    }
+
+    var clearNavBar = true {
+        didSet {
+            navigationController?.navigationBar.setup(withClear: clearNavBar)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setup(viewController: self)
+        clearNavBar = true
+    }
+}
+
+private func setup(viewController: UIViewController) {
+    viewController.navigationController?.setNavigationBarHidden(false, animated: true)
+    viewController.navigationItem.setHidesBackButton(true, animated:false)
+    if let index = viewController.navigationController?.viewControllers.firstIndex(of: viewController), index > 0 {
+        addBackButton(for: viewController)
+    } else if let parentHost = viewController.parent,
+              let index = viewController.navigationController?.viewControllers.firstIndex(of: parentHost),
+              index > 0 {
+        addBackButton(for: viewController)
+    }
+
+    //            let leftBarButtonItem = UIBarButtonItem(customView: view)
+    //            leftBarButtonItem.setBackgroundVerticalPositionAdjustment(30, for: .default)
+    //            self.navigationItem.leftBarButtonItem?.setBackButtonBackgroundVerticalPositionAdjustment(16, for: .default)
+
+    viewController.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+    viewController.navigationController?.interactivePopGestureRecognizer?.delegate = viewController
+}
+
+private func addBackButton(for viewController: UIViewController) {
+    let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
+
+    let leftBarButtonItem = UIBarButtonItem(
+        image: UIImage(
+            systemName: "chevron.backward",
+            withConfiguration: boldConfig)?
+            .withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal),
+        style: .plain,
+        target: viewController,
+        action: #selector(viewController.backAction)
+    )
+//            leftBarButtonItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
+
+    viewController.navigationItem.leftBarButtonItem = leftBarButtonItem
+}
+
+extension UIViewController {
+    func setupBaseNavBar(withClear: Bool = true, rightBarButtonItems: [UIBarButtonItem] = []) {
+        setup(viewController: self)
+        navigationController?.navigationBar.setup(withClear: withClear)
+        navigationItem.setRightBarButtonItems(rightBarButtonItems, animated: true)
+    }
+
+    @objc func backAction() {
+        self.navigationController?.popViewController(animated: true)
+    }
+}
+
 extension UIViewController {
     
     func showAlert(title: String, message: String, completion: @escaping () -> Void = { }) {
@@ -17,45 +86,6 @@ extension UIViewController {
         }
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
-    }
-    
-    func setNavigationBar(withColor color: UIColor, title: String? = nil, withClear: Bool = true) {
-
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        
-        self.title = title
-        
-        self.navigationItem.setHidesBackButton(true, animated:false)
-
-        if let index = navigationController?.viewControllers.firstIndex(of: self), index > 0 {
-            addBackButton(color: color)
-        } else if let parentHost = self.parent,
-                  let index = navigationController?.viewControllers.firstIndex(of: parentHost),
-                  index > 0 {
-            addBackButton(color: color)
-        }
-        
-        navigationController?.navigationBar.setup(withColor: color, withClear: withClear)
-        
-        //            let leftBarButtonItem = UIBarButtonItem(customView: view)
-        //            leftBarButtonItem.setBackgroundVerticalPositionAdjustment(30, for: .default)
-        //            self.navigationItem.leftBarButtonItem?.setBackButtonBackgroundVerticalPositionAdjustment(16, for: .default)
-
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-    }
-
-    private func addBackButton(color: UIColor) {
-        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-
-        let leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward", withConfiguration: boldConfig)?.withTintColor(color, renderingMode: .alwaysOriginal), style: .plain, target: self, action:  #selector(backToMain))
-//            leftBarButtonItem.imageInsets = UIEdgeInsets(top: 16, left: 0, bottom: -16, right: 0)
-
-        self.navigationItem.leftBarButtonItem = leftBarButtonItem
-    }
-
-    @objc func backToMain() {
-        self.navigationController?.popViewController(animated: true)
     }
     
     func addBackground(_ image: UIImage) {

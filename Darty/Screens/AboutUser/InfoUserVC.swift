@@ -9,6 +9,7 @@ import UIKit
 import SPAlert
 import Agrume
 import Hero
+import SkeletonView
 
 protocol AboutUserPartyRequestDelegate: AnyObject {
     func userDidDecline(_ user: UserModel)
@@ -139,6 +140,9 @@ final class InfoUserVC: UIViewController {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.allowsSelection = false
         collectionView.isSkeletonable = true
+        collectionView.prepareSkeleton { done in
+            self.interestsCollectionView.showAnimatedGradientSkeleton()
+        }
         return collectionView
     }()
     
@@ -164,21 +168,18 @@ final class InfoUserVC: UIViewController {
     
     private lazy var acceptButton: DButton = {
         let button = DButton(title: "Принять")
-        button.backgroundColor = accentColor
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
     }()
     
     private lazy var declineButton: DButton = {
-        let button = DButton(title: "Отклонить")
-        button.backgroundColor = .systemRed
+        let button = DButton(title: "Отклонить", type: .secondary)
         button.addTarget(self, action: #selector(declineAction), for: .touchUpInside)
         return button
     }()
     
     private let changeMyUserData: DButton = {
         let button = DButton(title: "Изменить данные")
-        button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(changeAction), for: .touchUpInside)
         return button
     }()
@@ -232,45 +233,25 @@ final class InfoUserVC: UIViewController {
     private var instagramPhotoUrls: [URL] = []
     private var userData: UserModel!
     private var type: AboutUserVCType
-    private var accentColor: UIColor
     private var message: String? = nil
     private var chatData: RecentChatModel?
     private var preloadedUserImage: UIImage?
     
     // MARK: - Init
-    init(userData: UserModel, accentColor: UIColor, message: String) {
-        self.userData = userData
+    init(message: String) {
         self.type = .partyRequest
-        self.accentColor = accentColor
-        self.message = message
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    init(userId: String, accentColor: UIColor, message: String) {
-        self.type = .partyRequest
-        self.accentColor = accentColor
         self.message = message
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(userId: String, accentColor: UIColor, preloadedUserImage: UIImage?) {
-        self.type = userId == AuthService.shared.currentUser.id ? .myInfo : .info
-        self.accentColor = accentColor
-        self.preloadedUserImage = preloadedUserImage
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    init(userData: UserModel, accentColor: UIColor, preloadedUserImage: UIImage?) {
-        self.userData = userData
-        self.type = userData.id == AuthService.shared.currentUser.id ? .myInfo : .info
-        self.accentColor = accentColor
+    init(type: AboutUserVCType, preloadedUserImage: UIImage?) {
+        self.type = type
         self.preloadedUserImage = preloadedUserImage
         super.init(nibName: nil, bundle: nil)
     }
     
-    init(userId: String, chatData: RecentChatModel, accentColor: UIColor) {
+    init(chatData: RecentChatModel) {
         self.type = .messageRequest
-        self.accentColor = accentColor
         self.chatData = chatData
         self.message = chatData.lastMessageContent
         super.init(nibName: nil, bundle: nil)
@@ -283,9 +264,6 @@ final class InfoUserVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let userData = userData {
-            setupWith(userData: userData)
-        }
         addHideKeyboardOnTapAround()
         setupViews()
         setupConstraints()
@@ -305,7 +283,7 @@ final class InfoUserVC: UIViewController {
         scrollView.addGestureRecognizer(tapRecognizer)
     }
     
-    private func setupWith(userData: UserModel) {
+    func setupWith(userData: UserModel) {
         self.userData = userData
         nameLabel.text = userData.username
         descriptionTextLabel.text = userData.description
@@ -620,30 +598,22 @@ extension InfoUserVC: InstaAuthDelegate {
     }
 }
 
-// MARK: - UITextFieldDelegate
-extension InfoUserVC: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-    }
-}
-
 // MARK: UICollectionViewDataSource
-extension InfoUserVC: UICollectionViewDataSource {
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
+extension InfoUserVC: SkeletonCollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == instagramPhotosCollectionView {
             return instagramPhotoUrls.count
         } else {
-            return userData.interestsList.count
+            return userData?.interestsList.count ?? 0
         }
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == instagramPhotosCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InstagramPhotoCell.reuseIdentifier, for: indexPath) as! InstagramPhotoCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: InstagramPhotoCell.reuseIdentifier,
+                for: indexPath
+            ) as! InstagramPhotoCell
             let photoUrl = instagramPhotoUrls[indexPath.row]
             cell.configure(with: photoUrl)
             cell.tag = indexPath.row
@@ -651,7 +621,10 @@ extension InfoUserVC: UICollectionViewDataSource {
             cell.addGestureRecognizer(tapGestureRecognizer)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InterestCell.reuseIdentifier, for: indexPath) as! InterestCell
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: InterestCell.reuseIdentifier,
+                for: indexPath
+            ) as! InterestCell
             let interest = ConfigService.shared.interestsArray[userData.interestsList[indexPath.row]]
             cell.setupCell(title: interest.title, emoji: interest.emoji)
             if AuthService.shared.currentUser?.interestsList.contains(userData.interestsList[indexPath.row]) ?? false {
@@ -659,6 +632,40 @@ extension InfoUserVC: UICollectionViewDataSource {
             }
             return cell
         }
+    }
+
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        if skeletonView == instagramPhotosCollectionView {
+            return InstagramPhotoCell.reuseIdentifier
+        } else {
+            return InterestCell.reuseIdentifier
+        }
+    }
+
+    func collectionSkeletonView(_ skeletonView: UICollectionView, skeletonCellForItemAt indexPath: IndexPath) -> UICollectionViewCell? {
+        if skeletonView == instagramPhotosCollectionView {
+            let cell = skeletonView.dequeueReusableCell(
+                withReuseIdentifier: InstagramPhotoCell.reuseIdentifier,
+                for: indexPath
+            ) as! InstagramPhotoCell
+            let photoUrl = instagramPhotoUrls[indexPath.row]
+            cell.configure(with: photoUrl)
+            cell.tag = indexPath.row
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullImageAction(_:)))
+            cell.addGestureRecognizer(tapGestureRecognizer)
+            return cell
+        } else {
+            let cell = skeletonView.dequeueReusableCell(
+                withReuseIdentifier: InterestCell.reuseIdentifier,
+                for: indexPath
+            ) as! InterestCell
+            cell.setupCell(title: "...", emoji: "Загрузка")
+            return cell
+        }
+    }
+
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 4
     }
 }
 
@@ -674,5 +681,12 @@ extension InfoUserVC: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return Constants.spacingInterest
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension InfoUserVC: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
     }
 }

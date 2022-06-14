@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-final class BirthdaySetupProfileVC: UIViewController {
+final class BirthdaySetupProfileVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
@@ -49,7 +49,7 @@ final class BirthdaySetupProfileVC: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavigationBar(withColor: .systemBlue, title: "День рождения")
+        title = "День рождения"
         setupViews()
         setupConstraints()
     }
