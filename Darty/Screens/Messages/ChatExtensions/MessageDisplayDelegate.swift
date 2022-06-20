@@ -7,11 +7,12 @@
 
 import Foundation
 import MessageKit
+import UIKit
 
 extension NewChatVC: MessagesDisplayDelegate {
     
     func textColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
-        return .label
+        return Colors.Text.main
     }
     
     func backgroundColor(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UIColor {
@@ -28,7 +29,7 @@ extension NewChatVC: MessagesDisplayDelegate {
             if isFromCurrentSender(message: message) {
                 return [.foregroundColor: UIColor.white]
             } else {
-                return [.foregroundColor: UIColor.systemTeal]
+                return [.foregroundColor: Colors.Elements.secondaryElement]
             }
         default: return MessageLabel.defaultAttributes
         }
@@ -36,5 +37,11 @@ extension NewChatVC: MessagesDisplayDelegate {
     
     func enabledDetectors(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> [DetectorType] {
         return [.url, .address, .phoneNumber, .date, .transitInformation, .mention, .hashtag]
+    }
+
+    func audioCell(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> UICollectionViewCell? {
+        let cell = messagesCollectionView.dequeueReusableCell(DAudioMessageCell.self, for: indexPath)
+        cell.configure(with: message, at: indexPath, and: messagesCollectionView)
+        return cell
     }
 }  

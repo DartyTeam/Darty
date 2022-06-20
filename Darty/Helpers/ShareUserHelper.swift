@@ -37,7 +37,7 @@ enum ShareHelper {
         if let endTime = party.endTime {
             endTimeString = DateFormatter.HHmm.string(from: endTime)
         }
-        let text = "Приходи на вечеринку darty://party/\(party.id) \n\"\(party.name)\"!\n\(party.description)\nДата: \(DateFormatter.ddMMMM.string(from: party.date))\nВремя: \(DateFormatter.HHmm.string(from: party.startTime)) \(endTimeString.isEmpty ? "" : "до \(endTimeString)")\nТематика: \(party.type.dropLast())\nМесто: \(party.address)\nПриглашено \(approvedUsersCount) из \(party.maxGuests)\nДля людей старше \(party.minAge)"
+        let text = "Приходи на вечеринку darty://party/\(party.id) \n\"\(party.name)\"!\n\(party.description)\nДата: \(DateFormatter.ddMMMM.string(from: party.date))\nВремя: \(DateFormatter.HHmm.string(from: party.startTime)) \(endTimeString.isEmpty ? "" : "до \(endTimeString)")\nТематика: \(party.type.rawValue.dropLast())\nМесто: \(party.address)\nПриглашено \(approvedUsersCount) из \(party.maxGuests)\nДля людей старше \(party.minAge)"
         let items: [Any] = [text]
         let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
         ac.excludedActivityTypes = [.addToReadingList, .airDrop, .assignToContact, .markupAsPDF, .openInIBooks, .saveToCameraRoll]

@@ -83,7 +83,7 @@ class FirestoreService {
     }
     
     func saveProfileWith(id: String,
-                         phone: String,
+                         phone: String?,
                          username: String,
                          avatarImage: UIImage?,
                          description: String,
@@ -203,7 +203,7 @@ class FirestoreService {
                 address: party.address,
                 userId: party.userId,
                 imageUrlStrings: imagesUrlStrings,
-                type: party.type.rawValue,
+                type: party.type,
                 maxGuests: party.maxGuests,
                 curGuests: 0,
                 id: partyId,
@@ -213,7 +213,7 @@ class FirestoreService {
                 name: party.name,
                 moneyPrice: party.moneyPrice,
                 anotherPrice: party.anotherPrice,
-                priceType: party.priceType.rawValue,
+                priceType: party.priceType,
                 description: party.description,
                 minAge: party.minAge
             )

@@ -52,14 +52,20 @@ extension NewChatVC: MessageCellDelegate {
             print("Failed to identify message when audio cell receive tap gesture")
             return
         }
+        guard let cell = cell as? DAudioMessageCell else {
+            print("Error get DAudioMessageCell")
+            return
+        }
         guard audioController.state != .stopped else {
             // There is no audio sound playing - prepare to start playing for given audio message
             audioController.playSound(for: message, in: cell)
+            print("asdioajsidjadsioajsdmiasdmasoidasd")
             return
         }
         if audioController.playingMessage?.messageId == message.messageId {
             // tap occur in the current cell that is playing audio sound
             if audioController.state == .playing {
+
                 audioController.pauseSound(for: message, in: cell)
             } else {
                 audioController.resumeSound()

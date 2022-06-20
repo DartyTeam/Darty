@@ -11,7 +11,7 @@ import FirebaseFirestore
 struct UserModel: Hashable, Decodable {
     
     var username: String
-    var phone: String
+    var phone: String?
     var avatarStringURL: String
     var description: String
     var sex: Sex.RawValue?
@@ -24,7 +24,19 @@ struct UserModel: Hashable, Decodable {
     let pushId: String
     var instagramId: String?
     
-    init(username: String, phone: String, avatarStringURL: String, description: String, sex: Sex.RawValue?, birthday: Date, interestsList: [Int], personalColor: String, id: String, pushId: String, city: String, country: String, instagramId: String? = nil) {
+    init(username: String,
+         phone: String?,
+         avatarStringURL: String,
+         description: String,
+         sex: Sex.RawValue?,
+         birthday: Date,
+         interestsList: [Int],
+         personalColor: String,
+         id: String,
+         pushId: String,
+         city: String,
+         country: String,
+         instagramId: String? = nil) {
         self.username = username
         self.phone = phone
         self.avatarStringURL = avatarStringURL
@@ -45,7 +57,6 @@ struct UserModel: Hashable, Decodable {
         
         // Non optional values
         guard let username = data["username"] as? String,
-        let phone = data["phone"] as? String,
         let avatarStringURL = data["avatarStringURL"] as? String,
         let description = data["description"] as? String,
         let birthday = (data["birthday"] as? Timestamp)?.dateValue(),
@@ -60,6 +71,7 @@ struct UserModel: Hashable, Decodable {
         // Optional value
         let sex = data["sex"] as? Sex.RawValue
         let instagramId = data["instagramId"] as? String
+        let phone = data["phone"] as? String
         
         self.username = username
         self.phone = phone

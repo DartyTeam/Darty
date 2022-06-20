@@ -35,7 +35,6 @@ final class LoginVC: BaseController {
     
     private let signInButton: DButton = {
         let button = DButton(title: "Войти")
-        button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(signInAction), for: .touchUpInside)
         return button
@@ -248,14 +247,14 @@ extension LoginVC {
         NSLayoutConstraint.activate([
             signInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             signInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            signInButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
+            signInButton.heightAnchor.constraint(equalToConstant: DButtonStyle.fill.height),
             signInButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -150)
         ])
 
         videoView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
-            make.bottom.equalTo(signInButton.snp.bottom).inset(UIButton.defaultButtonHeight / 2)
+            make.bottom.equalTo(signInButton.snp.bottom).inset(DButtonStyle.fill.height / 2)
         }
 
         dartyLogo.snp.makeConstraints { make in

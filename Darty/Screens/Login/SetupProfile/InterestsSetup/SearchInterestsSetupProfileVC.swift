@@ -29,7 +29,6 @@ final class SearchInterestsSetupProfileVC: BaseController {
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton()
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
@@ -154,7 +153,7 @@ final class SearchInterestsSetupProfileVC: BaseController {
         nextButton.snp.remakeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         
@@ -181,7 +180,7 @@ final class SearchInterestsSetupProfileVC: BaseController {
         nextButton.snp.remakeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalToSuperview().offset(-keyboardFrame.height - 24)
         }
 
@@ -209,7 +208,7 @@ extension SearchInterestsSetupProfileVC {
         nextButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
 

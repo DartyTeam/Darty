@@ -14,13 +14,12 @@ final class AboutSetupProfileVC: BaseController {
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
     private lazy var aboutTextView: TextView = {
-        let textView = TextView(placeholder: "Описание вас", isEditable: true, color: .systemBlue)
+        let textView = TextView(placeholder: "Описание вас", isEditable: true)
         textView.delegate = self
         return textView
     }()
@@ -38,7 +37,7 @@ final class AboutSetupProfileVC: BaseController {
 
     // MARK: - Setup views
     private func setupViews() {
-        if let image = UIImage(named: "about.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
+        if let image = UIImage(named: "about.setup.background")?.withTintColor(Colors.Elements.element.withAlphaComponent(0.75)) {
             addBackground(image)
         }
         view.backgroundColor = .systemBackground
@@ -72,7 +71,7 @@ extension AboutSetupProfileVC {
         nextButton.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().offset(-44)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
         }
 
         aboutTextView.snp.makeConstraints { make in

@@ -9,8 +9,6 @@ import UIKit
 
 extension UIButton {
 
-    static let defaultButtonHeight: CGFloat = 56
-
     // Add touch area
     fileprivate struct UIButtonAssociatedKeys {
         static var addedTouchArea: CGFloat = 0
@@ -31,7 +29,7 @@ extension UIButton {
     }
 
     func addBlurEffect() {
-        let blur = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+        let blur = BlurEffectView()
         blur.isUserInteractionEnabled = false
         self.insertSubview(blur, at: 0)
         blur.snp.makeConstraints { make in

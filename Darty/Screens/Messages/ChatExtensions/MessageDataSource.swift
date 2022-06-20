@@ -7,6 +7,7 @@
 
 import Foundation
 import MessageKit
+import UIKit
 
 extension NewChatVC: MessagesDataSource {
     func currentSender() -> SenderType {
@@ -27,30 +28,37 @@ extension NewChatVC: MessagesDataSource {
             let showLoadMore = (indexPath.section == 0) && (allLocalMessages.count > displayingMessagesCount)
             
             let text = showLoadMore ? "Потяните, чтобы загрузить больше" : MessageKitDateFormatter.shared.string(from: message.sentDate)
-            let font = showLoadMore ? UIFont.sfProRounded(ofSize: 14, weight: .bold) : UIFont.sfProRounded(ofSize: 10, weight: .semibold)
-            
-            let color = showLoadMore ? UIColor.systemTeal : UIColor.darkGray
-            
-            return NSAttributedString(string: text, attributes: [.font : font, .foregroundColor: color])
+            let font: UIFont? = showLoadMore ? .subtitle : .textOnPlate
+
+            return NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: Colors.Text.secondary])
         }
         
         return nil
     }
     
-    // MARK: - Cell bottom label
-    func cellBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        guard isFromCurrentSender(message: message) else { return nil }
-        let message = mkMessages[indexPath.section]
-        let status = indexPath.section == mkMessages.count - 1 ? message.status + " " + DateFormatter.HHmm.string(from: message.readDate) : ""
-        return NSAttributedString(string: status, attributes: [
-            .font: UIFont.sfProRounded(ofSize: 10, weight: .semibold),
-            .foregroundColor: UIColor.darkGray
-        ])
-    }
-    
     // MARK: - Message bottom label
     func messageBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
-        guard indexPath.section != mkMessages.count - 1 else { return nil }
-        return NSAttributedString(string: DateFormatter.HHmm.string(from: message.sentDate), attributes: [.font : UIFont.sfProRounded(ofSize: 10, weight: .bold), .foregroundColor : UIColor.darkGray])
+        var string = DateFormatter.HHmm.string(from: message.sentDate)
+        if isFromCurrentSender(message: message) {
+            let message = mkMessages[indexPath.section]
+            let readStatusIcon: String
+            switch message.status {
+            case "read":
+                readStatusIcon = "􀦧"
+            case "sent":
+                readStatusIcon = "􀆅"
+            default:
+                readStatusIcon = ""
+            }
+            string.append(contentsOf: " \(readStatusIcon)")
+        }
+
+        return NSAttributedString(
+            string: string,
+            attributes: [
+                .font:  UIFont.textOnPlate,
+                .foregroundColor: Colors.Text.secondary
+            ]
+        )
     }
 }

@@ -200,7 +200,6 @@ class ListenerService {
         })
         self.myPartyRequestsListeners?.removeAll()
 
-
         var parties = parties
         let partiesRef = db.collection(["users", currentUserId, "myParties"].joined(separator: "/"))
         

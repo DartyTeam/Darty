@@ -95,7 +95,6 @@ final class InfoUserVC: UIViewController {
     
     private lazy var messageTextField: MessageTextField = {
         let messageTextField = MessageTextField()
-        messageTextField.color = .orangeYellow
         messageTextField.returnKeyType = .done
         messageTextField.delegate = self
         messageTextField.sendButton.addTarget(self, action: #selector(sendMessageAction), for: .touchDown)
@@ -398,7 +397,7 @@ final class InfoUserVC: UIViewController {
             messageTextField.snp.makeConstraints { make in
                 make.top.equalTo(nameLabel.snp.bottom).offset(28)
                 make.left.right.equalToSuperview().inset(22)
-                make.height.equalTo(48)
+                make.height.equalTo(MessageTextField.defaultHeight)
             }
             
             descriptionTitleLabel.snp.makeConstraints { make in

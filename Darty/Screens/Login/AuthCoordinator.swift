@@ -146,7 +146,7 @@ final class AuthCoordinator: Coordinator {
         alertView.present(haptic: .none)
         alertView.presentWindow?.isUserInteractionEnabled = false
         FirestoreService.shared.saveProfileWith(id: user.uid,
-                                                phone: user.phoneNumber ?? "",
+                                                phone: user.phoneNumber,
                                                 username: userInfo.name,
                                                 avatarImage: userInfo.image,
                                                 description: userInfo.description,

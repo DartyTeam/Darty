@@ -31,14 +31,12 @@ final class EnterOTPVC: BaseController {
 
     private let acceptButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
     }()
 
     private let resendCodeButton: DButton = {
         let button = DButton(title: Constants.resendButtonTitle)
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(resendCodeAction), for: .touchUpInside)
         button.isEnabled = false
         button.setTitle(Constants.resendButtonTitle, for: .normal)
@@ -79,7 +77,7 @@ final class EnterOTPVC: BaseController {
             ]
             let attrs2: [NSAttributedString.Key: Any] = [
                 .font: UIFont.sfProDisplay(ofSize: 14, weight: .semibold),
-                .foregroundColor: UIColor.systemPurple
+                .foregroundColor: Colors.Elements.element
             ]
             let attributedString1 = NSMutableAttributedString(string: "Переотправить код ", attributes: attrs1)
             let attributedString2 = NSMutableAttributedString(string: resendTimeCounter.asString(), attributes: attrs2)
@@ -125,7 +123,7 @@ final class EnterOTPVC: BaseController {
     private func setupConstraints() {
         buttonsStackView.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-44)
         }
 

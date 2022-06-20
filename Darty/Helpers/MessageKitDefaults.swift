@@ -13,9 +13,3 @@ struct MKSender: SenderType, Equatable {
     var senderId: String
     var displayName: String
 }
-
-enum MessageDefaults {
-    // Bubble
-    static let bubbleColorOutgoig = UIColor.systemTeal
-    static let bubbleColorIncoming = UIColor.systemGroupedBackground
-}

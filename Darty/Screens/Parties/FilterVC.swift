@@ -154,7 +154,7 @@ final class FilterVC: UIViewController {
     
     private let closeButton: UIButton = {
         let button = UIButton(type: .close)
-        button.tintColor = .systemOrange
+        button.tintColor = Colors.Elements.element
         button.addTarget(self, action: #selector(closeAction), for: .touchDown)
         return button
     }()
@@ -162,23 +162,25 @@ final class FilterVC: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.titleText
-        label.font = Constants.titleFont
+        label.font = .title
         label.numberOfLines = 0
+        label.textColor = Colors.Text.main
         return label
     }()
     
     private let maxGuestsLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.maxGuestsText
-        label.font = Constants.paramNameFont
+        label.font = .subtitle
         label.numberOfLines = 0
+        label.textColor = Colors.Text.main
         return label
     }()
     
     private lazy var maxGuestsPicker: RubberRangePicker = {
         let rubberRangePicker = RubberRangePicker()
         rubberRangePicker.minimumValue = 1
-        rubberRangePicker.tintColor = .systemOrange
+        rubberRangePicker.tintColor = Colors.Elements.element
         rubberRangePicker.maximumValue = Double(GlobalConstants.maximumGuests)
         rubberRangePicker.addTarget(self, action: #selector(maxGuestsUpdated(_:)), for: .valueChanged)
         rubberRangePicker.thumbSize = 26
@@ -189,7 +191,8 @@ final class FilterVC: UIViewController {
     private let typeLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.typeText
-        label.font = Constants.paramNameFont
+        label.font = .title
+        label.textColor = Colors.Text.main
         return label
     }()
         
@@ -214,20 +217,20 @@ final class FilterVC: UIViewController {
         let toolBar = UIToolbar()
         toolBar.sizeToFit()
         let doneButton = UIBarButtonItem(title: "Готово", style: .plain, target: self, action: #selector(typeDoneTapped))
-        doneButton.tintColor = .systemOrange
+        doneButton.tintColor = Colors.Elements.element
         let anyButton = UIBarButtonItem(title: "Любая", style: .plain, target: self, action: #selector(typeAnyTapped))
         anyButton.tintColor = .systemOrange
-        toolBar.backgroundColor = .gray
+        toolBar.backgroundColor = Colors.Backgorunds.plate
         let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
         toolBar.setItems([anyButton, flexibleSpace, doneButton], animated: true)
         toolBar.isUserInteractionEnabled = true
         textFieldWithoutInteract.inputAccessoryView = toolBar
-        textFieldWithoutInteract.font = Constants.typeTFFont
+        textFieldWithoutInteract.font = .textOnPlate
         textFieldWithoutInteract.inputView = typePicker
         textFieldWithoutInteract.delegate = self
         textFieldWithoutInteract.text = "Любая"
-        textFieldWithoutInteract.textColor = .systemOrange
+        textFieldWithoutInteract.textColor = Colors.Elements.element
         textFieldWithoutInteract.textAlignment = .center
         return textFieldWithoutInteract
     }()
@@ -235,7 +238,8 @@ final class FilterVC: UIViewController {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.text = Constants.dateText
-        label.font = Constants.paramNameFont
+        label.font = .title
+        label.textColor = Colors.Text.main
         return label
     }()
     
@@ -281,12 +285,13 @@ final class FilterVC: UIViewController {
         let rubberRangePicker = RubberRangePicker()
         rubberRangePicker.minimumValue = 1
         rubberRangePicker.lowerValue = 1
-        rubberRangePicker.tintColor = .systemOrange
         rubberRangePicker.maximumValue = Double(GlobalConstants.maximumPrice)
+        rubberRangePicker.upperValue = Double(GlobalConstants.maximumPrice)
         rubberRangePicker.addTarget(self, action: #selector(priceRangeUpdated), for: .valueChanged)
         rubberRangePicker.isHidden = true
         rubberRangePicker.thumbSize = 26
-        rubberRangePicker.lineColor = .systemGray4
+        rubberRangePicker.lineColor = Colors.Elements.line
+        rubberRangePicker.tintColor = Colors.Elements.element
         return rubberRangePicker
     }()
     
@@ -530,7 +535,7 @@ extension FilterVC: UIPickerViewDataSource, UIPickerViewDelegate {
     
     // The data to return fopr the row and component (column) that's being passed in
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return PartyType.allCases[row].rawValue
+        return PartyType.allCases[row].description
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -545,7 +550,7 @@ extension FilterVC: UIPickerViewDataSource, UIPickerViewDelegate {
         label.font = .sfProDisplay(ofSize: 18, weight: .semibold)
         
         // where data is an Array of String
-        label.text = PartyType.allCases[row].rawValue
+        label.text = PartyType.allCases[row].description
         
         return label
     }

@@ -21,22 +21,42 @@ enum DButtonType {
     }
 }
 
+enum DButtonStyle {
+    case fill
+    case clear
+
+    var height: CGFloat {
+        switch self {
+        case .fill:
+            return 56
+        case .clear:
+            return 44
+        }
+    }
+}
+
 class DButton: UIButton {
 
     private let type: DButtonType
 
-    init(title: String? = "", type: DButtonType = .main) {
+    init(title: String? = "", type: DButtonType = .main, style: DButtonStyle = .fill) {
         self.type = type
         super.init(frame: .zero)
-        self.backgroundColor = type.color
+
         self.setTitle(title, for: .normal)
         self.titleLabel?.numberOfLines = 0
         self.titleLabel?.textAlignment = .center
         self.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        self.setTitleColor(.white, for: .normal)
-        self.titleLabel?.font = .sfProRounded(ofSize: 17, weight: .semibold)
-        setupCornerRadius()
-        setupShadow()
+        self.titleLabel?.font = .button
+
+        if style == .fill {
+            self.backgroundColor = type.color
+            self.setTitleColor(Colors.Text.onUnderlayers, for: .normal)
+            setupCornerRadius()
+            setupShadow()
+        } else {
+            self.setTitleColor(type.color, for: .normal)
+        }
     }
 
     private func setupCornerRadius() {

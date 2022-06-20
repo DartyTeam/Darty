@@ -16,35 +16,37 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
     // MARK: - Constants
     private enum Constants {
-        static let titleFont: UIFont? = .sfProRounded(ofSize: 20, weight: .semibold)
-        static let textFont: UIFont? = .sfProDisplay(ofSize: 12, weight: .semibold)
         static let userImageSize: CGFloat = 44
-        static let paramFont: UIFont? = .sfProDisplay(ofSize: 8, weight: .medium)
         static let cornerRadius: CGFloat = 20
     }
     
     // MARK: - UI Elements
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
         return label
     }()
     
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
+        label.textAlignment = .right
         return label
     }()
     
     private let userNameLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .subtitle
+        label.textColor = Colors.Text.main
         return label
     }()
     
     private let userRatingLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .subtitle
+        label.textColor = Colors.Text.secondary
         return label
     }()
 
@@ -64,46 +66,52 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleFont
+        label.font = .title
+        label.textColor = Colors.Text.main
+        label.numberOfLines = 0
+        label.textAlignment = .natural
         return label
     }()
     
-    private let priceView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+    private let priceView: BlurEffectView = {
+        let view = BlurEffectView()
         view.layer.cornerRadius = 10
+        view.clipsToBounds = true
         return view
     }()
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.paramFont
+        label.font = .smallest
+        label.textColor = Colors.Text.secondary
         return label
     }()
     
-    private let typeView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+    private let typeView: BlurEffectView = {
+        let view = BlurEffectView()
         view.layer.cornerRadius = 10
+        view.clipsToBounds = true
         return view
     }()
     
     private let typeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.paramFont
+        label.font = .smallest
+        label.textColor = Colors.Text.secondary
         return label
     }()
     
-    private let minAgeView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+    private let minAgeView: BlurEffectView = {
+        let view = BlurEffectView()
         view.layer.cornerRadius = 10
+        view.clipsToBounds = true
         return view
     }()
     
     private let minAgeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.paramFont
+        label.font = .smallest
+        label.textColor = Colors.Text.secondary
         return label
     }()
     
@@ -120,28 +128,30 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 
     private let redView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemRed.withAlphaComponent(0.5)
+        view.backgroundColor = Colors.Statuses.error.withAlphaComponent(0.5)
         return view
     }()
 
     private let warningLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleFont
+        label.font = .title
         label.text = "Отклонено"
+        label.textColor = Colors.Text.main
         return label
     }()
 
-    private let infoView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
+    private let infoView: BlurEffectView = {
+        let view = BlurEffectView()
         view.layer.cornerRadius = 10
+        view.clipsToBounds = true
         view.isHidden = true
         return view
     }()
 
     private let infoLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.paramFont
+        label.font = .smallest
+        label.textColor = Colors.Text.secondary
         return label
     }()
 
@@ -174,18 +184,18 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
     func configure<U>(with value: U) where U : Hashable {
         guard let party: PartyModel = value as? PartyModel else { return }
         dateLabel.text = DateFormatter.ddMMMM.string(from: party.date)
-        typeLabel.text = party.type
+        typeLabel.text = party.type.description
         titleLabel.text = party.name
         timeLabel.text = DateFormatter.HHmm.string(from: party.startTime)
         if let endTime = party.endTime {
             timeLabel.text?.append(" 􀄫 \(DateFormatter.HHmm.string(from: endTime))")
         }
       
-        if party.priceType == PriceType.free.rawValue {
-            priceLabel.text = PriceType.free.rawValue
-        } else if party.priceType == PriceType.money.rawValue {
-            priceLabel.text = party.priceType + " р."
-        } else if party.priceType == PriceType.another.rawValue {
+        if party.priceType == .free {
+            priceLabel.text = PriceType.free.description
+        } else if party.priceType == .money {
+            priceLabel.text = party.priceType.description + " р."
+        } else if party.priceType == .another {
             priceLabel.text = party.anotherPrice
         }
         minAgeLabel.text = "\(party.minAge)+"
@@ -245,7 +255,7 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         mapImageView.hideSkeleton(reloadDataAfter: false, transition: .crossDissolve(0.3))
     }
 
-    func setUser(rating: String, username: String, avatarStringUrl: String) {
+    func setUser(rating: String?, username: String, avatarStringUrl: String) {
         userImageView.setImage(stringUrl: avatarStringUrl)
         userNameLabel.text = username
         userRatingLabel.text = rating
@@ -300,13 +310,13 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
         contentView.addSubview(userImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(priceView)
-        priceView.addSubview(priceLabel)
+        priceView.contentView.addSubview(priceLabel)
         contentView.addSubview(typeView)
-        typeView.addSubview(typeLabel)
+        typeView.contentView.addSubview(typeLabel)
         contentView.addSubview(minAgeView)
-        minAgeView.addSubview(minAgeLabel)
+        minAgeView.contentView.addSubview(minAgeLabel)
         contentView.addSubview(infoView)
-        infoView.addSubview(infoLabel)
+        infoView.contentView.addSubview(infoLabel)
         contentView.addSubview(redView)
         contentView.addSubview(warningLabel)
     }
@@ -316,8 +326,8 @@ class PartyCell: UICollectionViewCell, SelfConfiguringCell {
 extension PartyCell {
     private func setupConstraints() {
         timeLabel.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().offset(-16)
-            make.right.equalToSuperview().offset(-8)
+            make.bottom.equalToSuperview().offset(-14)
+            make.right.equalToSuperview().offset(-12)
         }
         
         dateLabel.snp.makeConstraints { make in
@@ -332,19 +342,15 @@ extension PartyCell {
         }
 
         aboutUserStackView.snp.makeConstraints { make in
-            make.left.equalTo(userImageView.snp.right).offset(8)
             make.top.equalTo(dateLabel.snp.top)
+            make.left.equalTo(userImageView.snp.right).offset(8)
+            make.right.equalTo(timeLabel.snp.left).offset(-24)
             make.bottom.equalTo(timeLabel.snp.bottom)
         }
         
         mapImageView.snp.makeConstraints { make in
             make.top.left.right.equalToSuperview()
             make.bottom.equalToSuperview().offset(-59)
-        }
-        
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20)
-            make.left.right.equalToSuperview().inset(12)
         }
         
         minAgeView.snp.makeConstraints { make in
@@ -385,6 +391,13 @@ extension PartyCell {
         infoLabel.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(8)
             make.top.bottom.equalToSuperview().inset(5)
+        }
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.left.equalToSuperview().inset(12)
+            make.right.equalToSuperview().offset(-128)
+            make.bottom.lessThanOrEqualTo(mapImageView.snp.bottom).inset(32)
         }
 
         redView.snp.makeConstraints { make in

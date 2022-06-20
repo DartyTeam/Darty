@@ -34,7 +34,6 @@ final class PartyPriceAndGuestsVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -57,7 +56,6 @@ final class PartyPriceAndGuestsVC: BaseController {
         let stepper = UIStepper()
         stepper.minimumValue = 1
         stepper.maximumValue = Double(GlobalConstants.maximumGuests)
-        stepper.tintColor = .systemPurple
         stepper.addTarget(self, action: #selector(maxGuestsChangedAction(_:)), for: .valueChanged)
         return stepper
     }()
@@ -80,14 +78,13 @@ final class PartyPriceAndGuestsVC: BaseController {
         let stepper = UIStepper()
         stepper.minimumValue = 1
         stepper.maximumValue = 130
-        stepper.tintColor = .systemPurple
         stepper.value = 18
         stepper.addTarget(self, action: #selector(minAgeChangedAction(_:)), for: .valueChanged)
         return stepper
     }()
     
     private let priceTypeSegment: UISegmentedControl = {
-        let segmentedControl = UISegmentedControl(items: [PriceType.free.rawValue, PriceType.money.rawValue, PriceType.another.rawValue])
+        let segmentedControl = UISegmentedControl(items: PriceType.allCasesForSegmentedControl)
         segmentedControl.selectedSegmentIndex = 0
         let attr = NSDictionary(object: Constants.segmentFont!, forKey: NSAttributedString.Key.font as NSCopying)
         segmentedControl.setTitleTextAttributes(attr as? [NSAttributedString.Key : Any] , for: .normal)
@@ -96,7 +93,7 @@ final class PartyPriceAndGuestsVC: BaseController {
     }()
     
     private lazy var priceTextField: TextField = {
-        let textField = TextField(color: .systemPurple, placeholder: "Цена за вход")
+        let textField = TextField(placeholder: "Цена за вход")
         textField.isHidden = true
         textField.returnKeyType = .done
         textField.delegate = self
@@ -120,24 +117,15 @@ final class PartyPriceAndGuestsVC: BaseController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Создание вечеринки"
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        setupNavBar()
         setupViews()
         setupConstraints()
     }
 
     // MARK: - Setup views
-    private func setupNavBar() {
-        title = "Создание вечеринки"
-        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
-        navigationItem.rightBarButtonItem = cancelBarButtonItem
-    }
-    
     private func setupViews() {
-        view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         scrollView.addSubview(logoView)
         scrollView.addSubview(nextButton)
@@ -156,7 +144,6 @@ final class PartyPriceAndGuestsVC: BaseController {
     
     // MARK: - Handlers
     @objc private func keyboardWillHide(notification: NSNotification) {
-
         let contentInset:UIEdgeInsets = UIEdgeInsets.zero
         scrollView.contentInset = contentInset
         
@@ -294,7 +281,7 @@ extension PartyPriceAndGuestsVC {
                 view.frame.size.height - topSafeAreaHeight - bottomSafeAreaHeight - navigationController!.navigationBar.frame.size.height - (32 * 2 + 16)
             )
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalToSuperview()
         }
         
@@ -368,7 +355,6 @@ extension PartyPriceAndGuestsVC: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField.keyboardType == .numberPad {
             if !CharacterSet(charactersIn: "0123456789").isSuperset(of: CharacterSet(charactersIn: string)) {
-
                 // Present alert so the user knows what went wrong
                    print("This field accepts only numeric entries.")
 

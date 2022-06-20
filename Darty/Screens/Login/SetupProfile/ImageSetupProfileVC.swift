@@ -15,14 +15,13 @@ final class ImageSetupProfileVC: BaseController {
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
     private lazy var setImageView: MultiSetImagesView = {
-        let setImageView = MultiSetImagesView(shape: .round, color: .systemBlue, delegate: self)
+        let setImageView = MultiSetImagesView(shape: .round, delegate: self)
         setImageView.translatesAutoresizingMaskIntoConstraints = false
         return setImageView
     }()
@@ -39,7 +38,7 @@ final class ImageSetupProfileVC: BaseController {
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "image.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
+        if let image = UIImage(named: "image.setup.background")?.withTintColor(Colors.Elements.element.withAlphaComponent(0.75)) {
             addBackground(image)
         }
         
@@ -66,7 +65,7 @@ extension ImageSetupProfileVC {
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
+            nextButton.heightAnchor.constraint(equalToConstant: DButtonStyle.fill.height)
         ])
         
         setImageView.snp.makeConstraints { make in

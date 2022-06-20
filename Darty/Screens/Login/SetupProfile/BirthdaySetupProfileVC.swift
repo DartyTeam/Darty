@@ -12,7 +12,6 @@ final class BirthdaySetupProfileVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
@@ -39,7 +38,7 @@ final class BirthdaySetupProfileVC: BaseController {
         blurredEffectView.layer.cornerRadius = 40
         blurredEffectView.clipsToBounds = true
         blurredEffectView.layer.borderWidth = 3.5
-        blurredEffectView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
+        blurredEffectView.layer.borderColor = Colors.Elements.element.withAlphaComponent(0.5).cgColor
         return blurredEffectView
     }()
 
@@ -55,7 +54,7 @@ final class BirthdaySetupProfileVC: BaseController {
     }
     
     private func setupViews() {
-        if let image = UIImage(named: "birthday.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.75)) {
+        if let image = UIImage(named: "birthday.setup.background")?.withTintColor(Colors.Elements.element.withAlphaComponent(0.75)) {
             addBackground(image)
         }
         view.backgroundColor = .systemBackground
@@ -82,7 +81,7 @@ extension BirthdaySetupProfileVC {
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
+            nextButton.heightAnchor.constraint(equalToConstant: DButtonStyle.fill.height)
         ])
         
         NSLayoutConstraint.activate([

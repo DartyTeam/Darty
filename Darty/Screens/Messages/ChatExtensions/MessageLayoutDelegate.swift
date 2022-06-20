@@ -22,31 +22,31 @@ extension NewChatVC: MessagesLayoutDelegate {
     }
     
     func messageTopLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        if isFromCurrentSender(message: message) {
-            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
-        } else {
-            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
-        }
-    }
-
-    // MARK: - Cell bottom label
-    func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        return isFromCurrentSender(message: message) ? 16 : 0
+//        if isFromCurrentSender(message: message) {
+//            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
+//        } else {
+//            return !isPreviousMessageSameSender(at: indexPath) ? 20 : 0
+//        }
+        return 0
     }
 
     // MARK: - Message bottom label
+    // Лейбл с временем отправки сообщения
     func messageBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
-        return indexPath.section != mkMessages.count - 1 ? 12 : 0
+        let minimumHeightNeededForShowingLabel: CGFloat = 13
+        let spacingBetweemMessageAndTimeLabel: CGFloat = 4
+        return minimumHeightNeededForShowingLabel + spacingBetweemMessageAndTimeLabel
     }
 
-    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-//        let avatar = Avatar(image: recipientImage, initials: "\(recipientData.username.first ?? " ")")
-//        avatarView.set(avatar: avatar)
-//        avatarView.isHidden = isNextMessageSameSender(at: indexPath)
-//        avatarView.isHidden = true
-    }
-    
     func footerViewSize(for section: Int, in messagesCollectionView: MessagesCollectionView) -> CGSize {
-        return CGSize(width: 0, height: 4)
+        return CGSize(width: 0, height: 0)
     }
+
+    // Настройка отображения аватаров перед баблом сообщения
+    //    func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
+    //        let avatar = Avatar(image: recipientImage, initials: "\(recipientData.username.first ?? " ")")
+    //        avatarView.set(avatar: avatar)
+    //        avatarView.isHidden = isNextMessageSameSender(at: indexPath)
+    //        avatarView.isHidden = true
+    //    }
 }

@@ -34,9 +34,9 @@ final class MultiSetImagesView: UIView {
     
     // MARK: - Constants
     enum Constants {
-        static let itemSpace: CGFloat = 40
-        static let itemSpaceForMultiItemsInPage: CGFloat = 20
-        static let leftRightInsets: CGFloat = 20
+        static let itemSpace: CGFloat = 48
+        static let itemSpaceForMultiItemsInPage: CGFloat = 24
+        static let leftRightInsets: CGFloat = 24
     }
     
     // MARK: - UI Elements
@@ -79,16 +79,14 @@ final class MultiSetImagesView: UIView {
     weak var delegate: MultiSetImagesViewDelegate?
     private let maxPhotos: Int!
     private let shape: ShapeImageView!
-    private let color: UIColor!
     
     private var cellFrame: CGRect = CGRect.zero
     
     // MARK: - Lifecycle
-    init(maxPhotos: Int = 1, shape: ShapeImageView, color: UIColor, delegate: MultiSetImagesViewDelegate? = nil) {
+    init(maxPhotos: Int = 1, shape: ShapeImageView, delegate: MultiSetImagesViewDelegate? = nil) {
         self.delegate = delegate
         self.maxPhotos = maxPhotos
         self.shape = shape
-        self.color = color
         super.init(frame: CGRect.zero)
         setupView()
         setupConstraints()
@@ -200,14 +198,14 @@ extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == images.count {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetAddImagesViewCell.reuseIdentifier, for: indexPath) as! SetAddImagesViewCell
-            cell.setupCell(delegate: self, shape: shape, color: color, phpicker: imagePicker)
+            cell.setupCell(delegate: self, shape: shape, phpicker: imagePicker)
             cellFrame = cell.frame
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SetImageViewCell.reuseIdentifier, for: indexPath) as! SetImageViewCell
             cell.deleteButton.tag = indexPath.item
             cell.deleteButton.addTarget(self, action: #selector(deleteAction(_:)), for: .touchDown)
-            cell.setupCell(image: images[indexPath.row].image, shape: shape, color: color)
+            cell.setupCell(image: images[indexPath.row].image, shape: shape)
             cell.tag = indexPath.row
             let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(showFullscreenAction))
             tapRecognizer.numberOfTapsRequired = 1
@@ -226,12 +224,12 @@ extension MultiSetImagesView: UICollectionViewDelegate, UICollectionViewDataSour
 extension MultiSetImagesView: UIViewControllerTransitioningDelegate {
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         #warning("Это пока не используется, т.к. controller.transitioningDelegate = self закомменченно")
-        print("asdkasdioaksdoiajd: ", CGRect(x: self.frame.minX + 20, y: self.frame.minY, width: self.frame.width - 40, height: self.frame.height))
-        return AnimatorPresent(startFrame: CGRect(x: self.frame.minX + 20, y: self.frame.minY, width: self.frame.width - 40, height: self.frame.height))
+        print("asdkasdioaksdoiajd: ", CGRect(x: self.frame.minX + 24, y: self.frame.minY, width: self.frame.width - 48, height: self.frame.height))
+        return AnimatorPresent(startFrame: CGRect(x: self.frame.minX + 24, y: self.frame.minY, width: self.frame.width - 48, height: self.frame.height))
     }
 
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        return AnimatorDismiss(endFrame: CGRect(x: self.frame.minX + 20, y: self.frame.minY, width: self.frame.width - 40, height: self.frame.height))
+        return AnimatorDismiss(endFrame: CGRect(x: self.frame.minX + 24, y: self.frame.minY, width: self.frame.width - 48, height: self.frame.height))
     }
 }
 

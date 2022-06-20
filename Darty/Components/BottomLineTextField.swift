@@ -22,18 +22,13 @@ class BottomLineTextField: UITextField {
         return view
     }()
     
-    // MARK: - Properties
-    private let color: UIColor!
-    
     // MARK: - Lifecycle
-    init(color: UIColor) {
-        self.color = color
-        super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
-
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         addSubview(bottomBorder)
 
-        textColor = color
-        tintColor = color
+        textColor = Colors.Elements.element
+        tintColor = Colors.Elements.element
 
         bottomBorder.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(4)
@@ -51,7 +46,7 @@ class BottomLineTextField: UITextField {
     func select(_ flag: Bool) {
         print("asd978as7y8das67d6a7sd")
         UIView.animate(withDuration: 0.3) {
-            self.bottomBorder.backgroundColor = flag ? self.color : .systemGray
+            self.bottomBorder.backgroundColor = flag ? self.tintColor : .systemGray
         }
     }
 

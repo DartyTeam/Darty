@@ -59,13 +59,12 @@ class WaitingGuestCell: UICollectionViewCell, SelfConfiguringCell {
     
     let acceptButton: DButton = {
         let button = DButton(title: "Принять 􀆅")
-        button.backgroundColor = .systemOrange
         return button
     }()
     
     let denyButton: DButton = {
         let button = DButton(title: "Отклонить 􀆄")
-        button.backgroundColor = .systemRed
+        button.backgroundColor = Colors.Elements.secondaryElement
         return button
     }()
     

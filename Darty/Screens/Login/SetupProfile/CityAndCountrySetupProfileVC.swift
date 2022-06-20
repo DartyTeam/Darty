@@ -33,7 +33,6 @@ final class CityAndCountrySetupProfileVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
@@ -60,7 +59,7 @@ final class CityAndCountrySetupProfileVC: BaseController {
         $0.layer.cornerRadius = Constants.userLocationButtonSize / 2
         $0.setImage(
             UIImage(SPSafeSymbol.location.circleFill)
-                .withTintColor(.systemPurple, renderingMode: .alwaysOriginal),
+                .withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal),
             for: UIControl.State()
         )
         $0.addTarget(self, action: #selector(checkLocationServices), for: .touchUpInside)
@@ -213,7 +212,7 @@ extension CityAndCountrySetupProfileVC {
         
         nextButton.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-44)
         }
         

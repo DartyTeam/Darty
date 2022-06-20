@@ -11,12 +11,12 @@ final class TextField: UITextField {
     
     private enum Constants {
         static let textFont: UIFont? = .sfProText(ofSize: 14, weight: .regular)
-        static let titleFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .medium)
-        static let unselectedBorderColor: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5)
-        static let height: CGFloat = 50
+        static let titleFont: UIFont? = .textOnPlate
+        static let unselectedBorderColor: UIColor = Colors.Elements.line
+        static let activeBorderColor: UIColor = Colors.Elements.element
+        static let height: CGFloat = 44
     }
-    private var activeBorderColor: UIColor = UIColor.blue
-    
+
     private var floatingLabel = UILabel(frame: CGRect.zero)
     private var button = UIButton(type: .custom)
     private var imageView = UIImageView(frame: CGRect.zero)
@@ -38,18 +38,25 @@ final class TextField: UITextField {
         }
     }
 
-    init(color: UIColor, placeholder: String) {
+    init(placeholder: String) {
         savedPlaceholder = placeholder
         super.init(frame: CGRect.zero)
-        activeBorderColor = color
-        
-        self.placeholder = placeholder
-        self.tintColor = color
+
+        self.placeholder(text: placeholder, color: Colors.Text.placeholder)
+        self.tintColor = Colors.Elements.element
    
         self.font = Constants.textFont
         
-        self.addTarget(self, action: #selector(self.addFloatingLabel), for: [.editingDidBegin])
-        self.addTarget(self, action: #selector(self.removeFloatingLabel), for: [.editingDidEnd, .editingDidEndOnExit, .touchUpOutside])
+        self.addTarget(
+            self,
+            action: #selector(self.addFloatingLabel),
+            for: [.editingDidBegin]
+        )
+        self.addTarget(
+            self,
+            action: #selector(self.removeFloatingLabel),
+            for: [.editingDidEnd, .editingDidEndOnExit, .touchUpOutside]
+        )
         
         setupFloatingLabel()
         setupViews()
@@ -58,18 +65,18 @@ final class TextField: UITextField {
     }
     
     private func setupFloatingLabel() {
-        floatingLabel.textColor = activeBorderColor
+        floatingLabel.textColor = Constants.activeBorderColor
     }
     
     private func setupBorder() {
         self.layer.borderWidth = 1
         self.layer.borderColor = Constants.unselectedBorderColor.cgColor
-        self.layer.cornerRadius = 8
+        self.layer.cornerRadius = 10
         self.layer.cornerCurve = .continuous
     }
     
     private func setupViews() {
-        self.backgroundColor = .tertiarySystemBackground
+        self.backgroundColor = Colors.Backgorunds.inputView
         snp.makeConstraints { make in
             make.height.equalTo(Constants.height)
         }
@@ -97,7 +104,12 @@ final class TextField: UITextField {
             floatingLabel.text = savedPlaceholder
             floatingLabel.translatesAutoresizingMaskIntoConstraints = false
             floatingLabel.clipsToBounds = true
-            floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width + 4, height: floatingLabel.frame.height + 2)
+            floatingLabel.frame = CGRect(
+                x: 0,
+                y: 0,
+                width: floatingLabel.frame.width + 4,
+                height: floatingLabel.frame.height + 2
+            )
             floatingLabel.textAlignment = .center
             addSubview(self.floatingLabel)
 
@@ -118,10 +130,10 @@ final class TextField: UITextField {
         // Floating label may be stuck behind text input. we bring it forward as it was the last item added to the view heirachy
         self.bringSubviewToFront(subviews.last!)
      
-        self.animateBorderColor(toColor: self.activeBorderColor, duration: 0.3)
+        self.animateBorderColor(toColor: Constants.activeBorderColor, duration: 0.3)
         
         UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
-            self.floatingLabel.textColor = self.activeBorderColor
+            self.floatingLabel.textColor = Constants.activeBorderColor
         }
         
         UIView.animate(withDuration: 0.3) {
@@ -133,17 +145,17 @@ final class TextField: UITextField {
         if self.text?.isEmpty ?? true {
             self.placeholder = savedPlaceholder
             if !errorMessage.isEmpty {
-                self.animateBorderColor(toColor: UIColor.systemRed, duration: 0.3)
+                self.animateBorderColor(toColor: Colors.Statuses.error, duration: 0.3)
                 UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
-                    self.floatingLabel.textColor = .systemRed
+                    self.floatingLabel.textColor = Colors.Statuses.error
                     self.floatingLabel.text = self.errorMessage
                 }
-                return
             } else {
                 UIView.animate(withDuration: 0.3) {
                     self.subviews.forEach{ $0.removeFromSuperview() }
                     self.setNeedsDisplay()
                 }
+                self.animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)
             }
         } else {
             changeToBlack()
@@ -152,7 +164,7 @@ final class TextField: UITextField {
     
     private func changeToBlack() {
         UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
-            self.floatingLabel.textColor = .label
+            self.floatingLabel.textColor = Colors.Text.main
             self.floatingLabel.text = self.savedPlaceholder
         }
         self.animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)
@@ -164,7 +176,12 @@ final class TextField: UITextField {
             floatingLabel.text = savedPlaceholder
             floatingLabel.translatesAutoresizingMaskIntoConstraints = false
             floatingLabel.clipsToBounds = true
-            floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width + 4, height: floatingLabel.frame.height + 2)
+            floatingLabel.frame = CGRect(
+                x: 0,
+                y: 0,
+                width: floatingLabel.frame.width + 4,
+                height: floatingLabel.frame.height + 2
+            )
             floatingLabel.textAlignment = .center
             addSubview(self.floatingLabel)
 
@@ -239,9 +256,9 @@ final class TextField: UITextField {
         errorMessage = message
         addFloatingLabel()
         Vibration.warning.vibrate()
-        self.animateBorderColor(toColor: UIColor.systemRed, duration: 0.3)
+        self.animateBorderColor(toColor: Colors.Statuses.error, duration: 0.3)
         UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
-            self.floatingLabel.textColor = .systemRed
+            self.floatingLabel.textColor = Colors.Statuses.error
             self.floatingLabel.text = message
         }
     }

@@ -40,13 +40,12 @@ final class NameSetupProfileVC: BaseController {
 
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
     private lazy var nameTextField: BottomLineTextField = {
-        let textField = BottomLineTextField(color: .systemBlue)
+        let textField = BottomLineTextField()
         textField.placeholder = Constants.textPlaceholder
         textField.font = Constants.textFont
         textField.textAlignment = .center
@@ -168,7 +167,7 @@ extension NameSetupProfileVC {
             make.bottom.equalToSuperview()
         }
         let nextButtonBottomOffset: CGFloat = 44
-        let nextButtonHeight = UIButton.defaultButtonHeight
+        let nextButtonHeight = DButtonStyle.fill.height
         nextButton.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(20)

@@ -29,7 +29,6 @@ final class SignInVC: BaseController, AuthUIDelegate {
     
     private let acceptButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(acceptAction), for: .touchUpInside)
         return button
@@ -95,7 +94,7 @@ final class SignInVC: BaseController, AuthUIDelegate {
         NSLayoutConstraint.activate([
             acceptButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             acceptButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            acceptButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight),
+            acceptButton.heightAnchor.constraint(equalToConstant: DButtonStyle.fill.height),
             acceptButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -44)
         ])
         

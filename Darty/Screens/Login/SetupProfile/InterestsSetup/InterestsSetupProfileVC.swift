@@ -17,7 +17,6 @@ final class InterestsSetupProfile: BaseController {
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Готово 􀆅")
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
@@ -70,13 +69,9 @@ final class InterestsSetupProfile: BaseController {
 
     private func setupNavigationBar() {
         clearNavBar = false
-        let image = UIImage(.magnifyingglass, font: .boldSystemFont(ofSize: 18))
         let magniyingglassButton = UIBarButtonItem(
-            image: image.withTintColor(
-                .systemBlue,
-                renderingMode: .alwaysOriginal
-            ),
-            style: .plain,
+            symbol: .magnifyingglass,
+            type: .normal,
             target: self,
             action: #selector(searchAction)
         )
@@ -138,7 +133,7 @@ final class InterestsSetupProfile: BaseController {
                     Colors.Bubbles.pinkBubble,
                     Colors.Bubbles.purplrBubble
                 ]
-                let randomColor = bubbleColors.randomElement() ?? .systemPurple
+                let randomColor = bubbleColors.randomElement() ?? Colors.Elements.element
                 let image = interest.emoji.textToImage(bgColor: randomColor, needMoreSmallText: true)
                 let interestNode = InterestNode(
                     text: interest.title,
@@ -181,7 +176,7 @@ extension InterestsSetupProfile {
         nextButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
     }

@@ -12,19 +12,14 @@ final class SetAddImagesViewCell: UICollectionViewCell {
             
     // MARK: - UI Elements
     private lazy var setImageView: SetImageView = {
-        let setImageView = SetImageView(delegate: nil, color: .systemBlue)
+        let setImageView = SetImageView(delegate: nil)
         return setImageView
     }()
 
     private var imagePicker: PHPickerViewController!
     
-    // MARK: - Properties
-    private var color: UIColor = .systemBlue {
-        didSet {
-            setImageView.layer.borderColor = color.withAlphaComponent(0.5).cgColor
-        }
-    }
-    
+
+    // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
@@ -34,12 +29,12 @@ final class SetAddImagesViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    func setupCell(delegate: SetImageDelegate, shape: ShapeImageView, color: UIColor, phpicker: PHPickerViewController) {
+
+    // MARK: - Setup
+    func setupCell(delegate: SetImageDelegate, shape: ShapeImageView, phpicker: PHPickerViewController) {
         setImageView.setup(phpicker: phpicker)
         setImageView.delegate = delegate
-        setImageView.color = color
-        self.color = color
+        setImageView.layer.borderColor = Colors.Elements.element.withAlphaComponent(0.5).cgColor
 
         if shape == .rect {
             setImageView.snp.remakeConstraints { remake in
@@ -50,8 +45,6 @@ final class SetAddImagesViewCell: UICollectionViewCell {
             setImageView.layer.cornerRadius = 20
             setImageView.layer.cornerCurve = .continuous
         }
-        
-        setImageView.layer.borderColor = color.withAlphaComponent(0.5).cgColor
     }
     
     private func setupViews() {
@@ -69,6 +62,6 @@ final class SetAddImagesViewCell: UICollectionViewCell {
         setImageView.layer.cornerRadius = setImageView.frame.size.width / 2
         setImageView.clipsToBounds = true
         setImageView.layer.borderWidth = 3.5
-        setImageView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.5).cgColor
+        setImageView.layer.borderColor = Colors.Elements.element.withAlphaComponent(0.5).cgColor
     }
 }

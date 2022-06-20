@@ -11,7 +11,6 @@ final class PartyTimeVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
-        static let textFont: UIFont? = .sfProDisplay(ofSize: 20, weight: .semibold)
         static let startTime = "Начало"
         static let endTime = "Конец"
         static let defaultDisabledEndTimePicker = true
@@ -25,14 +24,13 @@ final class PartyTimeVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
 
     private let startLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .title
         label.text = Constants.startTime
         return label
     }()
@@ -52,7 +50,7 @@ final class PartyTimeVC: BaseController {
 
     private let endLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.textFont
+        label.font = .title
         label.text = Constants.endTime
         return label
     }()
@@ -80,12 +78,13 @@ final class PartyTimeVC: BaseController {
             spacing: 16
         )
         stackView.alignment = .leading
+        stackView.distribution = .equalCentering
         return stackView
     }()
 
     private let errorTimeLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .systemRed
+        label.textColor = Colors.Statuses.error
         label.font = .sfProText(ofSize: 14, weight: .semibold)
         label.numberOfLines = 0
         label.text = "Время конца не должно совпадать со временем начала"
@@ -99,18 +98,11 @@ final class PartyTimeVC: BaseController {
         spacing: 16
     )
 
-    private let dateLabel: UILabel = {
-        let label = UILabel()
-        label.font = Constants.textFont
-        label.text = "Дата"
-        return label
-    }()
-
     private let datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.minimumDate = Date()
-        datePicker.preferredDatePickerStyle = .wheels
+        datePicker.preferredDatePickerStyle = .inline
         return datePicker
     }()
     
@@ -132,12 +124,10 @@ final class PartyTimeVC: BaseController {
 
     // MARK: - Setup views
     private func setupViews() {
-        view.backgroundColor = .systemBackground
         view.addSubview(logoView)
         view.addSubview(nextButton)
         view.addSubview(datePicker)
         view.addSubview(timeStackView)
-        view.addSubview(dateLabel)
     }
     
     // MARK: - Handlers
@@ -177,23 +167,18 @@ extension PartyTimeVC {
         
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
-        }
-        
-        datePicker.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(20)
-            make.bottom.equalTo(nextButton.snp.top).offset(-32)
-        }
-        
-        dateLabel.snp.makeConstraints { make in
-            make.centerX.equalTo(datePicker.snp.centerX)
-            make.bottom.equalTo(datePicker.snp.top).offset(16)
         }
 
         timeStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(nextButton.snp.top).offset(-32)
+        }
+
+        datePicker.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.bottom.equalTo(dateLabel.snp.top).offset(-32)
+            make.bottom.equalTo(timeStackView.snp.top).offset(-32)
         }
     }
 }

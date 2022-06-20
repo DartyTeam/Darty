@@ -26,7 +26,7 @@ final class WelcomeVC: UIViewController {
         paragraph.alignment = .center
         let attrs1 = [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 22), NSAttributedString.Key.foregroundColor : UIColor.black, .paragraphStyle: paragraph]
 
-        let attrs2 = [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 22), NSAttributedString.Key.foregroundColor : UIColor.systemPurple, .paragraphStyle: paragraph]
+        let attrs2 = [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 22), NSAttributedString.Key.foregroundColor : Colors.Elements.element, .paragraphStyle: paragraph]
 
         let attributedString1 = NSMutableAttributedString(string:"Что можно делать в", attributes:attrs1)
 

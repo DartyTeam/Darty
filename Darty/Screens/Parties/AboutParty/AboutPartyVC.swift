@@ -27,27 +27,18 @@ protocol PartiesRequestsListenerProtocol {
 final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
 
     private enum Constants {
-        static let titleElementsFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
-        static let titleLabelsFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
-        static let contentLabelsFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
-        
-        static let locationTitleText = "Местоположение"
         static let themeTitleText = "Тематика"
+        static let priceTitleText = "Цена"
         static let guestsText = "Приглашенные гости"
         static let emptyGuestsText = "Пока нет приглашенных гостей"
         static let locationButtonText = "Показать на карте"
-        static let imagesText = "Изображения"
-        
         static let sectionInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
-        
         static let ownerImageSize: CGFloat = 44
-        static let ownerNameFont: UIFont? = .sfProDisplay(ofSize: 12, weight: .semibold)
-        static let ownerRatingFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
-        static let partyDescriptionFint: UIFont? = .sfProRounded(ofSize: 10, weight: .regular)
+        static let actionButtonBottomOffset: CGFloat = 8
     }
     
     // MARK: - UI Elements
-    let scrollView: UIScrollView = {
+    private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
         return scrollView
@@ -56,85 +47,87 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     private let backView: UIView = {
         let view = UIView()
         view.layer.cornerCurve = .continuous
-        view.backgroundColor = .tertiarySystemGroupedBackground
-        view.layer.cornerRadius = 16
+        view.backgroundColor = Colors.Backgorunds.group
+        view.layer.cornerRadius = 20
         return view
     }()
 
-    private let dateLabelBackView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
-        view.layer.cornerRadius = 10
-        return view
-    }()
     private let dateLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleElementsFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
         return label
     }()
 
-    private let minAgeLabelBackView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
-        view.layer.cornerRadius = 10
-        return view
-    }()
     private let minAgeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleElementsFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
         return label
     }()
 
-    private let timeLabelBackView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray3.withAlphaComponent(0.5)
-        view.layer.cornerRadius = 10
-        return view
-    }()
     private let timeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleElementsFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
+        return label
+    }()
+
+    private let partyNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .title
+        label.textColor = Colors.Text.main
+        label.numberOfLines = 0
+        label.textAlignment = .center
         return label
     }()
     
     private let themeTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleLabelsFont
+        label.font = .subtitle
         label.text = Constants.themeTitleText
+        label.textColor = Colors.Text.secondary
         return label
     }()
     
     private let themeLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.contentLabelsFont
+        label.font = .subtitle
+        label.textColor = Colors.Text.main
         return label
     }()
     
-    private lazy var themeView: UIView = {
-        let view = UIView()
-        view.addSubview(themeTitleLabel)
-        view.addSubview(themeLabel)
-        themeTitleLabel.snp.makeConstraints { make in
-            make.left.centerY.equalToSuperview()
-        }
-        themeLabel.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
-            make.left.equalTo(themeTitleLabel.snp.right).offset(8)
-            make.right.equalToSuperview()
-        }
-        return view
+    private lazy var themeStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [themeTitleLabel, themeLabel], axis: .horizontal, spacing: 8)
+        stackView.distribution = .equalSpacing
+        return stackView
     }()
-    
-    private let locationTitleLabel: UILabel = {
+
+    private let priceTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.titleLabelsFont
-        label.text = Constants.locationTitleText
+        label.font = .subtitle
+        label.text = Constants.priceTitleText
+        label.textColor = Colors.Text.secondary
         return label
     }()
-    
+
+    private let priceLabel: UILabel = {
+        let label = UILabel()
+        label.font = .subtitle
+        label.textColor = Colors.Text.main
+        return label
+    }()
+
+    private lazy var priceStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [priceTitleLabel, priceLabel], axis: .horizontal, spacing: 8)
+        stackView.distribution = .equalSpacing
+        return stackView
+    }()
+
     private let locationLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.contentLabelsFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
         label.numberOfLines = 0
         label.textAlignment = .center
         return label
@@ -151,13 +144,13 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
             systemName: "map",
             withConfiguration: mapIconConfig
         )?.withTintColor(
-            .systemOrange,
+            Colors.Elements.secondaryElement,
             renderingMode: .alwaysOriginal
         )
         button.setImage(mapIcon, for: .normal)
-        button.backgroundColor = .tertiarySystemFill
-        button.layer.cornerRadius = 16
-        button.tintColor = .systemOrange
+        button.backgroundColor = Colors.Backgorunds.plate
+        button.layer.cornerRadius = 12
+        button.tintColor = Colors.Elements.secondaryElement
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
         button.addTarget(
@@ -166,13 +159,6 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
             for: .touchUpInside
         )
         return button
-    }()
-    
-    private let imagesTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = Constants.contentLabelsFont
-        label.text = Constants.imagesText
-        return label
     }()
     
     private lazy var imagesCollectionView: UICollectionView = {
@@ -198,7 +184,8 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     
     private let guestsTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.contentLabelsFont
+        label.font = .title
+        label.textColor = Colors.Text.main
         label.text = Constants.emptyGuestsText
         return label
     }()
@@ -230,13 +217,15 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     
     private let ownerNameLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.ownerNameFont
+        label.font = .subtitle
+        label.textColor = Colors.Text.main
         return label
     }()
     
     private let ownerRatingLabel: UILabel = {
         let label = UILabel()
-        label.font = Constants.ownerRatingFont
+        label.font = .textOnPlate
+        label.textColor = Colors.Text.secondary
         label.textAlignment = .left
         return label
     }()
@@ -244,25 +233,23 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     private let partyDescriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
-        label.font = Constants.partyDescriptionFint
+        label.font = .message
+        label.textColor = Colors.Text.main
         return label
     }()
 
     private let cancelPartyButton: DButton = {
-        let button = DButton(title: "Отменить вечеринку 􀆄")
-        button.backgroundColor = .systemRed
+        let button = DButton(title: "Отменить вечеринку 􀆄", type: .secondary, style: .clear)
         button.addTarget(
             self,
             action: #selector(cancelPartyAction),
             for: .touchUpInside
         )
-        button.isHidden = true
         return button
     }()
 
     private let actionButton: DButton = {
         let button = DButton(title: "Отправить заявку 􀝻")
-        button.backgroundColor = .systemOrange
         button.addTarget(
             self,
             action: #selector(actionButtonAction),
@@ -270,8 +257,6 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         )
         return button
     }()
-
-    private lazy var buttonsStackView = UIStackView(arrangedSubviews: [cancelPartyButton, actionButton], axis: .horizontal, spacing: 8)
     
     // MARK: - Properties
     private var waitingGuestsRequests: [PartyRequestModel] = []
@@ -321,6 +306,13 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         setupNavigationBar()
         setIsTabBarHidden(false)
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let bottomInset = view.safeAreaInsets.bottom + actionButton.frame.size.height + Constants.actionButtonBottomOffset
+        guard scrollView.contentInset.bottom != bottomInset else { return }
+        scrollView.contentInset.bottom = bottomInset
+    }
     
     func partyRequestsDidChange(_ partyRequests: [PartyRequestModel]) {
         partiesRequestsListenerDelegate?.partyRequestsDidChange(partyRequests)
@@ -362,6 +354,7 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     }
     
     private func setupParty() {
+        partyNameLabel.text = party.name
         dateLabel.text = DateFormatter.ddMMMM.string(from: party.date)
         minAgeLabel.text = "\(party.minAge)+"
         timeLabel.text = DateFormatter.HHmm.string(from: party.startTime)
@@ -369,8 +362,17 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
             timeLabel.text?.append(" 􀄫 \(DateFormatter.HHmm.string(from: endTime))")
         }
         locationLabel.text = party.address
-        themeLabel.text = party.type
-        imagesTitleLabel.text = "Изображения " + String(party.imageUrlStrings.count)
+        themeLabel.text = party.type.description
+
+        switch party.priceType {
+        case .free:
+            priceLabel.text = PriceType.free.description
+        case .money:
+            priceLabel.text = "\(party.moneyPrice ?? 0) ₽"
+        case .another:
+            priceLabel.text = party.anotherPrice
+        }
+
         partyDescriptionLabel.text = party.description
         getOwnerData()
     }
@@ -402,20 +404,12 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     
     private func setupNavigationBar() {
         title = party.name
-        clearNavBar = false
-        let shareIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-        let shareBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "square.and.arrow.up",
-                           withConfiguration: shareIconConfig
-                          )?.withTintColor(
-                            Colors.Elements.element,
-                            renderingMode: .alwaysOriginal
-                          ),
-            style: .plain,
+        rightBarButtonItems = [UIBarButtonItem(
+            symbol: .square.andArrowUp,
+            type: .normal,
             target: self,
             action: #selector(shareAction)
-        )
-        navigationItem.rightBarButtonItem = shareBarButtonItem
+        )]
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
@@ -423,17 +417,14 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         view.backgroundColor = .systemBackground
         view.addSubview(scrollView)
         scrollView.addSubview(backView)
-        backView.addSubview(dateLabelBackView)
-        dateLabelBackView.addSubview(dateLabel)
-        backView.addSubview(minAgeLabelBackView)
-        minAgeLabelBackView.addSubview(minAgeLabel)
-        backView.addSubview(timeLabelBackView)
-        timeLabelBackView.addSubview(timeLabel)
-        backView.addSubview(themeView)
-        backView.addSubview(locationTitleLabel)
+        backView.addSubview(minAgeLabel)
+        backView.addSubview(timeLabel)
+        backView.addSubview(dateLabel)
+        backView.addSubview(partyNameLabel)
+        backView.addSubview(themeStackView)
+        backView.addSubview(priceStackView)
         backView.addSubview(locationLabel)
         backView.addSubview(locationButton)
-        scrollView.addSubview(imagesTitleLabel)
         scrollView.addSubview(imagesCollectionView)
         scrollView.addSubview(guestsStackView)
         guestsStackView.addArrangedSubview(guestsTitleLabel)
@@ -442,8 +433,29 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         scrollView.addSubview(ownerNameLabel)
         scrollView.addSubview(ownerRatingLabel)
         scrollView.addSubview(partyDescriptionLabel)
-        buttonsStackView.distribution = .fillEqually
-        view.addSubview(buttonsStackView)
+        view.addSubview(actionButton)
+
+        if party.isCanceled {
+            setupCanceledParty()
+        } else {
+            switch type {
+            case .approved:
+                changeToApprovedButton()
+            case .waiting:
+                cancelPartyButton.setTitle("Отменить заявку 􀆄", for: .normal)
+                changeToSendButton()
+            case .my:
+                let count = waitingGuestsRequests.count
+                if count > 0 {
+                    actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
+                } else {
+                    actionButton.setTitle("Новых заявок нет", for: .normal)
+                    actionButton.isEnabled = false
+                }
+            case .archive, .search:
+                break
+            }
+        }
     }
     
     private func setupConstraints() {
@@ -452,71 +464,64 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         }
 
         backView.snp.makeConstraints { make in
-            make.top.left.right.equalToSuperview().inset(20)
-        }
-        
-        dateLabelBackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(16)
-            make.left.equalToSuperview().offset(32)
-        }
-        dateLabel.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(8)
-            make.top.bottom.equalToSuperview().inset(5)
+            make.top.equalToSuperview().offset(24)
+            make.left.right.equalToSuperview().inset(20)
         }
 
-        timeLabelBackView.snp.makeConstraints { make in
+        dateLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(14)
+            make.left.equalToSuperview().offset(20)
+        }
+
+        timeLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(minAgeLabel.snp.centerY)
         }
-        timeLabel.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(8)
-            make.top.bottom.equalToSuperview().inset(5)
-        }
-        
-        minAgeLabelBackView.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-32)
+
+        minAgeLabel.snp.makeConstraints { make in
+            make.right.equalToSuperview().offset(-20)
             make.centerY.equalTo(dateLabel.snp.centerY)
         }
-        minAgeLabel.snp.makeConstraints { make in
-            make.left.right.equalToSuperview().inset(8)
-            make.top.bottom.equalToSuperview().inset(5)
+
+        partyNameLabel.snp.makeConstraints { make in
+            make.top.equalTo(dateLabel.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(20)
         }
         
-        themeView.snp.makeConstraints { make in
-            make.top.equalTo(dateLabel.snp.top).offset(32)
+        themeStackView.snp.makeConstraints { make in
+            make.top.equalTo(partyNameLabel.snp.bottom).offset(24)
             make.centerX.equalToSuperview()
+            make.left.greaterThanOrEqualToSuperview().offset(20)
+            make.right.lessThanOrEqualToSuperview().inset(20)
         }
-        
-        locationTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(themeLabel.snp.bottom).offset(32)
+
+        priceStackView.snp.makeConstraints { make in
+            make.top.equalTo(themeStackView.snp.bottom).offset(16)
             make.centerX.equalToSuperview()
+            make.left.greaterThanOrEqualToSuperview().offset(20)
+            make.right.lessThanOrEqualToSuperview().inset(20)
         }
         
         locationLabel.snp.makeConstraints { make in
-            make.top.equalTo(locationTitleLabel.snp.bottom).offset(12)
-            make.left.right.equalToSuperview().inset(16)
+            make.top.equalTo(priceLabel.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(20)
         }
         
         locationButton.snp.makeConstraints { make in
-            make.top.equalTo(locationLabel.snp.bottom).offset(8)
+            make.top.equalTo(locationLabel.snp.bottom).offset(10)
             make.centerX.equalToSuperview()
-            make.height.equalTo(32)
-            make.bottom.equalToSuperview().offset(-20)
-        }
-        
-        imagesTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(locationButton.snp.bottom).offset(32)
-            make.left.equalToSuperview().offset(20)
+            make.height.equalTo(24)
+            make.bottom.equalToSuperview().offset(-14)
         }
         
         imagesCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(imagesTitleLabel.snp.bottom).offset(16)
+            make.top.equalTo(backView.snp.bottom).offset(24)
             make.left.right.equalToSuperview()
             make.height.equalTo(96)
         }
 
         guestsStackView.snp.makeConstraints { make in
-            make.top.equalTo(imagesCollectionView.snp.bottom).offset(32)
+            make.top.equalTo(imagesCollectionView.snp.bottom).offset(24)
             make.left.right.equalToSuperview()
             make.width.equalTo(view.frame.size.width) // С помощью этого мы делаем scroll view на всю ширину
         }
@@ -530,14 +535,14 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
         }
         
         ownerImageView.snp.makeConstraints { make in
-            make.top.equalTo(guestsStackView.snp.bottom).offset(32)
+            make.top.equalTo(guestsStackView.snp.bottom).offset(24)
             make.left.equalToSuperview().offset(26)
             make.size.equalTo(Constants.ownerImageSize)
         }
         
         ownerNameLabel.snp.makeConstraints { make in
             make.top.equalTo(ownerImageView.snp.top)
-            make.left.equalTo(ownerImageView.snp.right).offset(10)
+            make.left.equalTo(ownerImageView.snp.right).offset(8)
             make.right.equalTo(ownerRatingLabel.snp.left).offset(-4)
         }
         
@@ -551,37 +556,31 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
             make.top.equalTo(ownerNameLabel.snp.bottom).offset(6)
             make.left.equalTo(ownerNameLabel.snp.left)
             make.right.equalToSuperview().inset(10)
-            make.bottom.equalToSuperview().offset(-Constants.ownerImageSize - 128)
+            make.bottom.equalToSuperview()
         }
 
-        buttonsStackView.snp.makeConstraints { make in
+        actionButton.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(8)
+            make.height.equalTo(44)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(Constants.actionButtonBottomOffset)
         }
 
-        if party.isCanceled {
-            setupCanceledParty()
-        } else {
+        if !party.isCanceled {
             switch type {
-            case .search:
-                break
-            case .approved:
-                changeToApprovedButton()
-            case .waiting:
-                cancelPartyButton.isHidden = false
-                cancelPartyButton.setTitle("Отменить заявку 􀆄", for: .normal)
-                changeToSendButton()
-            case .my:
-                cancelPartyButton.isHidden = false
-                let count = waitingGuestsRequests.count
-                if count > 0 {
-                    actionButton.setTitle("Новые заявки \(count) 􀋙", for: .normal)
-                } else {
-                    actionButton.setTitle("Новых заявок нет", for: .normal)
-                    actionButton.isEnabled = false
+            case .waiting, .my:
+                scrollView.addSubview(cancelPartyButton)
+                partyDescriptionLabel.snp.remakeConstraints { make in
+                    make.top.equalTo(ownerNameLabel.snp.bottom).offset(6)
+                    make.left.equalTo(ownerNameLabel.snp.left)
+                    make.right.equalToSuperview().inset(10)
                 }
-            case .archive:
+                cancelPartyButton.snp.makeConstraints { make in
+                    make.top.equalTo(partyDescriptionLabel.snp.bottom).offset(24)
+                    make.left.right.equalToSuperview().inset(20)
+                    make.height.equalTo(DButtonStyle.clear.height)
+                    make.bottom.equalToSuperview()
+                }
+            case .archive, .search, .approved:
                 break
             }
         }
@@ -589,9 +588,9 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
 
     private func setupCanceledParty() {
         UIView.animate(withDuration: 0.3) {
-            self.cancelPartyButton.isHidden = true
             self.actionButton.isEnabled = false
             self.actionButton.setTitle("Вечеринка отменена", for: UIControl.State())
+            self.cancelPartyButton.isHidden = true
         }
     }
     
@@ -655,26 +654,27 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func cancelPartyAction() {
-        print("asidojasoidjasidjioasdjioaijosdjioasjidojaiosd")
-        let alertController = UIAlertController(title: "Вы уверены?", message: "Ваша вечеринка с записанными гостями будет безвозвратно удалена", preferredStyle: .actionSheet)
+        let alertController = UIAlertController(
+            title: "Вы уверены?",
+            message: "Ваша вечеринка с записанными гостями будет безвозвратно удалена",
+            preferredStyle: .actionSheet
+        )
         let okAction = UIAlertAction(title: "Да, отменить", style: .destructive) { (_) in
-            SPAlert.present(title: "Удаление...", preset: .spinner)
+            SPAlert.present(title: "Подождите...", preset: .spinner)
             FirestoreService.shared.changeToCanceled(party: self.party) { result in
                 DispatchQueue.main.async {
                     SPAlert.dismiss()
-                }
-                switch result {
-                case .success():
-                    self.setupCanceledParty()
-#warning("Нужно добавить отправку уведомлений об отмене вечеринки")
-                case .failure(_):
-                    break
+                    switch result {
+                    case .success():
+                        SPAlert.present(title: "", message: "Вечеринка успешно отменена", preset: .done)
+                        self.setupCanceledParty()
+                    case .failure(_):
+                        break
+                    }
                 }
             }
         }
-        let dismissAction = UIAlertAction(title: "Нет, оставить", style: .cancel) { _ in
-            
-        }
+        let dismissAction = UIAlertAction(title: "Нет, оставить", style: .cancel)
         alertController.addAction(dismissAction)
         alertController.addAction(okAction)
         present(alertController, animated: true, completion: nil)
@@ -710,7 +710,6 @@ final class AboutPartyVC: BaseController, PartiesRequestsListenerProtocol {
     }
     
     @objc private func showOnMapAction() {
-        print("jjuhiuhijuihjojoijiojijoji")
         let mapVC = MapVC(party: party)
         navigationController?.pushViewController(mapVC, animated: true)
     }

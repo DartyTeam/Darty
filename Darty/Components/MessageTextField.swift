@@ -7,66 +7,77 @@
 
 import UIKit
 
-enum MessageSendButtonColor {
-    case tealBlue
-    case orangeYellow
-}
-
 final class MessageTextField: UITextField {
+
+    // MARK: - Constants
+    static let defaultHeight: CGFloat = 44
     
+    // MARK: - UI Elements
     let sendButton = UIButton(type: .system)
     let smileButton = UIButton(type: .system)
-    
-    var color: MessageSendButtonColor = .tealBlue {
-        didSet {
-            switch color {
-            case .tealBlue:
-                tintColor = .systemTeal
-            case .orangeYellow:
-                sendButton.setImage(UIImage(named: "sendYellowIcon")?.withRenderingMode(.alwaysOriginal), for: .normal)
-                smileButton.setImage(UIImage(systemName: "smiley")?.withTintColor(.systemOrange, renderingMode: .alwaysOriginal), for: .normal)
-                tintColor = .systemOrange
-            }
-        }
-    }
-    
+
+    // MARK: - Properties
+    private var selectedEmoji = false
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        backgroundColor = .white
+
+        textColor = Colors.Text.main
+        backgroundColor = Colors.Backgorunds.inputView
+        setPlaceHolderTextColor(Colors.Text.placeholder)
         placeholder = "Введите сообщение..."
         font = UIFont.sfProDisplay(ofSize: 14, weight: .regular)
-        clearButtonMode = .whileEditing
-        layer.cornerRadius = 18
-        layer.cornerCurve = .continuous
+        layer.cornerRadius = 22
         
         clipsToBounds = false
         
-        layer.borderColor = UIColor(red: 189, green: 189, blue: 189, alpha: 40).cgColor
-        layer.borderWidth = 0.2
-        applySketchShadow(color: #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1), alpha: 50, x: 0, y: 0, blur: 12, spread: -3)
-        
-        smileButton.setImage(UIImage(systemName: "smiley"), for: .normal)
+        layer.borderColor = Colors.Elements.line.cgColor
+        layer.borderWidth = 1
+//        applySketchShadow(color: #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1), alpha: 50, x: 0, y: 0, blur: 12, spread: -3)
+
+        let smileImage = UIImage(.face.smiling).withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
+            ofSize: ButtonSymbolType.small.size,
+            weight: ButtonSymbolType.small.weight
+        )))
+        smileButton.setImage(smileImage, for: .normal)
         
         leftView = smileButton
         leftView?.frame = CGRect(x: 0, y: 0, width: 19, height: 19)
         leftViewMode = .always
         
-        sendButton.setImage(UIImage(named: "sendYellowIcon")?.withRenderingMode(.alwaysOriginal), for: .normal)
-        
+        sendButton.setImage(UIImage(named: "paperplane")?.withRenderingMode(.alwaysOriginal), for: .normal)
+        sendButton.isHidden = true
+
         rightView = sendButton
         rightView?.frame = CGRect(x: 0, y: 0, width: 19, height: 19)
         rightViewMode = .always
         
         smileButton.addTarget(self, action: #selector(openEmojis), for: .touchUpInside)
-        
-        addTarget(self, action: #selector(clearSelectedEmoji), for: .editingDidEnd)
+
+        self.addTarget(
+            self,
+            action: #selector(self.textFieldSelected),
+            for: [.editingDidBegin]
+        )
+        self.addTarget(
+            self,
+            action: #selector(self.textFieldDeselected),
+            for: [.editingDidEnd, .editingDidEndOnExit, .touchUpOutside]
+        )
+        self.addTarget(self, action: #selector(textFieldEditingAction), for: .allEditingEvents)
     }
-    
-    var selectedEmoji = false
-    
-    @objc private func clearSelectedEmoji() {
+
+    @objc private func textFieldSelected() {
+        animateBorderColor(toColor: Colors.Elements.element, duration: 0.3)
+    }
+
+    @objc private func textFieldDeselected() {
+        animateBorderColor(toColor: Colors.Elements.line, duration: 0.3)
         selectedEmoji = false
+    }
+
+    @objc private func textFieldEditingAction() {
+        sendButton.isHidden = text?.isEmpty ?? true
     }
     
     @objc private func openEmojis() {

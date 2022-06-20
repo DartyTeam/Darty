@@ -184,7 +184,7 @@ extension ChangePhoneVC {
             make.left.right.equalToSuperview().inset(20)
             make.width.equalTo(view.frame.size.width - 40)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
         }
 
         enterPhoneStackView.snp.makeConstraints { make in

@@ -36,20 +36,14 @@ final class SetImageView: BlurEffectView {
         return imageView
     }()
     
-    // MARK: - Properties
+    // MARK: - Delegate
     var delegate: SetImageDelegate?
-    var color: UIColor! {
-        didSet {
-            self.plusIcon.image = self.plusIcon.image?.withTintColor(color, renderingMode: .alwaysOriginal)
-        }
-    }
     
     // MARK: - Lifecycle
-    init(delegate: SetImageDelegate? = nil, color: UIColor) {
+    init(delegate: SetImageDelegate? = nil) {
         self.delegate = delegate
-        self.color = color
         super.init()
-        plusIcon.image = plusIcon.image?.withTintColor(color, renderingMode: .alwaysOriginal)
+        plusIcon.image = plusIcon.image?.withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal)
         setupView()
         setupConstraints()
         addTap()
@@ -60,12 +54,12 @@ final class SetImageView: BlurEffectView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Setup
     func setup(phpicker: PHPickerViewController) {
         phpicker.delegate = self
         self.phpicker = phpicker
     }
 
-    // MARK: - Setup
     private func setupView() {
         contentView.addSubview(plusIcon)
         contentView.addSubview(imageView)

@@ -8,10 +8,10 @@
 import Foundation
 import FirebaseFirestore
 
-enum PriceType: String, CaseIterable {
-    case free = "Бесплатно 􀎸"
-    case money = "Деньги 􀭿"
-    case another = "Другое 􀍣"
+enum PriceType: String, Codable, CaseIterable {
+    case free
+    case money
+    case another
 
     var index: Int {
         switch self {
@@ -27,137 +27,67 @@ enum PriceType: String, CaseIterable {
     static var allCasesForSegmentedControl: [String] {
         var array = [String]()
         for item in self.allCases {
-            array.append(item.rawValue)
+            array.append(item.description)
         }
         return array
     }
 
-//    var description: String {
-//        get {
-//            switch self {
-//            case .free:
-//                return "Бесплатно 􀎸"
-//            case .money:
-//                return "Деньги 􀭿"
-//            case .another:
-//                return "Другое 􀍣"
-//            }
-//        }
-//    }
-//
-//    static func getPriceType(priceType: String) -> PriceType {
-//        switch priceType {
-//        case "Бесплатно 􀎸":
-//            return .free
-//        case "Деньги 􀭿":
-//            return .money
-//        case "Другое 􀍣":
-//            return .another
-//        default:
-//            return .free
-//        }
-//    }
+    var description: String {
+        get {
+            switch self {
+            case .free:
+                return "Бесплатно 􀎸"
+            case .money:
+                return "Деньги 􀭿"
+            case .another:
+                return "Другое 􀍣"
+            }
+        }
+    }
 }
 
-//􀻐
+enum PartyType: String, Codable, CaseIterable {
+    case music
+    case dance
+    case hangout
+    case poem
+    case art
+    case celebrate
+    case game
+    case science
+    case it
+    case cinema
+    case other
 
-//extension PriceType: Codable {
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        let rawValue = try container.decode(String.self)
-//        self = PriceType.getPriceType(priceType: rawValue)
-//    }
-//
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        try container.encode(self.description)
-//    }
-//}
-
-enum PartyType: String, CaseIterable {
-    case music = "Музыкальная 􀫀"
-    case dance = "Танцевальная 􀳾􀝢􀝻"
-    case hangout = "Вписка 􀆿"
-    case poem = "Поэтическая 􀉇"
-    case art = "Творческая 􀝥"
-    case celebrate = "Праздничная 􀳇"
-    case game = "Игровая 􀛸"
-    case science = "Научная 􀬗"
-    case it = "Домашний хакатон 􀙚"
-    case cinema = "Домашний кинотеатр 􀪃"
-    case other = "Особая тематика 􀣳"
-
-//    var description: String {
-//        get {
-//            switch self {
-//            case .music:
-//                return "Музыкальная 􀫀"
-//            case .dance:
-//                return "Танцевальная 􀳾􀝢􀝻"
-//            case .hangout:
-//                return "Вписка 􀆿"
-//            case .poem:
-//                return "Поэтическая 􀉇"
-//            case .art:
-//                return "Творческая 􀝥"
-//            case .celebrate:
-//                return "Праздничная 􀳇"
-//            case .game:
-//                return "Игровая 􀛸"
-//            case .science:
-//                return "Научная 􀬗"
-//            case .it:
-//                return "Домашний хакатон 􀙚"
-//            case .cinema:
-//                return "Домашний кинотеатр 􀪃"
-//            case .other:
-//                return "Особая тематика 􀣳"
-//            }
-//        }
-//    }
-//
-//    static func getPartyType(partyType: String) -> PartyType {
-//        switch partyType {
-//        case "Музыкальная 􀫀":
-//            return .music
-//        case "Танцевальная 􀳾􀝢􀝻":
-//            return .dance
-//        case "Вписка 􀆿":
-//            return .hangout
-//        case "Поэтическая 􀉇":
-//            return .poem
-//        case "Творческая 􀝥":
-//            return .art
-//        case "Праздничная 􀳇":
-//            return .celebrate
-//        case "Игровая 􀛸":
-//            return .game
-//        case "Научная 􀬗":
-//            return .science
-//        case "Домашний хакатон 􀙚":
-//            return .it
-//        case "Домашний кинотеатр 􀪃":
-//            return .cinema
-//        case "Особая тематика 􀣳":
-//            return .other
-//        default:
-//            return .other
-//        }
-//    }
+    var description: String {
+        get {
+            switch self {
+            case .music:
+                return "Музыкальная 􀫀"
+            case .dance:
+                return "Танцевальная 􀳾􀝢􀝻"
+            case .hangout:
+                return "Вписка 􀆿"
+            case .poem:
+                return "Поэтическая 􀉇"
+            case .art:
+                return "Творческая 􀝥"
+            case .celebrate:
+                return "Праздничная 􀳇"
+            case .game:
+                return "Игровая 􀛸"
+            case .science:
+                return "Научная 􀬗"
+            case .it:
+                return "Домашний хакатон 􀙚"
+            case .cinema:
+                return "Домашний кинотеатр 􀪃"
+            case .other:
+                return "Особая тематика 􀣳"
+            }
+        }
+    }
 }
-
-//extension PartyType: Codable {
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        let rawValue = try container.decode(String.self)
-//        self = PartyType.getPartyType(partyType: rawValue)
-//    }
-//
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.singleValueContainer()
-//        try container.encode(self.description)
-//    }
-//}
 
 enum PartyModelKeys {
     static let id = "id"
@@ -183,21 +113,20 @@ enum PartyModelKeys {
 }
 
 struct PartyModel: Hashable, Decodable {
-    
     var id: String
     var city: String
     var location: GeoPoint
     var address: String
     var userId: String
     var imageUrlStrings: [String]
-    var type: PartyType.RawValue
+    var type: PartyType
     var maxGuests: Int
     var curGuests: Int
     var date: Date
     var startTime: Date
     var endTime: Date?
     var name: String
-    var priceType: PriceType.RawValue
+    var priceType: PriceType
     var moneyPrice: Int?
     var anotherPrice: String?
     var description: String
@@ -209,7 +138,7 @@ struct PartyModel: Hashable, Decodable {
          address: String,
          userId: String,
          imageUrlStrings: [String],
-         type: PartyType.RawValue,
+         type: PartyType,
          maxGuests: Int,
          curGuests: Int,
          id: String,
@@ -219,7 +148,7 @@ struct PartyModel: Hashable, Decodable {
          name: String,
          moneyPrice: Int?,
          anotherPrice: String?,
-         priceType: PriceType.RawValue,
+         priceType: PriceType,
          description: String,
          minAge: Int,
          isCanceled: Bool = false) {
@@ -257,19 +186,20 @@ struct PartyModel: Hashable, Decodable {
             let address = data[PartyModelKeys.address] as? String,
             let userId = data[PartyModelKeys.userId] as? String,
             let imageUrlStrings = data[PartyModelKeys.imageUrlStrings] as? [String],
-            let type = data[PartyModelKeys.type] as? PartyType.RawValue,
+            let typeString = data[PartyModelKeys.type] as? String,
+                let type = PartyType(rawValue: typeString),
             let maxGuests = data[PartyModelKeys.maxGuests] as? Int,
             let curGuests = data[PartyModelKeys.curGuests] as? Int,
             let date = (data[PartyModelKeys.date] as? Timestamp)?.dateValue(),
             let startTime = (data[PartyModelKeys.startTime] as? Timestamp)?.dateValue(),
             let name = data[PartyModelKeys.name] as? String,
-            let priceType = data[PartyModelKeys.priceType] as? PriceType.RawValue,
+            let priceTypeString = data[PartyModelKeys.priceType] as? String,
+                let priceType = PriceType(rawValue: priceTypeString),
             let description = data[PartyModelKeys.description] as? String,
             let id = data[PartyModelKeys.uid] as? String,
             let minAge = data[PartyModelKeys.minAge] as? Int,
             let isCanceled = data[PartyModelKeys.isCanceled] as? Bool
         else {
-            print("asdoijasoidjaosidjaoisdjaiosjd")
             return nil
         }
         
@@ -306,7 +236,7 @@ struct PartyModel: Hashable, Decodable {
         rep[PartyModelKeys.address] = address
         rep[PartyModelKeys.userId] = userId
         rep[PartyModelKeys.imageUrlStrings] = imageUrlStrings
-        rep[PartyModelKeys.type] = type
+        rep[PartyModelKeys.type] = type.rawValue
         rep[PartyModelKeys.maxGuests] = maxGuests
         rep[PartyModelKeys.curGuests] = curGuests
         rep[PartyModelKeys.date] = date
@@ -315,7 +245,7 @@ struct PartyModel: Hashable, Decodable {
         rep[PartyModelKeys.name] = name
         rep[PartyModelKeys.moneyPrice] = moneyPrice
         rep[PartyModelKeys.anotherPrice] = anotherPrice
-        rep[PartyModelKeys.priceType] = priceType
+        rep[PartyModelKeys.priceType] = priceType.rawValue
         rep[PartyModelKeys.description] = description
         rep[PartyModelKeys.uid] = id
         rep[PartyModelKeys.minAge] = minAge
@@ -335,7 +265,7 @@ struct PartyModel: Hashable, Decodable {
         guard let filter = filter else { return true }
         if filter.isEmpty { return true }
         let lowercasedFilter = filter.lowercased()
-        return name.lowercased().contains(lowercasedFilter) || type.lowercased().contains(lowercasedFilter)
+        return name.lowercased().contains(lowercasedFilter) || type.rawValue.lowercased().contains(lowercasedFilter)
     }
 }
 

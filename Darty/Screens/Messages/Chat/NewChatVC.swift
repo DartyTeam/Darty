@@ -12,6 +12,12 @@ import RealmSwift
 import AVFoundation
 import PhotosUI
 import SPAlert
+
+enum MessageDefaults {
+    static let bubbleColorOutgoig = Colors.Elements.secondaryElement
+    static let bubbleColorIncoming = Colors.Backgorunds.plate
+    static let messageTimeLabelOffset: CGFloat = 8
+}
     
 class NewChatVC: MessagesViewController {
 
@@ -20,12 +26,10 @@ class NewChatVC: MessagesViewController {
         static let inputBarButtonsSize: CGSize = CGSize(width: 48, height: 48)
         static let numberOfMessages = 12
         static let maxPhotosForChoose = 5
-        static let avatarSize = CGSize(width: 34, height: 34)
+        static let avatarSize: CGFloat = 34
 
         static let messagePlaceholder = "Сообщение..."
         static let sendingMessageInProccessPlaceholder = "Отправка..."
-        static let messagePlaceholderColor = #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1)
-        static let boldIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .medium))
 
         static let recordButtonSpace: CGFloat = 100
         static let deleteButtonSpace: CGFloat = 200
@@ -42,40 +46,40 @@ class NewChatVC: MessagesViewController {
     
     private lazy var micButton: InputBarButtonItem = {
         let inputBarButtonItem = InputBarButtonItem(type: .system)
-        inputBarButtonItem.image = UIImage(systemName: "mic")
+        let micImage = UIImage(.mic).withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
+            ofSize: ButtonSymbolType.small.size,
+            weight: ButtonSymbolType.small.weight
+        )))
+        inputBarButtonItem.image = micImage
         inputBarButtonItem.addGestureRecognizer(micLongPressGesture)
         inputBarButtonItem.addGestureRecognizer(micUpSwipeGesure)
-        inputBarButtonItem.tintColor = .systemTeal
+        inputBarButtonItem.tintColor = Colors.Elements.element
         inputBarButtonItem.setSize(Constants.inputBarButtonsSize, animated: false)
         return inputBarButtonItem
     }()
-    
+
     private let leftBarButtonView: UIView = {
         return UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
     }()
     
     private lazy var avatarImageView: UIImageView = {
-        let imageView = UIImageView(frame: CGRect(
-            x: 5,
-            y: 3,
-            width: Constants.avatarSize.width,
-            height: Constants.avatarSize.height
-        ))
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(openRecipientAccountInfo))
-        imageView.addGestureRecognizer(tapGestureRecognizer)
+        let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = Constants.avatarSize.height / 2
+        imageView.layer.cornerRadius = Constants.avatarSize / 2
         imageView.isSkeletonable = true
         imageView.isUserInteractionDisabledWhenSkeletonIsActive = true
+        imageView.isUserInteractionEnabled = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(openRecipientAccountInfo))
+        imageView.addGestureRecognizer(tapGestureRecognizer)
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
     
     private let titleLabel: UILabel = {
-        let label = UILabel(frame: CGRect(x: 48, y: 0, width: UIScreen.main.bounds.size.width - 48 - 176, height: 25))
-        label.textAlignment = .left
-        label.font = UIFont.sfProRounded(ofSize: 16, weight: .semibold)
+        let label = UILabel()
+        label.textColor = Colors.Text.main
+        label.font = .title
         label.adjustsFontSizeToFitWidth = true
         label.isSkeletonable = true
         label.skeletonCornerRadius = 12
@@ -83,11 +87,11 @@ class NewChatVC: MessagesViewController {
     }()
     
     private let subtitleLabel: UILabel = {
-        let label = UILabel(frame: CGRect(x: 48, y: 22, width: 140, height: 20))
-        label.textAlignment = .left
-        label.font = UIFont.sfProRounded(ofSize: 12, weight: .medium)
+        let label = UILabel()
+        label.font = .subtitle
         label.adjustsFontSizeToFitWidth = true
-        label.textColor = .secondaryLabel
+        label.textColor = Colors.Text.secondary
+        label.isHidden = true
         return label
     }()
     
@@ -103,39 +107,19 @@ class NewChatVC: MessagesViewController {
         return picker
     }()
 
-    private let callBarButtonItem: UIBarButtonItem = {
-        let button = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 44, height: 44)))
-        button.setImage(
-            UIImage(
-                systemName: "phone",
-                withConfiguration: Constants.boldIconConfig)?
-                .withTintColor(
-                    .systemTeal,
-                    renderingMode: .alwaysOriginal
-                ),
-            for: UIControl.State()
-        )
-        button.addTarget(self, action: #selector(callAction), for: .touchUpInside)
-        button.alpha = 0
-        return UIBarButtonItem(customView: button)
-    }()
+    private lazy var callBarButtonItem = UIBarButtonItem(
+        symbol: .phone,
+        type: .normal,
+        target: self,
+        action: #selector(callAction)
+    )
 
-    private let facetimeBarButtonItem: UIBarButtonItem = {
-        let button = UIButton(frame: CGRect(origin: .zero, size: CGSize(width: 44, height: 44)))
-        button.setImage(
-            UIImage(
-                systemName: "video",
-                withConfiguration: Constants.boldIconConfig)?
-                .withTintColor(
-                    .systemTeal,
-                    renderingMode: .alwaysOriginal
-                ),
-            for: UIControl.State()
-        )
-        button.addTarget(self, action: #selector(facetimeAction), for: .touchUpInside)
-        button.alpha = 0
-        return UIBarButtonItem(customView: button)
-    }()
+    private lazy var facetimeBarButtonItem = UIBarButtonItem(
+        symbol: .video,
+        type: .normal,
+        target: self,
+        action: #selector(facetimeAction)
+    )
 
     private lazy var audioRecordView = AudioRecordView(effect: messageInputBar.blurView.effect, cancelTappableViewRightInset: Constants.recordButtonSpace)
     private let audioRecordButton = AudioRecordButton()
@@ -193,14 +177,12 @@ class NewChatVC: MessagesViewController {
     // MARK: - Lifecicle
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureNavBar()
-        setIsTabBarHidden(true)
         startSkeleton()
         getRecipientData()
         createTypingObserver()
-        configureMessageCollectionView()
         configureMessageInputBar()
+        configureMessageCollectionView()
         loadChats()
         listenForNewChats()
         listenForReadStatusChange()
@@ -212,7 +194,7 @@ class NewChatVC: MessagesViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        setIsTabBarHidden(true)
         FirestoreService.shared.resetRecentCounter(chatRoomId: chatId) { result in
             switch result {
             case .success(_):
@@ -236,6 +218,13 @@ class NewChatVC: MessagesViewController {
         audioController.stopAnyOngoingPlaying()
     }
 
+    private func updateShowCallButtons(_ isNeedShow: Bool) {
+        self.callBarButtonItem.tintColor = isNeedShow ? Colors.Elements.element : .clear
+        self.facetimeBarButtonItem.tintColor = isNeedShow ? Colors.Elements.element : .clear
+        self.callBarButtonItem.isEnabled = isNeedShow
+        self.facetimeBarButtonItem.isEnabled = isNeedShow
+    }
+
     private func getRecipientData() {
         FirestoreService.shared.getUser(by: recipientId) { [weak self] result in
             guard let self = self else { return }
@@ -246,9 +235,9 @@ class NewChatVC: MessagesViewController {
                     self.titleLabel.text = recipientData.username
                     self.titleLabel.hideSkeleton()
                     self.avatarImageView.setImage(stringUrl: recipientData.avatarStringURL)
+                    guard recipientData.phone != nil else { return }
                     UIView.animate(withDuration: 0.3) {
-                        self.callBarButtonItem.customView?.alpha = 1
-                        self.facetimeBarButtonItem.customView?.alpha = 1
+                        self.updateShowCallButtons(true)
                     }
                 }
             case .failure(let error):
@@ -267,13 +256,16 @@ class NewChatVC: MessagesViewController {
     
     // MARK: - Configurations
     private func configureMessageCollectionView() {
+        messagesCollectionView.register(
+            DAudioMessageCell.self,
+            forCellWithReuseIdentifier: DAudioMessageCell.reuseIdentifier
+        )
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messageCellDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         messagesCollectionView.messagesLayoutDelegate = self
         scrollsToLastItemOnKeyboardBeginsEditing = true
         maintainPositionOnKeyboardFrameChanged = true
-        
         messagesCollectionView.refreshControl = refreshController
         
         if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
@@ -311,6 +303,7 @@ class NewChatVC: MessagesViewController {
     }
         
     private func configureNavBar() {
+        updateShowCallButtons(false)
         setupBaseNavBar(rightBarButtonItems: [facetimeBarButtonItem, callBarButtonItem])
         configureCustomTitle()
     }
@@ -318,13 +311,26 @@ class NewChatVC: MessagesViewController {
     private func configureCustomTitle() {
         guard !leftBarButtonView.contains(titleLabel) else { return }
         leftBarButtonView.addSubview(avatarImageView)
-        leftBarButtonView.addSubview(titleLabel)
-        leftBarButtonView.addSubview(subtitleLabel)
+        leftBarButtonView.isUserInteractionEnabled = true
+        avatarImageView.snp.makeConstraints { make in
+            make.size.equalTo(Constants.avatarSize)
+            make.left.top.bottom.equalToSuperview()
+        }
+
+        let titleAndSubtitleStackView = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel], axis: .vertical, spacing: 5)
+        leftBarButtonView.addSubview(titleAndSubtitleStackView)
+        titleAndSubtitleStackView.snp.makeConstraints { make in
+            make.top.equalTo(avatarImageView.snp.top).offset(2)
+            make.left.equalTo(avatarImageView.snp.right).offset(12)
+            make.bottom.equalTo(avatarImageView.snp.bottom).offset(-3)
+            make.width.equalTo(UIScreen.main.bounds.size.width - 48 - 176)
+        }
         let leftBarButtonItem = UIBarButtonItem(customView: leftBarButtonView)
         self.navigationItem.leftBarButtonItems?.append(leftBarButtonItem)
     }
     
     @objc private func openRecipientAccountInfo() {
+        print("aspdkasdoikasdioasd")
         guard let recipientData = recipientData else { return }
         let aboutUserVC = AboutUserVC(userData: recipientData, preloadedUserImage: avatarImageView.image)
         navigationController?.pushViewController(aboutUserVC, animated: true)
@@ -334,9 +340,11 @@ class NewChatVC: MessagesViewController {
     private func loadChats() {
         let predicate = NSPredicate(format: "\(GlobalConstants.kCHATROOMID) = %@", chatId)
         
-        allLocalMessages = realm.objects(LocalMessage.self).filter(predicate).sorted(byKeyPath: GlobalConstants.kDATE, ascending: true)
-        
-        
+        allLocalMessages = realm.objects(LocalMessage.self).filter(predicate).sorted(
+            byKeyPath: GlobalConstants.kDATE,
+            ascending: true
+        )
+
         if allLocalMessages.isEmpty {
             checkForOldChats()
         }
@@ -346,6 +354,7 @@ class NewChatVC: MessagesViewController {
             case .initial(_):
                 self?.insertMessages()
                 self?.messagesCollectionView.reloadData()
+                print("asidojsadiojasdiojasdiojasdsa")
                 self?.messagesCollectionView.scrollToLastItem(animated: false)
             case .update(_, _, let insertions, _):
                 self?.updateTypingIndicator(true, performUpdates: {
@@ -357,13 +366,17 @@ class NewChatVC: MessagesViewController {
                         self?.insertMessage(localMessage)
                     }
                     self?.messagesCollectionView.reloadData()
+                    print("asdiojasoidjasd: ", Thread.isMainThread)
                     if isLastSectionVisible == true {
-                        self?.messagesCollectionView.scrollToLastItem(animated: true)
+                        self?.messagesCollectionView.scrollToLastItem(animated: false)
                     }
+//                        self?.messagesCollectionView.scrollToLastItem(animated: false)
+//                    }
                 }
             case .error(let error):
                 print("ERROR_LOG Error on new insertion ", error.localizedDescription)
             }
+            
         })
     }
     
@@ -385,6 +398,7 @@ class NewChatVC: MessagesViewController {
     }
    
     private func insertMessages() {
+        print("asdoasjiodajiosdjoiasijod: ", Date().timeIntervalSinceNow)
         maxMessageNumber = allLocalMessages.count - displayingMessagesCount
         minMessageNumber = maxMessageNumber - Constants.numberOfMessages
         
@@ -435,9 +449,13 @@ class NewChatVC: MessagesViewController {
     }
     
     private func markMessageAsRead(_ localMessage: LocalMessage) {
-        if localMessage.senderId != AuthService.shared.currentUser!.id && localMessage.status != GlobalConstants.kREAD {
-            FirestoreService.shared.updateMessageInFirebase(localMessage, memberIds: [AuthService.shared.currentUser!.id, recipientId])
-        }
+        guard localMessage.senderId != AuthService.shared.currentUser!.id,
+              localMessage.status != GlobalConstants.kREAD
+        else { return }
+        FirestoreService.shared.updateMessageInFirebase(
+            localMessage,
+            memberIds: [AuthService.shared.currentUser!.id, recipientId]
+        )
     }
     
     // MARK: - Actions
@@ -481,21 +499,21 @@ class NewChatVC: MessagesViewController {
             print("ERROR_LOG Error unwrap recipientData")
             return
         }
-        if let phoneUrl = URL(string: "tel://\(recipientData.phone)") {
+        guard let phone = recipientData.phone else {
+            print("ERROR_LOG Error get recipient phone")
+            return
+        }
+        if let phoneUrl = URL(string: "tel://\(phone)") {
             let application = UIApplication.shared
             if (application.canOpenURL(phoneUrl)) {
                 UIApplication.shared.open(phoneUrl)
             } else {
-                SPAlert.present(title: "Невозможно выполнить звонок", preset: .error)
-                print("ERROR_LOG Error make phone call for phone number: ", recipientData.phone)
+                showErrorCall()
+                print("ERROR_LOG Error make phone call for phone number: ", phone)
             }
         } else {
-            SPAlert.present(
-                title: "Невозможно выполнить звонок",
-                message: "Возможно номер пользователя недействителен",
-                preset: .error
-            )
-            print("ERROR_LOG Error get url from phone number: ", recipientData.phone)
+            showErrorCall()
+            print("ERROR_LOG Error get url from phone number: ", phone)
         }
     }
     
@@ -504,29 +522,37 @@ class NewChatVC: MessagesViewController {
             print("ERROR_LOG Error unwrap recipientData")
             return
         }
-        if let facetimeUrl = URL(string: "facetime://\(recipientData.phone)") {
+        guard let phone = recipientData.phone else {
+            print("ERROR_LOG Error get recipient phone")
+            return
+        }
+        if let facetimeUrl = URL(string: "facetime://\(phone)") {
             let application = UIApplication.shared
             if (application.canOpenURL(facetimeUrl)) {
                 application.open(facetimeUrl)
             } else {
-                SPAlert.present(title: "Невозможно выполнить звонок", preset: .error)
-                print("ERROR_LOG Error make facetime call for phone number: ", recipientData.phone)
+                showErrorCall()
+                print("ERROR_LOG Error make facetime call for phone number: ", phone)
             }
         } else {
-            SPAlert.present(
-                title: "Невозможно выполнить звонок",
-                message: "Возможно номер пользователя недействителен",
-                preset: .error
-            )
-            print("ERROR_LOG Error get url from phone number: ", recipientData.phone)
+            showErrorCall()
+            print("ERROR_LOG Error get url from phone number: ", phone)
         }
+    }
+
+    private func showErrorCall() {
+        SPAlert.present(
+            title: "Невозможно выполнить звонок",
+            message: "Возможно номер пользователя недействителен",
+            preset: .error
+        )
     }
     
     @objc private func actionAttachMessage() {
         messageInputBar.inputTextView.resignFirstResponder()
         
         let optionMenu = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        optionMenu.view.tintColor = .systemTeal
+        optionMenu.view.tintColor = Colors.Elements.element
         let takePhotoOrVideo = UIAlertAction(title: "Камера", style: .default) { _ in
             self.chooseImagePicker(source: .camera)
         }
@@ -696,6 +722,7 @@ class NewChatVC: MessagesViewController {
             }
         }
         subtitleLabel.text = !show ? Constants.writingText : ""
+        subtitleLabel.isHidden = subtitleLabel.text?.isEmpty ?? true
     }
     
     func isLastSectionVisible() -> Bool {
@@ -705,7 +732,7 @@ class NewChatVC: MessagesViewController {
     }
     
     // MARK: - UIScrollViewDelegate
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if refreshController.isRefreshing {
             if displayingMessagesCount < allLocalMessages.count {
                 self.loadMoreMessages(maxNumber: maxMessageNumber, minNumber: minMessageNumber)
@@ -720,13 +747,13 @@ class NewChatVC: MessagesViewController {
     private func updateMessage(_ localMessage: LocalMessage) {
         for index in 0 ..< mkMessages.count {
             let tempMessage = mkMessages[index]
-            
+
             if localMessage.id == tempMessage.messageId {
                 mkMessages[index].status = localMessage.status
                 mkMessages[index].readDate = localMessage.readDate
-                
+
                 RealmManager.shared.saveToRealm(localMessage)
-                
+
                 if mkMessages[index].status == GlobalConstants.kREAD {
                     self.messagesCollectionView.reloadData()
                 }
@@ -741,7 +768,17 @@ class NewChatVC: MessagesViewController {
     }
     
     func isTimeLabelVisible(at indexPath: IndexPath) -> Bool {
-        return indexPath.section % 3 == 0 && !isPreviousMessageSameSender(at: indexPath)
+        return !isPreviusMessageSameDay(at: indexPath)
+    }
+
+    func isPreviusMessageSameDay(at indexPath: IndexPath) -> Bool {
+        guard indexPath.section - 1 >= 0 else { return false }
+        let firstCalendarDate = Calendar.current.dateComponents([.day, .year, .month], from: mkMessages[indexPath.section].sentDate)
+        let secondCalendarDate = Calendar.current.dateComponents([.day, .year, .month], from: mkMessages[indexPath.section - 1].sentDate)
+        let sameDay = firstCalendarDate.day == secondCalendarDate.day
+        let sameMonth = firstCalendarDate.month == secondCalendarDate.month
+        let sameYear = firstCalendarDate.year == secondCalendarDate.year
+        return sameDay && sameMonth && sameYear
     }
 
     func isPreviousMessageSameSender(at indexPath: IndexPath) -> Bool {
@@ -869,6 +906,7 @@ extension NewChatVC {
         messageInputBar.delegate = self
         updateMicButtonStatus(show: true)
         messageInputBar.isTranslucent = true
+        messageInputBar.inputTextView.delegate = self
         messageInputBar.separatorLine.isHidden = true
         messageInputBar.backgroundView.backgroundColor = .clear
         messageInputBar.backgroundColor = .clear
@@ -890,16 +928,16 @@ extension NewChatVC {
     private func configureInputTextView() {
         messageInputBar.inputTextView.isImagePasteEnabled = false
         messageInputBar.inputTextView.backgroundColor = .systemBackground
-        messageInputBar.inputTextView.placeholderTextColor = Constants.messagePlaceholderColor
+        messageInputBar.inputTextView.placeholderTextColor = Colors.Text.placeholder
         messageInputBar.inputTextView.textContainerInset = UIEdgeInsets(top: 16, left: 44, bottom: 16, right: 12)
         messageInputBar.inputTextView.placeholderLabelInsets = UIEdgeInsets(top: 16, left: 50, bottom: 16, right: 12)
-        messageInputBar.inputTextView.layer.borderColor = UIColor.systemTeal.cgColor
+        messageInputBar.inputTextView.layer.borderColor = Colors.Elements.line.cgColor
         messageInputBar.inputTextView.layer.borderWidth = 1
         messageInputBar.inputTextView.layer.cornerRadius = 24.0
         messageInputBar.inputTextView.layer.masksToBounds = true
         messageInputBar.inputTextView.scrollIndicatorInsets = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
         messageInputBar.inputTextView.placeholder = Constants.messagePlaceholder
-        messageInputBar.inputTextView.font = .sfProDisplay(ofSize: 14, weight: .medium)
+        messageInputBar.inputTextView.font = .placeholder
     }
 
     private func configureAudioRecordView() {
@@ -913,15 +951,22 @@ extension NewChatVC {
             audioRecordView.delegate = self
             audioRecordButton.delegate = self
             view.addSubview(audioRecordButton)
+            audioRecordView.layer.cornerCurve = .continuous
+            audioRecordView.layer.cornerRadius = messageInputBar.layer.cornerRadius
+            audioRecordView.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
+            audioRecordView.layer.masksToBounds = true
         }
         audioRecordView.isHidden = false
     }
 
     func configureAttachButton() {
         let attachButton = InputBarButtonItem(type: .system)
-        attachButton.tintColor = .systemTeal
-        let attachButtonImage = UIImage(systemName: "paperclip")!
-        attachButton.image = attachButtonImage
+        attachButton.tintColor = Colors.Elements.element
+        let paperclipImage = UIImage(.paperclip).withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
+            ofSize: ButtonSymbolType.small.size,
+            weight: ButtonSymbolType.small.weight
+        )))
+        attachButton.image = paperclipImage
         attachButton.setSize(Constants.inputBarButtonsSize, animated: false)
         attachButton.addTarget(self, action: #selector(actionAttachMessage),
                                for: .primaryActionTriggered)
@@ -937,5 +982,20 @@ extension NewChatVC {
         messageInputBar.sendButton.title = nil
         messageInputBar.middleContentViewPadding.right = -66
         messageInputBar.setRightStackViewWidthConstant(to: 76, animated: false)
+    }
+}
+
+extension NewChatVC: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        UIView.animate(withDuration: 0.3) {
+            self.messageInputBar.inputTextView.layer.borderColor = Colors.Elements.element.cgColor
+        }
+
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        UIView.animate(withDuration: 0.3) {
+            self.messageInputBar.inputTextView.layer.borderColor = Colors.Elements.line.cgColor
+        }
     }
 }

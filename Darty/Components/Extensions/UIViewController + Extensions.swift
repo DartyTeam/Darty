@@ -26,12 +26,13 @@ class BaseController: UIViewController {
         super.viewDidLoad()
         setup(viewController: self)
         clearNavBar = true
+        view.backgroundColor = Colors.Backgorunds.screen
     }
 }
 
 private func setup(viewController: UIViewController) {
     viewController.navigationController?.setNavigationBarHidden(false, animated: true)
-    viewController.navigationItem.setHidesBackButton(true, animated:false)
+    viewController.navigationItem.setHidesBackButton(true, animated: false)
     if let index = viewController.navigationController?.viewControllers.firstIndex(of: viewController), index > 0 {
         addBackButton(for: viewController)
     } else if let parentHost = viewController.parent,
@@ -49,14 +50,9 @@ private func setup(viewController: UIViewController) {
 }
 
 private func addBackButton(for viewController: UIViewController) {
-    let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-
     let leftBarButtonItem = UIBarButtonItem(
-        image: UIImage(
-            systemName: "chevron.backward",
-            withConfiguration: boldConfig)?
-            .withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal),
-        style: .plain,
+        symbol: .chevron.backward,
+        type: .normal,
         target: viewController,
         action: #selector(viewController.backAction)
     )

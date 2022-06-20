@@ -39,7 +39,7 @@ final class InterestCell: UICollectionViewCell {
     private enum Constants {
         static let font = UIFont.sfCompactDisplay(ofSize: 16, weight: .medium)
         static let textColor = UIColor.black.withAlphaComponent(0.5)
-        static let selectedColor: UIColor = .systemPurple.withAlphaComponent(0.5)
+        static let selectedColor: UIColor = Colors.Elements.element.withAlphaComponent(0.5)
         static let deselectedColor: UIColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.25)
     }
 

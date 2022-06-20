@@ -62,7 +62,7 @@ class OTPStackView: UIStackView {
     //Adding each OTPfield to stack view
     private final func addOTPFields() {
         for index in 0..<codeLength {
-            let field = OTPTextField(color: .systemPurple)
+            let field = OTPTextField()
             setupTextField(field)
             textFieldsCollection.append(field)
             //Adding a marker to previous field

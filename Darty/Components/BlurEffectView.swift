@@ -12,7 +12,7 @@ class BlurEffectView: UIVisualEffectView {
     // MARK: Private
     private var animator: UIViewPropertyAnimator!
     
-    init(style: UIBlurEffect.Style = .systemThickMaterial) {
+    init(style: UIBlurEffect.Style = .systemUltraThinMaterial) {
         super.init(effect: nil)
         let effect = UIBlurEffect(style: style)
         animator = UIViewPropertyAnimator(duration: 1, curve: .linear) { [unowned self] in self.effect = effect}

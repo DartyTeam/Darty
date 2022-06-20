@@ -25,13 +25,12 @@ final class ContactWithUsVC: BaseController {
     private let mailAnimationView = AnimationView(name: "SendMail")
     
     private let messageTextView: TextView = {
-        let textView = TextView(placeholder: "Сообщение", isEditable: true, color: .systemIndigo)
+        let textView = TextView(placeholder: "Сообщение", isEditable: true)
         return textView
     }()
     
     private let sendButton: DButton = {
         let button = DButton(title: "Отправить")
-        button.backgroundColor = .systemIndigo
         button.addTarget(self, action: #selector(sendEmail), for: .touchUpInside)
         return button
     }()
@@ -46,8 +45,7 @@ final class ContactWithUsVC: BaseController {
     private lazy var attachImagesView: MultiSetImagesView = {
         let multiSetImagesView = MultiSetImagesView(
             maxPhotos: 10,
-            shape: .rect,
-            color: .systemIndigo
+            shape: .rect
         )
         multiSetImagesView.numberOfItemInPage = 3
         multiSetImagesView.delegate = self
@@ -141,7 +139,6 @@ final class ContactWithUsVC: BaseController {
 
     // MARK: - Setup
     private func setupViews() {
-        view.backgroundColor = .systemBackground
         mailAnimationView.contentMode = .scaleAspectFit
         view.addSubview(mailAnimationView)
         view.addSubview(scrollView)
@@ -205,15 +202,15 @@ extension ContactWithUsVC {
 
         messageTextView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.left.right.equalToSuperview().inset(20)
+            make.left.right.equalToSuperview().inset(24)
             make.height.equalTo(128)
         }
 
         sendButton.snp.makeConstraints { make in
             make.top.equalTo(messageTextView.snp.bottom).offset(44)
-            make.left.right.equalToSuperview().inset(20)
-            make.width.equalTo(view.frame.size.width - 40)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.left.right.equalToSuperview().inset(24)
+            make.width.equalTo(view.frame.size.width - 48)
+            make.height.equalTo(DButtonStyle.fill.height)
         }
 
         attachImagesLabel.snp.makeConstraints { make in

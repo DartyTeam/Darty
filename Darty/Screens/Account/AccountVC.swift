@@ -18,7 +18,7 @@ final class AccountVC: BaseController {
 
     // MARK: - Constants
     private enum Constants {
-        static let navigationBarButtonsFont: UIFont? = .sfProRounded(ofSize: 14, weight: .semibold)
+        static let navigationBarButtonsFont: UIFont? = .sfProRounded(ofSize: 14, weight: .bold)
         static let navigationBarButtonsSize: CGFloat = 36
         
         static let userAvatarSize: CGFloat = 128
@@ -26,13 +26,7 @@ final class AccountVC: BaseController {
         static let cityFont: UIFont? = .sfProDisplay(ofSize: 16, weight: .medium)
         static let ageFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
         static let ratingFont: UIFont? = .sfProRounded(ofSize: 18, weight: .semibold)
-        
-        static let nameLabelColor: UIColor = .label
-        static let cityLabelColor: UIColor = .label
-        static let ageLabelColor: UIColor = .secondaryLabel
-        static let ratingLabelColor: UIColor = .secondaryLabel
-        static let ratingButtonColor: UIColor = .systemTeal
-        
+
         static let subscribeDartyLogoSize: CGFloat = 28
         static let subscribeNameLabelFont: UIFont? = .sfProRounded(ofSize: 16, weight: .semibold)
         static let subscribeNameLabelText = "Darty Max"
@@ -48,9 +42,6 @@ final class AccountVC: BaseController {
         
         static let segmentFont: UIFont? = .sfProRounded(ofSize: 16, weight: .medium)
         
-        static let settingButtonsHeight: CGFloat =  50
-        static let settingButtonsFont: UIFont? = .sfProRounded(ofSize: 12, weight: .semibold)
-        
         static let subscribeButtonsTitleFont: UIFont? = .sfProRounded(ofSize: 12, weight: .medium)
         static let subscribeButtonsTextFont: UIFont? = .sfProDisplay(ofSize: 14, weight: .semibold)
         
@@ -60,10 +51,6 @@ final class AccountVC: BaseController {
         static let donateActionText = "Отправить"
  
         static let productUrl = URL(string: "https://itunes.apple.com/app/id375380948")!
-        
-        static let menuButtonsSpacing: CGFloat = 16
-
-        static let menuButtonTextColor: UIColor = .white
     }
     
     // MARK: - UI Elements
@@ -79,20 +66,18 @@ final class AccountVC: BaseController {
         segmentedControl.addTarget(self, action: #selector(segmentChanged(_:)), for: .valueChanged)
         return segmentedControl
     }()
-    
-    private lazy var darkModeButton: DButton = {
-        let button = DButton(title: "Темный режим")
-        button.backgroundColor = .black.withAlphaComponent(0.75)
-        button.setImage(handIcon, for: UIControl.State())
-        button.backgroundColor = #colorLiteral(red: 0.8823529412, green: 0.8823529412, blue: 0.8941176471, alpha: 1)
-        button.layer.cornerRadius = 16
-        button.tintColor = .systemOrange
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(themeSwitchAction), for: .touchUpInside)
-        return button
+
+    private lazy var settingsTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(MenuCell.self, forCellReuseIdentifier: MenuCell.reuseIdentifier)
+        tableView.tableFooterView = UIView()
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
+        return tableView
     }()
-    
+
     private lazy var userAvatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -104,6 +89,14 @@ final class AccountVC: BaseController {
         imageView.isUserInteractionEnabled = true
         return imageView
     }()
+
+    private let usernameLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = .title
+        label.textColor = Colors.Text.main
+        return label
+    }()
     
     private lazy var shareButton: UIButton = {
         let button = UIButton(type: .system)
@@ -111,33 +104,12 @@ final class AccountVC: BaseController {
             make.size.equalTo(Constants.navigationBarButtonsSize)
         }
         let configIcon = UIImage.SymbolConfiguration(font: Constants.navigationBarButtonsFont!)
-        let shareIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal)
+        let shareIcon = UIImage(systemName: "square.and.arrow.up", withConfiguration: configIcon)?.withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal)
         button.setImage(shareIcon, for: UIControl.State())
         button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(shareAccount), for: .touchUpInside)
-        button.backgroundColor = .secondarySystemBackground
-        return button
-    }()
-    
-    private lazy var signOutButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.snp.makeConstraints { make in
-            make.width.equalTo(112)
-            make.height.equalTo(Constants.navigationBarButtonsSize)
-        }
-        let configIcon = UIImage.SymbolConfiguration(font: Constants.navigationBarButtonsFont!)
-        let walkIcon = UIImage(systemName: "lock.rotation", withConfiguration: configIcon)?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
-        button.setImage(walkIcon, for: UIControl.State())
-        button.setTitle("Выход", for: UIControl.State())
-        button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
-        button.clipsToBounds = true
-        button.addTarget(self, action: #selector(logoutAction), for: .touchUpInside)
-        button.backgroundColor = .secondarySystemBackground
-        button.setTitleColor(.systemRed, for: UIControl.State())
-        button.titleLabel?.font = Constants.navigationBarButtonsFont
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        button.backgroundColor = Colors.Backgorunds.plate
         return button
     }()
     
@@ -147,12 +119,12 @@ final class AccountVC: BaseController {
             make.size.equalTo(Constants.navigationBarButtonsSize)
         }
         let configIcon = UIImage.SymbolConfiguration(font: Constants.navigationBarButtonsFont!)
-        let editIcon = UIImage(systemName: "pencil", withConfiguration: configIcon)?.withTintColor(.systemIndigo, renderingMode: .alwaysOriginal)
+        let editIcon = UIImage(systemName: "pencil", withConfiguration: configIcon)?.withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal)
         button.setImage(editIcon, for: UIControl.State())
         button.layer.cornerRadius = Constants.navigationBarButtonsSize / 2
         button.clipsToBounds = true
         button.addTarget(self, action: #selector(changeInfoAccount), for: .touchUpInside)
-        button.backgroundColor = .secondarySystemBackground
+        button.backgroundColor = Colors.Backgorunds.plate
         return button
     }()
     
@@ -161,39 +133,8 @@ final class AccountVC: BaseController {
         label.numberOfLines = 0
         label.font = Constants.cityFont
         label.text = "Город"
-        label.textColor = Constants.cityLabelColor
+        label.textColor = Colors.Text.secondary
         return label
-    }()
-    
-    private let ageLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.font = Constants.ageFont
-        label.text = "Возраст"
-        label.textColor = Constants.ageLabelColor
-        return label
-    }()
-    
-    private let ratingLabel: UILabel = {
-        let label = UILabel()
-        label.font = Constants.ratingFont
-        label.text = "3.4 *"
-        label.textColor = Constants.ratingLabelColor
-        label.isHidden = true
-        return label
-    }()
-    
-    private let ratingButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("х отзыва", for: UIControl.State())
-        let iconConfing = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 12, weight: .medium))
-        button.setImage(UIImage(systemName: "message.fill", withConfiguration: iconConfing)?.withTintColor(Constants.ratingButtonColor, renderingMode: .alwaysOriginal), for: UIControl.State())
-        button.setTitleColor(Constants.ratingButtonColor, for: UIControl.State())
-        button.titleLabel?.font = Constants.ratingFont
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.isHidden = true
-        return button
     }()
     
     private let subscribeSegmentContainer: UIView = {
@@ -221,6 +162,7 @@ final class AccountVC: BaseController {
         stackView.distribution = .fill
         return stackView
     }()
+
     private let comingSoonView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemIndigo.withAlphaComponent(0.8)
@@ -245,6 +187,7 @@ final class AccountVC: BaseController {
         }
         return view
     }()
+
     private let buyDartsView: UIView = {
         let view = UIView()
         view.backgroundColor = .secondarySystemBackground
@@ -325,7 +268,7 @@ final class AccountVC: BaseController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
-        stackView.spacing = Constants.menuButtonsSpacing
+        stackView.spacing = 32
         return stackView
     }()
     
@@ -373,136 +316,19 @@ final class AccountVC: BaseController {
         view.backgroundColor = .secondarySystemGroupedBackground.withAlphaComponent(0.8)
         return view
     }()
-    
-    private let rateUsButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Поставить оценку", for: UIControl.State())
-        let rateIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let rateIcon = UIImage(systemName: "hand.thumbsup.fill", withConfiguration: rateIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
-        button.setImage(rateIcon, for: UIControl.State())
-        button.backgroundColor = .systemYellow
-        button.layer.cornerRadius = 12
-        button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(rateUsAction), for: .touchUpInside)
-        button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = Constants.menuButtonTextColor
-        return button
-    }()
-    
-    private lazy var contactWithUsButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Связь с разрабом", for: UIControl.State())
-        let rateIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let rateIcon = UIImage(systemName: "person.fill.questionmark", withConfiguration: rateIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
-        button.setImage(rateIcon, for: UIControl.State())
-        button.backgroundColor = .systemIndigo
-        button.layer.cornerRadius = 12
-        button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(contactWithUsAction), for: .touchUpInside)
-        button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = Constants.menuButtonTextColor
-        button.isUserInteractionEnabled = true
-        return button
-    }()
-    
-    private let firstLineSettingButtonsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = Constants.menuButtonsSpacing
-        return stackView
-    }()
-    
-    private let notificationsButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Уведомления", for: UIControl.State())
-        let bellIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let bellIcon = UIImage(
-            systemName: "bell.fill",
-            withConfiguration: bellIconConfig
-        )?.withTintColor(
-            Constants.menuButtonTextColor,
-            renderingMode: .alwaysOriginal
-        )
-        button.setImage(bellIcon, for: UIControl.State())
-        button.backgroundColor = .systemTeal
-        button.layer.cornerRadius = 12
-        button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(
-            top: 0,
-            left: 20,
-            bottom: 0,
-            right: 12
-        )
-        button.imageEdgeInsets = UIEdgeInsets(
-            top: 0,
-            left: -8,
-            bottom: 0,
-            right: 8
-        )
-        button.addTarget(self, action: #selector(notificationsAction), for: .touchUpInside)
-        button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = Constants.menuButtonTextColor
-        return button
-    }()
-    
-    private let changePhoneButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Сменить номер", for: UIControl.State())
-        let bellIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let bellIcon = UIImage(systemName: "phone.fill.arrow.right", withConfiguration: bellIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
-        button.setImage(bellIcon, for: UIControl.State())
-        button.backgroundColor = .systemIndigo
-        button.layer.cornerRadius = 12
-        button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(changePhone), for: .touchUpInside)
-        button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = Constants.menuButtonTextColor
-        return button
-    }()
-    
-    private let secondLineSettingButtonsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = Constants.menuButtonsSpacing
-        return stackView
-    }()
-    
-    private let shareAppButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Поделиться приложением", for: UIControl.State())
-        let paperplaneIconConfig = UIImage.SymbolConfiguration(font: Constants.settingButtonsFont!)
-        let paperplaneIcon = UIImage(systemName: "paperplane.circle.fill", withConfiguration: paperplaneIconConfig)?.withTintColor(Constants.menuButtonTextColor, renderingMode: .alwaysOriginal)
-        button.setImage(paperplaneIcon, for: UIControl.State())
-        button.backgroundColor = .systemIndigo
-        button.layer.cornerRadius = 12
-        button.layer.cornerCurve = .continuous
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 12)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        button.addTarget(self, action: #selector(shareApp), for: .touchUpInside)
-        button.titleLabel?.font = Constants.settingButtonsFont
-        button.tintColor = Constants.menuButtonTextColor
-        return button
-    }()
-    
-    private let thirdLineSettingButtonsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = Constants.menuButtonsSpacing
-        return stackView
-    }()
-    
+
     // MARK: - Properties
     private var themeMode: ThemeChangeMode = .auto
     private var isAfterTappedToSegmentedControl = false
+
+    private let settingsList = [
+        MenuCellModel(title: "Сменить номер", icon: "􀍄", action: #selector(changePhone)),
+        MenuCellModel(title: "Обратная связь", icon: "􀭽", action: #selector(contactWithUsAction)),
+        MenuCellModel(title: "Уведомления", icon: "􀋙", action: #selector(notificationsAction)),
+        MenuCellModel(title: "Поставить оценку", icon: "􀉿", action: #selector(rateUsAction)),
+        MenuCellModel(title: "Поделиться приложением", icon: "􀌤", action: #selector(shareApp)),
+        MenuCellModel(title: "Выйти из аккаунта", icon: "􀻵", action: #selector(logoutAction), color: Colors.Statuses.error)
+    ]
 
     // MARK: - Delegate
     weak var delegate: AccountCoordinatorDelegate?
@@ -510,7 +336,12 @@ final class AccountVC: BaseController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(setupUserInfo), name: GlobalConstants.changedUserDataNotification.name, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(setupUserInfo),
+            name: GlobalConstants.changedUserDataNotification.name,
+            object: nil
+        )
         setupHero()
         setupUserInfo()
         setupViews()
@@ -524,7 +355,11 @@ final class AccountVC: BaseController {
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(self, name: GlobalConstants.changedUserDataNotification.name, object: nil)
+        NotificationCenter.default.removeObserver(
+            self,
+            name: GlobalConstants.changedUserDataNotification.name,
+            object: nil
+        )
     }
 
     // MARK: - Setup
@@ -536,50 +371,33 @@ final class AccountVC: BaseController {
         
         StorageService.shared.downloadImage(url: URL(string: userData.avatarStringURL)!) { [weak self] result in
             switch result {
-            
             case .success(let image):
                 self?.userAvatarImageView.image = image
             case .failure(let error):
                 print("ERROR_LOG Error download user image: ", error.localizedDescription)
             }
         }
-        
-        navigationItem.title = userData.username
-        
+
         cityLabel.text = userData.country + ", " + userData.city
-        ageLabel.text = String(userData.birthday.age())
+        usernameLabel.text = userData.username
     }
     
     private func setupNavigationBar() {
-        title = AuthService.shared.currentUser.username
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationItem.leftBarButtonItems = [UIBarButtonItem(customView: shareButton), UIBarButtonItem(customView: signOutButton)]
+        title = "Настройки"
+        navigationItem.leftBarButtonItems = [UIBarButtonItem(customView: shareButton)]
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: editButton)
     }
     
     private func setupViews() {
-        view.backgroundColor = .systemBackground
-        view.addSubview(darkModeButton)
-        darkModeButton.isHidden = true
         view.addSubview(userAvatarImageView)
-        view.addSubview(ageLabel)
+        view.addSubview(usernameLabel)
         view.addSubview(cityLabel)
-        view.addSubview(ratingButton)
-        view.addSubview(ratingLabel)
         view.addSubview(segmentedControl)
         view.addSubview(scrollView)
         scrollView.addSubview(horizontalScrollableStackView)
         horizontalScrollableStackView.addArrangedSubview(menuSegmentContainer)
         horizontalScrollableStackView.addArrangedSubview(subscribeSegmentContainer)
-        menuSegmentContainer.addSubview(firstLineSettingButtonsStackView)
-        firstLineSettingButtonsStackView.addArrangedSubview(rateUsButton)
-        firstLineSettingButtonsStackView.addArrangedSubview(contactWithUsButton)
-        menuSegmentContainer.addSubview(secondLineSettingButtonsStackView)
-        secondLineSettingButtonsStackView.addArrangedSubview(notificationsButton)
-        secondLineSettingButtonsStackView.addArrangedSubview(changePhoneButton)
-        menuSegmentContainer.addSubview(thirdLineSettingButtonsStackView)
-        thirdLineSettingButtonsStackView.addArrangedSubview(shareAppButton)
+        menuSegmentContainer.addSubview(settingsTableView)
         subscribeSegmentContainer.addSubview(firstLineSubscribeButtonsStackView)
         firstLineSubscribeButtonsStackView.addArrangedSubview(buyDartsView)
         firstLineSubscribeButtonsStackView.addArrangedSubview(donateView)
@@ -615,11 +433,11 @@ final class AccountVC: BaseController {
     @objc private func themeSwitchAction() {
         switch themeMode {
         case .manual:
-            darkModeButton.setImage(autoIcon, for: UIControl.State())
+//            darkModeButton.setImage(autoIcon, for: UIControl.State())
             themeMode = .auto
             overrideUserInterfaceStyle = .dark
         case .auto:
-            darkModeButton.setImage(handIcon, for: UIControl.State())
+//            darkModeButton.setImage(handIcon, for: UIControl.State())
             themeMode = .manual
             overrideUserInterfaceStyle = .unspecified
         }
@@ -710,38 +528,22 @@ extension AccountVC: UIScrollViewDelegate {
 // MARK: - Setup constraints
 extension AccountVC {
     private func setupConstraints() {
-        darkModeButton.snp.makeConstraints { make in
-            make.width.equalTo(256)
-            make.height.equalTo(50)
-            make.center.equalToSuperview()
-        }
-
         userAvatarImageView.snp.makeConstraints { make in
-            make.right.equalToSuperview().inset(22)
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(16)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
+            make.left.equalToSuperview().offset(24)
             make.size.equalTo(Constants.userAvatarSize)
         }
 
-        cityLabel.snp.makeConstraints { make in
+        usernameLabel.snp.makeConstraints { make in
             make.top.equalTo(userAvatarImageView.snp.top).offset(8)
-            make.left.equalToSuperview().offset(20)
-            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
+            make.left.equalToSuperview().offset(48 + Constants.userAvatarSize)
+            make.right.equalToSuperview().offset(-24)
         }
 
-        ageLabel.snp.makeConstraints { make in
-            make.top.equalTo(cityLabel.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(20)
-            make.right.equalTo(userAvatarImageView.snp.left).offset(-32)
-        }
-
-        ratingLabel.snp.makeConstraints { make in
-            make.top.equalTo(ageLabel.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(20)
-        }
-
-        ratingButton.snp.makeConstraints { make in
-            make.centerY.equalTo(ratingLabel.snp.centerY)
-            make.left.equalTo(ratingLabel.snp.right).offset(8)
+        cityLabel.snp.makeConstraints { make in
+            make.top.equalTo(usernameLabel.snp.bottom).offset(12)
+            make.left.equalTo(usernameLabel.snp.left)
+            make.right.equalToSuperview().offset(-24)
         }
 
         segmentedControl.snp.makeConstraints { make in
@@ -758,6 +560,7 @@ extension AccountVC {
             make.edges.equalToSuperview()
             make.height.equalTo(scrollView.snp.height)
         }
+
         horizontalScrollableStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 2).isActive = true
 
         subscribeSegmentContainer.snp.makeConstraints { make in
@@ -809,22 +612,8 @@ extension AccountVC {
             make.top.bottom.equalToSuperview()
         }
 
-        firstLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
-        }
-
-        secondLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalTo(firstLineSettingButtonsStackView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
-        }
-
-        thirdLineSettingButtonsStackView.snp.makeConstraints { make in
-            make.top.equalTo(secondLineSettingButtonsStackView.snp.bottom).offset(16)
-            make.left.right.equalToSuperview().inset(20)
-            make.height.equalTo(Constants.settingButtonsHeight)
+        settingsTableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
         comingSoonView.snp.makeConstraints { make in
@@ -833,5 +622,30 @@ extension AccountVC {
             make.right.equalTo(donateView.snp.right)
             make.bottom.equalTo(subscribeView.snp.bottom)
         }
+    }
+}
+
+extension AccountVC: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        settingsList.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: MenuCell.reuseIdentifier,
+            for: indexPath
+        ) as? MenuCell else {
+            return UITableViewCell()
+        }
+        let item = settingsList[indexPath.row]
+        let context = MenuCell.Context(title: item.title, icon: item.icon, color: item.color)
+        cell.configure(with: context)
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.cellForRow(at: indexPath)?.isSelected = false
+        let action = settingsList[indexPath.row].action
+        perform(action)
     }
 }

@@ -21,9 +21,19 @@ enum MapType {
 
 final class MapVC: BaseController {
 
+    private enum UserLocationMode {
+        case untracked
+        case route
+        case tracked
+    }
+
     // MARK: - Constants
     private struct Constants {
         static let circleButtonsSize: CGFloat = 56
+        static let circleButtonsSybmolConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(
+            ofSize: ButtonSymbolType.normal.size,
+            weight: ButtonSymbolType.normal.weight
+        ))
     }
     
     private var mapType: MapType = .aboutParty
@@ -42,10 +52,11 @@ final class MapVC: BaseController {
         didSet {
             mapManager.startTrackingUserLocation(for: mapView, and: previousLocation) { (currentLocation) in
                 self.previousLocation = currentLocation
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    self.mapManager.showUserLocation(mapView: self.mapView)
-                }
+
+                // [Постоянное] наведение на локацию пользователя
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+//                    self.mapManager.showUserLocation(mapView: self.mapView)
+//                }
             }
         }
     }
@@ -54,59 +65,69 @@ final class MapVC: BaseController {
     
     private let addressLabel: UILabel = {
         let label = UILabel()
+        label.textColor = Colors.Text.main
+        label.font = .title
         return label
     }()
     
     private let timeAndDistanceLabel: UILabel = {
         let label = UILabel()
+        label.font = .title
+        label.textColor = Colors.Text.main
+        label.numberOfLines = 0
         return label
     }()
     
     private lazy var userLocationButton: UIButton = {
-        $0.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.8)
+        $0.backgroundColor = Colors.Backgorunds.plate
         $0.layer.masksToBounds = true
         $0.layer.cornerRadius = Constants.circleButtonsSize / 2
-        $0.setImage(
-            UIImage(SPSafeSymbol.location.circleFill)
-                .withTintColor(.systemPurple, renderingMode: .alwaysOriginal),
-            for: UIControl.State()
-        )
-        $0.addTarget(self, action: #selector(centerViewInUserLocation), for: .touchUpInside)
+        $0.addTarget(self, action: #selector(userLocationButtonTapped), for: .touchUpInside)
         return $0
     }(UIButton())
     
     private let navigateInAnotherAppButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.8)
+        button.backgroundColor = Colors.Backgorunds.plate
         button.layer.cornerRadius = Constants.circleButtonsSize / 2
         button.layer.masksToBounds = true
         button.setImage(
-            UIImage(SPSafeSymbol.arrow.triangleTurnUpRightCircleFill)
-                .withTintColor(.systemPurple, renderingMode: .alwaysOriginal),
+            UIImage(SPSafeSymbol.arrow.triangleTurnUpRightCircle)
+                .withConfiguration(Constants.circleButtonsSybmolConfig)
+                .withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal),
             for: UIControl.State()
         )
         button.addTarget(self, action: #selector(navigateInAnotherApp), for: .touchUpInside)
         return button
     }()
     
-    private lazy var goButton: UIButton = {
-        let button = UIButton()
-        let boldConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 32, weight: .bold))
-        button.setImage(
-            UIImage(
-                systemName: "location.north.fill",
-                withConfiguration: boldConfig)?
-                .withTintColor(accentColor, renderingMode: .alwaysOriginal
-                              ),
-            for: .normal)
+    private lazy var goButton: DButton = {
+        let button = DButton(title: "􀋓 Построить маршрут", type: .main, style: .fill)
         button.addTarget(self, action: #selector(goButtonPressed), for: .touchUpInside)
         return button
     }()
     
     // MARK: - Properties
-    private var accentColor: UIColor = .systemOrange
     private var party: PartyModel?
     private var location = CLLocation(latitude: 0, longitude: 0)
+
+    private var userLocationMode: UserLocationMode = .untracked {
+        didSet {
+            let iconImage: UIImage
+            switch userLocationMode {
+            case .untracked:
+                iconImage = UIImage(SPSafeSymbol.location)
+            case .route:
+                iconImage = UIImage(SPSafeSymbol.location.northLineFill)
+            case .tracked:
+                iconImage = UIImage(SPSafeSymbol.location.fill)
+            }
+            self.userLocationButton.setImage(iconImage
+                .withConfiguration(Constants.circleButtonsSybmolConfig)
+                .withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal),
+                                             for: UIControl.State())
+        }
+    }
     
     // MARK: - Lifecycle
     init(party: PartyModel) {
@@ -155,21 +176,39 @@ final class MapVC: BaseController {
         addressLabel.isHidden = true
         goButton.isHidden = false
         timeAndDistanceLabel.isHidden = false
+
+        userLocationMode = .untracked
+    }
+
+    private var updateHeading = false {
+        didSet {
+            updateHeading ? mapManager.locationManager.startUpdatingHeading() :  mapManager.locationManager.stopUpdatingHeading()
+        }
     }
     
     // MARK: - Handlers
-    @objc private func centerViewInUserLocation() {
+    @objc private func userLocationButtonTapped() {
+        if previousLocation != nil, userLocationMode == .tracked {
+            userLocationMode = .route
+            updateHeading = true
+        } else {
+            updateHeading = false
+            userLocationMode = .tracked
+        }
         mapManager.showUserLocation(mapView: mapView)
     }
     
     @objc private func goButtonPressed() {
         mapManager.getDirection(for: mapView) { (location) in
+            self.goButton.isHidden = true
+            self.userLocationMode = .route
             self.previousLocation = location
+            self.updateHeading = true
         } getTimeAndDistance: { (timeAndDistance) in
             self.timeAndDistanceLabel.text = timeAndDistance
         }
     }
-    
+
     @objc private func navigateInAnotherApp() {
         showListAnotherApps(lat: location.coordinate.latitude, lon: location.coordinate.longitude)
     }
@@ -265,19 +304,20 @@ extension MapVC {
         }
         
         goButton.snp.makeConstraints { (make) in
-            make.bottom.equalToSuperview().offset(-88)
-            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-64)
+            make.height.equalTo(DButtonStyle.fill.height)
+            make.left.right.equalToSuperview().inset(24)
         }
         
         userLocationButton.snp.makeConstraints { (make) in
             make.trailing.equalToSuperview().offset(-24)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-96)
+            make.bottom.equalTo(goButton.snp.top).offset(-24)
             make.size.equalTo(Constants.circleButtonsSize)
         }
         
         navigateInAnotherAppButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-24)
-            make.bottom.equalTo(userLocationButton.snp.top).offset(-32)
+            make.bottom.equalTo(userLocationButton.snp.top).offset(-24)
             make.size.equalTo(Constants.circleButtonsSize)
         }
     }
@@ -287,14 +327,20 @@ extension MapVC {
 extension MapVC: CLLocationManagerDelegate {
     // Данный метод вызывается при каждом изменении статуса авторизации приложения для использования служб геолокации
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        mapManager.checkLocationAuthorization(mapView: mapView,
-                                              type: .aboutParty)
+        mapManager.checkLocationAuthorization(
+            mapView: mapView,
+            type: .aboutParty
+        )
     }
 }
 
 extension MapVC: MapManagerAlertDelegate {
-    func showDirectionsError(_ error: String) {
-        let alert = UIAlertController(title: error, message: "Не удалось построить маршрут. Вы можете простроить маршрут в другой программе", preferredStyle: .actionSheet)
+    func showDirectionsError(_ error: String?) {
+        let alert = UIAlertController(
+            title: error,
+            message: "Не удалось построить маршрут. Вы можете простроить маршрут в другой программе",
+            preferredStyle: .actionSheet
+        )
         let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
         let okAction = UIAlertAction(title: "Построить в другой программе", style: .default) { [weak self] _ in
             guard let self = self else { return }
@@ -341,38 +387,48 @@ extension MapVC: MKMapViewDelegate {
         
         return annotationView
     }
+
+    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        if userLocationMode == .tracked, !animated {
+            updateHeading = false
+            userLocationMode = .untracked
+        }
+    }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        let center = mapManager.getCenterLocation(for: mapView)
-        let geocoder = CLGeocoder()
-        
+//        let center = mapManager.getCenterLocation(for: mapView)
+//        geocoder.cancelGeocode() // Для оптимизации
+//        geocoder.reverseGeocodeLocation(center) { (partymarks, error) in
+//
+//            if let error = error {
+//                print(error)
+//                return
+//            }
+//
+//            guard let partymarks = partymarks else { return }
+//
+//            let partymark = partymarks.first
+//            let streetName = partymark?.thoroughfare
+//            let buildNumber = partymark?.subThoroughfare
+//
+//            DispatchQueue.main.async {
+//                if streetName != nil && buildNumber != nil {
+//                    self.addressLabel.text = "\(streetName!), \(buildNumber!)"
+//                } else if streetName != nil {
+//                    self.addressLabel.text = "\(streetName!)"
+//                } else {
+//                    self.addressLabel.text = ""
+//                }
+//            }
+//        }
+
         if previousLocation != nil {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                self.mapManager.showUserLocation(mapView: self.mapView)
-            }
-        }
-        
-        geocoder.cancelGeocode() // Для оптимизации
-        geocoder.reverseGeocodeLocation(center) { (partymarks, error) in
-            
-            if let error = error {
-                print(error)
-                return
-            }
-            
-            guard let partymarks = partymarks else { return }
-            
-            let partymark = partymarks.first
-            let streetName = partymark?.thoroughfare
-            let buildNumber = partymark?.subThoroughfare
-            
-            DispatchQueue.main.async {
-                if streetName != nil && buildNumber != nil {
-                    self.addressLabel.text = "\(streetName!), \(buildNumber!)"
-                } else if streetName != nil {
-                    self.addressLabel.text = "\(streetName!)"
-                } else {
-                    self.addressLabel.text = ""
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if self.userLocationMode == .route {
+                    if self.updateHeading {
+                        guard !mapView.isUserLocationVisible else { return }
+                    }
+                    self.mapManager.showUserLocation(mapView: self.mapView)
                 }
             }
         }
@@ -381,8 +437,13 @@ extension MapVC: MKMapViewDelegate {
     // Для отображения наложения маршрута его необходимо отрендерить
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
-        renderer.strokeColor = .systemOrange
+        renderer.strokeColor = Colors.Elements.element
         return renderer
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        mapView.camera.heading = newHeading.magneticHeading
+        mapView.setCamera(mapView.camera, animated: true)
     }
 }
 
@@ -407,7 +468,7 @@ class PartyAnnotationView: MKMarkerAnnotationView {
     func configureAnnotationView() {
         glyphImage = UIImage(.mappin, pointSize: 44, weight: .regular)
         animatesWhenAdded = true
-        markerTintColor = .systemOrange
+        markerTintColor = Colors.Elements.element
         titleVisibility = .adaptive
         canShowCallout = true
     }

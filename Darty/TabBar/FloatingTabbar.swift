@@ -46,7 +46,7 @@ struct FloatingTabbar : View {
                         
                     }) {
                         Image(systemName: (self.observableConfig.selectedIndex == 0) ? "flame.fill" : "flame")
-                            .foregroundColor(self.observableConfig.selectedIndex == 0 ? .orange : .gray)
+                            .foregroundColor(self.observableConfig.selectedIndex == 0 ? Color(Colors.Elements.element) : .gray)
                             .padding(.horizontal)
                             .frame(width: 44, height: 44)
                     }
@@ -60,7 +60,7 @@ struct FloatingTabbar : View {
 
                     }) {
                         Image(systemName: (self.observableConfig.selectedIndex == 1) ? "plus" : "plus")
-                            .foregroundColor(self.observableConfig.selectedIndex == 1 ? .purple : .gray)
+                            .foregroundColor(self.observableConfig.selectedIndex == 1 ? Color(Colors.Elements.element) : .gray)
                             .padding(.horizontal)
                             .frame(width: 44, height: 44)
                     }
@@ -74,7 +74,7 @@ struct FloatingTabbar : View {
                         
                     }) {
                         Image(systemName: (self.observableConfig.selectedIndex == 2) ? "message.fill" : "message")
-                            .foregroundColor(self.observableConfig.selectedIndex == 2 ? Color(UIColor.systemTeal) : .gray)
+                            .foregroundColor(self.observableConfig.selectedIndex == 2 ? Color(Colors.Elements.element) : .gray)
                             .padding(.horizontal)
                             .frame(width: 44, height: 44)
                     }
@@ -88,7 +88,7 @@ struct FloatingTabbar : View {
                         
                     }) {
                         Image(systemName: (self.observableConfig.selectedIndex == 3) ? "person.fill" : "person")
-                            .foregroundColor(self.observableConfig.selectedIndex == 3 ? Color(UIColor.systemIndigo) : .gray)
+                            .foregroundColor(self.observableConfig.selectedIndex == 3 ? Color(Colors.Elements.element) : .gray)
                             .padding(.horizontal)
                             .frame(width: 44, height: 44, alignment: .center)
                     }

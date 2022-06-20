@@ -60,6 +60,10 @@
 		444BF7AC28540F43007D845E /* OTPTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444BF7AB28540F43007D845E /* OTPTextField.swift */; };
 		44507C1127FC4DC600A8F3CB /* AudioRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44507C1027FC4DC600A8F3CB /* AudioRecordView.swift */; };
 		44507C1327FC52A100A8F3CB /* AudioRecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44507C1227FC52A100A8F3CB /* AudioRecordButton.swift */; };
+		4451B1552859D9520085DCFA /* UIBarButtonItem + Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451B1542859D9520085DCFA /* UIBarButtonItem + Extension.swift */; };
+		4451B157285A336A0085DCFA /* DAudioMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451B156285A336A0085DCFA /* DAudioMessageCell.swift */; };
+		4451B159285BD2EA0085DCFA /* MenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451B158285BD2E90085DCFA /* MenuCell.swift */; };
+		4451B15B285BD5A20085DCFA /* MenuCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451B15A285BD5A20085DCFA /* MenuCellModel.swift */; };
 		445411B426ED016400D7A5D4 /* InstagramAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411B326ED016400D7A5D4 /* InstagramAPI.swift */; };
 		445411B826ED028C00D7A5D4 /* InstagramResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411B726ED028C00D7A5D4 /* InstagramResponse.swift */; };
 		445411BB26ED199300D7A5D4 /* InstagramPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445411BA26ED199300D7A5D4 /* InstagramPhotoCell.swift */; };
@@ -259,6 +263,10 @@
 		444BF7AB28540F43007D845E /* OTPTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPTextField.swift; sourceTree = "<group>"; };
 		44507C1027FC4DC600A8F3CB /* AudioRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordView.swift; sourceTree = "<group>"; };
 		44507C1227FC52A100A8F3CB /* AudioRecordButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordButton.swift; sourceTree = "<group>"; };
+		4451B1542859D9520085DCFA /* UIBarButtonItem + Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem + Extension.swift"; sourceTree = "<group>"; };
+		4451B156285A336A0085DCFA /* DAudioMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAudioMessageCell.swift; sourceTree = "<group>"; };
+		4451B158285BD2E90085DCFA /* MenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCell.swift; sourceTree = "<group>"; };
+		4451B15A285BD5A20085DCFA /* MenuCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCellModel.swift; sourceTree = "<group>"; };
 		445411B326ED016400D7A5D4 /* InstagramAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramAPI.swift; sourceTree = "<group>"; };
 		445411B726ED028C00D7A5D4 /* InstagramResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramResponse.swift; sourceTree = "<group>"; };
 		445411BA26ED199300D7A5D4 /* InstagramPhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramPhotoCell.swift; sourceTree = "<group>"; };
@@ -423,6 +431,7 @@
 				445411B926ED198600D7A5D4 /* Views */,
 				4400479126E80C7B00BDF8F1 /* ChangeAccountDataVC.swift */,
 				4400479426E8151300BDF8F1 /* ChangeAccountDataInfoViewVC.swift */,
+				4451B15A285BD5A20085DCFA /* MenuCellModel.swift */,
 			);
 			path = ChangeAccountData;
 			sourceTree = "<group>";
@@ -535,6 +544,7 @@
 			children = (
 				44507C1027FC4DC600A8F3CB /* AudioRecordView.swift */,
 				44507C1227FC52A100A8F3CB /* AudioRecordButton.swift */,
+				4451B156285A336A0085DCFA /* DAudioMessageCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -561,6 +571,7 @@
 			isa = PBXGroup;
 			children = (
 				445411BA26ED199300D7A5D4 /* InstagramPhotoCell.swift */,
+				4451B158285BD2E90085DCFA /* MenuCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -945,6 +956,7 @@
 				440670DB26E3F0A0008911EB /* PhoneNumberTextField + Extension.swift */,
 				440670DF26E41C96008911EB /* CLLocation + Extension.swift */,
 				44D42C02281CCCFB00FFF478 /* Agrume + Extension.swift */,
+				4451B1542859D9520085DCFA /* UIBarButtonItem + Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1222,6 +1234,7 @@
 				44D42C01281CAFAB00FFF478 /* NotificationSettingsModel.swift in Sources */,
 				440670D826E3EA72008911EB /* PhoneCodeCell.swift in Sources */,
 				4432939627A466D1005ACD19 /* CreateCoordinator.swift in Sources */,
+				4451B159285BD2EA0085DCFA /* MenuCell.swift in Sources */,
 				44E2AB2826BD9E6900D04FC9 /* LocalMessage.swift in Sources */,
 				44870722268F5B9B006587D0 /* BirthdaySetupProfileVC.swift in Sources */,
 				44A1720326911A6300C154A0 /* SocialButton.swift in Sources */,
@@ -1255,7 +1268,9 @@
 				44E2AB2A26BDA65F00D04FC9 /* RealmManager.swift in Sources */,
 				44D42BFF281CAE1700FFF478 /* NotificationSettingsCell.swift in Sources */,
 				4491D51B26B6C57B00D3E98A /* UIColor + Extension.swift in Sources */,
+				4451B157285A336A0085DCFA /* DAudioMessageCell.swift in Sources */,
 				44D44ADE268A647B00EFE76F /* StorageService.swift in Sources */,
+				4451B15B285BD5A20085DCFA /* MenuCellModel.swift in Sources */,
 				44CCE005280CB0A10059A62D /* ShareUserHelper.swift in Sources */,
 				4408BCCD26B0A5C2006C48AE /* AnomatedArrowView.swift in Sources */,
 				444BF7AC28540F43007D845E /* OTPTextField.swift in Sources */,
@@ -1344,6 +1359,7 @@
 				4413E81926ACC804008BACEC /* TextFieldWithoutInteract.swift in Sources */,
 				44FB27D626A469B400028602 /* Color + Extension.swift in Sources */,
 				4481811926BC9F0B00A68B72 /* MessageCellDelegate.swift in Sources */,
+				4451B1552859D9520085DCFA /* UIBarButtonItem + Extension.swift in Sources */,
 				4491D51D26B6CBBE00D3E98A /* SelectLocationVC.swift in Sources */,
 				44D36A0026963438002886D0 /* WaitingChatCell.swift in Sources */,
 				44C639C2269E2DCA00D5CFD5 /* FloatingTabbar.swift in Sources */,

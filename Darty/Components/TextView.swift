@@ -7,16 +7,17 @@
 
 import UIKit
 
-protocol TextViewDelegate {
+protocol TextViewDelegate: AnyObject {
     func textViewDidEndEditing(_ textView: UITextView)
 }
 
-class TextView: UIView {
+final class TextView: UIView {
 
     private enum Constants {
         static let textFont: UIFont? = .sfProText(ofSize: 14, weight: .regular)
-        static let titleFont: UIFont? = .sfProDisplay(ofSize: 10, weight: .medium)
-        static let unselectedBorderColor: CGColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 0.5).cgColor
+        static let titleFont: UIFont? = .textOnPlate
+        static let unselectedBorderColor: UIColor = Colors.Elements.line
+        static let activeBorderColor: UIColor = Colors.Elements.element
     }
 
     private let textView = UITextView()
@@ -27,15 +28,12 @@ class TextView: UIView {
     private var errorMessage = ""
 
     private var floatingLabel: UILabel!
-
-    private var activeBorderColor: UIColor = .blue
     
-    var delegate: TextViewDelegate?
+    weak var delegate: TextViewDelegate?
 
-    init(placeholder: String = "Описание", isEditable: Bool, color: UIColor) {
-        super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+    init(placeholder: String = "Описание", isEditable: Bool) {
+        super.init(frame: .zero)
         self.savedPlaceholder = placeholder
-        self.activeBorderColor = color
         setupViews()
         setupFloatingLabel()
         setupBorder()
@@ -48,10 +46,11 @@ class TextView: UIView {
         textView.font = Constants.textFont
         textView.dataDetectorTypes = UIDataDetectorTypes.link
         textView.isEditable = isEditable
-        textView.tintColor = activeBorderColor
+        textView.tintColor = Constants.activeBorderColor
         
         if textView.isEditable {
-            textView.textColor = .placeholderText
+            textView.textColor = Colors.Text.placeholder
+            textView.font = .placeholder
             textView.text = savedPlaceholder
         }
         
@@ -69,7 +68,7 @@ class TextView: UIView {
     }
 
     private func setupViews() {
-        backgroundColor = .tertiarySystemBackground
+        backgroundColor = Colors.Backgorunds.inputView
         addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(8)
@@ -84,13 +83,13 @@ class TextView: UIView {
     
     private func setupFloatingLabel() {
         self.floatingLabel = UILabel(frame: CGRect.zero)
-        self.floatingLabel.textColor = activeBorderColor
+        self.floatingLabel.textColor = Constants.activeBorderColor
     }
     
     private func setupBorder() {
-        layer.cornerRadius = 8
+        layer.cornerRadius = 10
         layer.cornerCurve = .continuous
-        layer.borderColor = Constants.unselectedBorderColor
+        layer.borderColor = Constants.unselectedBorderColor.cgColor
         layer.borderWidth = 1
     }
     
@@ -102,24 +101,39 @@ class TextView: UIView {
     }
 
     @objc private func addFloatingLabel() {
-//        if textView.text == savedPlaceholder {
-            floatingLabel.font = Constants.titleFont
-            floatingLabel.text = self.savedPlaceholder
-            floatingLabel.translatesAutoresizingMaskIntoConstraints = false
-            floatingLabel.clipsToBounds = true
-            floatingLabel.frame = CGRect(x: 0, y: 0, width: floatingLabel.frame.width+4, height: floatingLabel.frame.height+2)
-            floatingLabel.textAlignment = .center
-            floatingLabel.textColor = activeBorderColor
-            addSubview(self.floatingLabel)
-            layer.borderColor = self.activeBorderColor.cgColor
+        //        if textView.text == savedPlaceholder {
+        floatingLabel.font = Constants.titleFont
+        floatingLabel.text = self.savedPlaceholder
+        floatingLabel.translatesAutoresizingMaskIntoConstraints = false
+        floatingLabel.clipsToBounds = true
+        floatingLabel.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: floatingLabel.frame.width + 4,
+            height: floatingLabel.frame.height + 2
+        )
+        floatingLabel.textAlignment = .center
 
-            NSLayoutConstraint.activate([
-                floatingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
-                floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -4)
-            ])
-//        }
+        UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
+            self.floatingLabel.textColor = Constants.activeBorderColor
+        }
+        addSubview(self.floatingLabel)
+        animateBorderColor(toColor: Constants.activeBorderColor, duration: 0.3)
+
+        NSLayoutConstraint.activate([
+            floatingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 12),
+            floatingLabel.bottomAnchor.constraint(equalTo: self.topAnchor, constant: -4)
+        ])
+        //        }
         // Floating label may be stuck behind text input. we bring it forward as it was the last item added to the view heirachy
         bringSubviewToFront(subviews.last!)
+
+        floatingLabel.alpha = 0
+        floatingLabel.center.y += 25
+        UIView.animate(withDuration: 0.3) {
+            self.floatingLabel.center.y -= 25
+            self.floatingLabel.alpha = 1
+        }
 
         UIView.animate(withDuration: 0.3) {
             self.setNeedsDisplay()
@@ -133,7 +147,7 @@ class TextView: UIView {
                 self.textView.setNeedsDisplay()
             }
         }
-        self.layer.borderColor = Constants.unselectedBorderColor
+        animateBorderColor(toColor: Constants.unselectedBorderColor, duration: 0.3)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -149,9 +163,10 @@ class TextView: UIView {
 extension TextView: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         addFloatingLabel()
-        if textView.textColor == .placeholderText {
+        if textView.textColor == Colors.Text.placeholder {
             textView.text = nil
-            textView.textColor = .label
+            textView.textColor = Colors.Text.main
+            textView.font = Constants.textFont
             text = ""
         }
     }
@@ -165,11 +180,15 @@ extension TextView: UITextViewDelegate {
                 setError(message: errorMessage)
             }
             textView.text = savedPlaceholder
-            textView.textColor = .placeholderText
+            textView.textColor = Colors.Text.placeholder
+            textView.font = .placeholder
             text = ""
         } else {
-            floatingLabel.textColor = .label
+            UIView.transition(with: floatingLabel, duration: 0.3, options: .transitionCrossDissolve) {
+                self.floatingLabel.textColor = Colors.Text.main
+            }
             text = textView.text
+            textView.font = Constants.textFont
         }
     }
 
@@ -189,8 +208,8 @@ extension TextView: UITextViewDelegate {
         Vibration.warning.vibrate()
         UIView.animate(withDuration: 0.3) {
             self.floatingLabel.text = message
-            self.floatingLabel.textColor = .systemRed
-            self.layer.borderColor = UIColor.systemRed.cgColor
+            self.floatingLabel.textColor = Colors.Statuses.error
+            self.layer.borderColor = Colors.Statuses.error.cgColor
         }
     }
 }

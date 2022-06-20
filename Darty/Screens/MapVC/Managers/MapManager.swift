@@ -7,25 +7,29 @@
 
 import UIKit
 import MapKit
+import SPAlert
 
-protocol MapManagerAlertDelegate {
+protocol MapManagerAlertDelegate: AnyObject {
     func showAlert(title: String, message: String?)
-    func showDirectionsError(_ error: String)
+    func showDirectionsError(_ error: String?)
 }
 
-class MapManager {
-    
+final class MapManager {
+
+    // MARK: - Properties
     let locationManager = CLLocationManager()
     private var destinationCoordinate: CLLocationCoordinate2D?
     private let regionImMeters = 1000.0
     private var directionsArray: [MKDirections] = []
-    var alertDelegate: MapManagerAlertDelegate?
+
+    // MARK: - Delegate
+    weak var alertDelegate: MapManagerAlertDelegate?
     
     // Установка маркера вечеринки
     func setupPartymark(party: PartyModel, mapView: MKMapView) {
         let annotation = MKPointAnnotation()
         annotation.title = party.name
-        annotation.subtitle = "\(party.type.dropLast())"
+        annotation.subtitle = "\(party.type.rawValue.dropLast())"
         let partymarkLocation = CLLocationCoordinate2D(
             latitude: party.location.latitude,
             longitude: party.location.longitude
@@ -93,7 +97,9 @@ class MapManager {
         case .denied:
             // Делаем отсрочку показа Alert на 1 секунду иначе он прогрузится раньше нужного из-за вызова метода из viewDidLoad и не отобразится
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.alertDelegate?.showAlert(title: "Отсутствует разрешение на определение местоположения", message: "Для выдачи разрешения перейдите: Настройки -> Конфиденциальность -> Службы геолокации -> PartyMaker -> При использовании приложения")
+                self.alertDelegate?.showAlert(
+                    title: "Отсутствует разрешение на определение местоположения",
+                    message: "Для выдачи разрешения перейдите: Настройки -> Конфиденциальность -> Службы геолокации -> PartyMaker -> При использовании приложения")
             }
             break
         case .restricted, .authorizedAlways:
@@ -107,19 +113,26 @@ class MapManager {
 
     // Фокус карты на местоположение пользователя
     func showUserLocation(mapView: MKMapView) {
-        
         if let userLocation = locationManager.location?.coordinate {
             let region = MKCoordinateRegion(center: userLocation,
                                             latitudinalMeters: regionImMeters,
                                             longitudinalMeters: regionImMeters)
+//            let magneticHeading = locationManager.heading?.magneticHeading
             mapView.setRegion(region, animated: true)
+//            if let magneticHeading = magneticHeading {
+//                print("asdoiasdjoaisdjiaosdj: ", magneticHeading)
+//                mapView.camera.heading = magneticHeading
+//            }
         }
     }
     
     // Построение маршрута от местоположения пользователя до заведения
     func getDirection(for mapView: MKMapView, previousLocation: @escaping (CLLocation) -> (), getTimeAndDistance: @escaping (String) -> ()) {
-        
+
+        let spinner = SPAlertView(preset: .spinner)
+        spinner.present()
         guard let location = locationManager.location?.coordinate else {
+            spinner.dismiss()
             alertDelegate?.showAlert(title: "Ошибка", message: "Не удалость определить ваше местоположение")
             return
         }
@@ -127,6 +140,7 @@ class MapManager {
         locationManager.startUpdatingLocation() // Постоянное отслеживание местоположения пользователя
 
         guard let request = createDirectionsRequest(from: location) else {
+            spinner.dismiss()
             alertDelegate?.showAlert(title: "Ошибка", message: "Место назначения не найдено")
             return
         }
@@ -135,15 +149,16 @@ class MapManager {
         resetMapView(mapView: mapView, withNew: directions)
 
         directions.calculate { (response, error) in
-
             if let error = error {
                 print("ERROR_LOG Error in calculate directions: ", error)
+                spinner.dismiss()
                 self.alertDelegate?.showDirectionsError(error.localizedDescription)
                 return
             }
 
             guard let response = response else {
-                self.alertDelegate?.showAlert(title: "Ошибка", message: "Маршрут не доступен")
+                spinner.dismiss()
+                self.alertDelegate?.showDirectionsError(nil)
                 return
             }
 
@@ -156,10 +171,12 @@ class MapManager {
                 let distance = String(format: "%.1f",route.distance / 1000)
                 let timeInterval = String(format: "%", route.expectedTravelTime / 60)
 
-                let timeAndDistance = "Расстояние до места: \(distance) км.\n Время в пути: \(timeInterval) м."
+                let timeAndDistance = "Расстояние до места: \(distance) км\(!timeInterval.isEmpty ? "\nВремя в пути: \(timeInterval) м" : "")"
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                print("asdauisdhuiashiudahiusdhiu: ", Thread.isMainThread)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     getTimeAndDistance(timeAndDistance)
+                    spinner.dismiss()
                 }
             }
         }

@@ -57,16 +57,14 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }()
     
     private lazy var nameTextField: TextField = {
-        let textField = TextField(color: .systemIndigo, placeholder: "Имя")
+        let textField = TextField(placeholder: "Имя")
         textField.delegate = self
-        textField.backgroundColor = .systemGray4
         return textField
     }()
     
     private lazy var aboutTextView: TextView = {
-        let textView = TextView(placeholder: "Обо мне", isEditable: true, color: .systemIndigo)
+        let textView = TextView(placeholder: "Обо мне", isEditable: true)
         textView.delegate = self
-        textView.backgroundColor = .systemGray4
         return textView
     }()
     
@@ -196,8 +194,7 @@ final class ChangeAccountDataInfoViewVC: UIViewController {
     }()
 
     private let deleteAccountButton: DButton = {
-        let button = DButton(title: "Удалить аккаунт")
-        button.backgroundColor = .systemRed
+        let button = DButton(title: "Удалить аккаунт", type: .secondary, style: .clear)
         button.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
         return button
     }()
@@ -734,7 +731,7 @@ extension ChangeAccountDataInfoViewVC {
 
         deleteAccountButton.snp.makeConstraints { make in
             make.top.equalTo(connectAppleMusicButton.snp.bottom).offset(16)
-            make.height.equalTo(44)
+            make.height.equalTo(DButtonStyle.clear.height)
             make.left.right.equalToSuperview().inset(20)
             make.bottom.equalToSuperview().offset(-96)
         }

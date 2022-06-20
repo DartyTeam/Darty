@@ -66,12 +66,12 @@ extension NotificationSettingsVC {
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
 extension NotificationSettingsVC: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return notificationSettings.count
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return notificationSettings.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

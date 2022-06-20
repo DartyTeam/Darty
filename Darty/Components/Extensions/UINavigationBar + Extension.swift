@@ -10,7 +10,7 @@ import UIKit
 extension UINavigationBar {
     func setup(withClear: Bool) {
         let attrs: [NSAttributedString.Key : Any] = [
-            .font: UIFont.sfProDisplay(ofSize: 28, weight: .semibold) ?? .systemFont(ofSize: 22)
+            .font: UIFont.screenName
         ]
         let appearance = UINavigationBarAppearance()
 

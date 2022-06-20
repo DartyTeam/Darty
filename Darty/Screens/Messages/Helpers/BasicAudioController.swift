@@ -29,8 +29,8 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
     /// The `AVAudioPlayer` that is playing the sound
     open var audioPlayer: AVAudioPlayer?
 
-    /// The `AudioMessageCell` that is currently playing sound
-    open weak var playingCell: AudioMessageCell?
+    /// The `DAudioMessageCell` that is currently playing sound
+    open weak var playingCell: DAudioMessageCell?
 
     /// The `MessageType` that is currently playing sound
     open var playingMessage: MessageType?
@@ -62,15 +62,19 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
     ///
     /// - Note:
     ///   This protocol method is called by MessageKit every time an audio cell needs to be configure
-    open func configureAudioCell(_ cell: AudioMessageCell, message: MessageType) {
+    open func configureAudioCell(_ cell: DAudioMessageCell, message: MessageType) {
         if playingMessage?.messageId == message.messageId, let collectionView = messageCollectionView, let player = audioPlayer {
             playingCell = cell
-            cell.progressView.progress = (player.duration == 0) ? 0 : Float(player.currentTime/player.duration)
-            cell.playButton.isSelected = (player.isPlaying == true) ? true : false
+            cell.dartyProgressView.progress = (player.duration == 0) ? 0 : Float(player.currentTime/player.duration)
+            cell.dartyPlayButton.isSelected = (player.isPlaying == true) ? true : false
             guard let displayDelegate = collectionView.messagesDisplayDelegate else {
                 fatalError("MessagesDisplayDelegate has not been set.")
             }
-            cell.durationLabel.text = displayDelegate.audioProgressTextFormat(Float(player.currentTime), for: cell, in: collectionView)
+            cell.dartyDurationLabel.text = displayDelegate.audioProgressTextFormat(
+                Float(player.currentTime),
+                for: cell,
+                in: collectionView
+            )
         }
     }
 
@@ -79,7 +83,7 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
     /// - Parameters:
     ///   - message: The `MessageType` that contain the audio item to be played.
     ///   - audioCell: The `AudioMessageCell` that needs to be updated while audio is playing.
-    open func playSound(for message: MessageType, in audioCell: AudioMessageCell) {
+    open func playSound(for message: MessageType, in audioCell: DAudioMessageCell) {
         switch message.kind {
         case .audio(let item):
             playingCell = audioCell
@@ -93,7 +97,7 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
             audioPlayer?.delegate = self
             audioPlayer?.play()
             state = .playing
-            audioCell.playButton.isSelected = true  // show pause button on audio cell
+            audioCell.dartyPlayButton.isSelected = true  // show pause button on audio cell
             startProgressTimer()
             audioCell.delegate?.didStartAudio(in: audioCell)
         default:
@@ -106,10 +110,10 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
     /// - Parameters:
     ///   - message: The `MessageType` that contain the audio item to be pause.
     ///   - audioCell: The `AudioMessageCell` that needs to be updated by the pause action.
-    open func pauseSound(for message: MessageType, in audioCell: AudioMessageCell) {
+    open func pauseSound(for message: MessageType, in audioCell: DAudioMessageCell) {
         audioPlayer?.pause()
         state = .pause
-        audioCell.playButton.isSelected = false // show play button on audio cell
+        audioCell.dartyPlayButton.isSelected = false // show play button on audio cell
         progressTimer?.invalidate()
         if let cell = playingCell {
             cell.delegate?.didPauseAudio(in: cell)
@@ -122,12 +126,16 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
         player.stop()
         state = .stopped
         if let cell = playingCell {
-            cell.progressView.progress = 0.0
-            cell.playButton.isSelected = false
+            cell.dartyProgressView.progress = 0.0
+            cell.dartyPlayButton.isSelected = false
             guard let displayDelegate = collectionView.messagesDisplayDelegate else {
                 fatalError("MessagesDisplayDelegate has not been set.")
             }
-            cell.durationLabel.text = displayDelegate.audioProgressTextFormat(Float(player.duration), for: cell, in: collectionView)
+            cell.dartyDurationLabel.text = displayDelegate.audioProgressTextFormat(
+                Float(player.duration),
+                for: cell,
+                in: collectionView
+            )
             cell.delegate?.didStopAudio(in: cell)
         }
         progressTimer?.invalidate()
@@ -147,7 +155,7 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
         player.play()
         state = .playing
         startProgressTimer()
-        cell.playButton.isSelected = true // show pause button on audio cell
+        cell.dartyPlayButton.isSelected = true // show pause button on audio cell
         cell.delegate?.didStartAudio(in: cell)
     }
 
@@ -164,11 +172,11 @@ open class BasicAudioController: NSObject, AVAudioPlayerDelegate {
             let currentMessage = collectionView.messagesDataSource?.messageForItem(at: playingCellIndexPath, in: collectionView)
             if currentMessage != nil && currentMessage?.messageId == playingMessage?.messageId {
                 // messages are the same update cell content
-                cell.progressView.progress = (player.duration == 0) ? 0 : Float(player.currentTime/player.duration)
+                cell.dartyProgressView.progress = (player.duration == 0) ? 0 : Float(player.currentTime/player.duration)
                 guard let displayDelegate = collectionView.messagesDisplayDelegate else {
                     fatalError("MessagesDisplayDelegate has not been set.")
                 }
-                cell.durationLabel.text = displayDelegate.audioProgressTextFormat(Float(player.currentTime), for: cell, in: collectionView)
+                cell.dartyDurationLabel.text = displayDelegate.audioProgressTextFormat(Float(player.currentTime), for: cell, in: collectionView)
             } else {
                 // if the current message is not the same with playing message stop playing sound
                 stopAnyOngoingPlaying()

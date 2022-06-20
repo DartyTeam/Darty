@@ -22,7 +22,7 @@ public class Location: NSObject {
         if let postalAddress = placemark.postalAddress {
             let formatter = CNPostalAddressFormatter()
             formatter.style = .mailingAddress
-            return formatter.string(from: postalAddress)
+            return formatter.string(from: postalAddress).replacingOccurrences(of: "\n", with: ", ", options: .regularExpression)
         } else {
             return nil
         }

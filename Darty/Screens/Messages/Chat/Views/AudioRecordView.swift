@@ -41,7 +41,7 @@ final class AudioRecordView: UIVisualEffectView {
     }()
     private let statusRecordView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemOrange
+        view.backgroundColor = Colors.Elements.element
         view.layer.cornerRadius = Constants.statusRecordViewSize / 2
         return view
     }()

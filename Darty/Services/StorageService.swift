@@ -335,8 +335,8 @@ class StorageService {
             }
 
             let dg = DispatchGroup()
-            let userAvatars = storageListResult.items.filter({ $0.name.hasPrefix("_\(currentUserId)")})
-            userAvatars.forEach { userAvatar in
+            let userAvatars = storageListResult?.items.filter({ $0.name.hasPrefix("_\(currentUserId)")})
+            userAvatars?.forEach { userAvatar in
                 dg.enter()
                 self.removeFileWith(name: userAvatar.name) { result in
                     dg.leave()

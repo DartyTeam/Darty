@@ -29,13 +29,12 @@ final class PartyNameAndDescriptionVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
     
     private lazy var nameTextField: TextField = {
-        let textField = TextField(color: .systemPurple, placeholder: Constants.textPlaceholder)
+        let textField = TextField(placeholder: Constants.textPlaceholder)
         textField.font = Constants.textFont
         textField.delegate = self
         textField.returnKeyType = .next
@@ -43,7 +42,7 @@ final class PartyNameAndDescriptionVC: BaseController {
     }()
     
     private let aboutTextView: TextView = {
-        let textView = TextView(isEditable: true, color: .systemPurple)
+        let textView = TextView(isEditable: true)
         return textView
     }()
 
@@ -155,7 +154,7 @@ extension PartyNameAndDescriptionVC {
         nextButton.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(view.frame.size.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom - (32 * 2 + 16))
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalToSuperview()
         }
         

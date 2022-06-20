@@ -29,7 +29,7 @@ final class MessageForRequestVC: UIViewController {
     
     private let closeButton: UIButton = {
         let button = UIButton(type: .close)
-        button.tintColor = .systemOrange
+        button.tintColor = Colors.Elements.element
         button.addTarget(self, action: #selector(closeAction), for: .touchDown)
         return button
     }()
@@ -45,7 +45,6 @@ final class MessageForRequestVC: UIViewController {
     private lazy var messageTextField: MessageTextField = {
         let messageTextField = MessageTextField()
         messageTextField.sendButton.addTarget(self, action: #selector(messageAction), for: .touchUpInside)
-        messageTextField.color = .orangeYellow
         messageTextField.delegate = self
         return messageTextField
     }()
@@ -111,7 +110,7 @@ final class MessageForRequestVC: UIViewController {
         messageTextField.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(32)
-            make.height.equalTo(48)
+            make.height.equalTo(MessageTextField.defaultHeight)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
     }

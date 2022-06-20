@@ -11,11 +11,17 @@ import CoreLocation
 
 final class SelectLocationVC: BaseController {
 
+    // MARK: - Constants
     private enum Constants {
         static let selectButtonTitle = "Выбрать"
         static let searchBarPlaceholder = "Искать"
         static let searchHistoryLabel = "История поиска"
         static let searchTermKey = "SearchTermKey"
+        static let circleButtonsSybmolConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(
+            ofSize: ButtonSymbolType.normal.size,
+            weight: ButtonSymbolType.normal.weight
+        ))
+        static let circleButtonSize: CGFloat = 56
     }
 
     struct CurrentLocationListener {
@@ -78,14 +84,14 @@ final class SelectLocationVC: BaseController {
     }(MKScaleView(mapView: mapView))
     
     lazy var locationButton: UIButton = {
-        $0.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        $0.backgroundColor = Colors.Backgorunds.plate
         $0.layer.masksToBounds = true
-        $0.layer.cornerRadius = 22
-        $0.setImage(UIImage(systemName: "location.circle.fill")?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal), for: .normal)
+        $0.layer.cornerRadius = Constants.circleButtonSize / 2
+        $0.setImage(UIImage(systemName: "location.circle.fill")?.withConfiguration(Constants.circleButtonsSybmolConfig).withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal), for: .normal)
         $0.addTarget(self, action: #selector(currentLocationPressed),
                          for: .touchUpInside)
         return $0
-    }(UIButton(frame: CGRect(x: 0, y: 0, width: 44, height: 44)))
+    }(UIButton(frame: CGRect(x: 0, y: 0, width: Constants.circleButtonSize, height: Constants.circleButtonSize)))
     
     lazy var results: LocationSearchResultsViewController = {
         let results = LocationSearchResultsViewController()
@@ -119,25 +125,23 @@ final class SelectLocationVC: BaseController {
             let width = titleLabel.textRect(forBounds: CGRect(x: 0, y: 0, width: Int.max, height: 30), limitedToNumberOfLines: 1).width
             button.frame.size = CGSize(width: width + titleHorizontalInsets * 2, height: 30.0)
         }
-        button.backgroundColor = .systemPurple
+        button.backgroundColor = Colors.Elements.element
         button.setTitleColor(.white, for: UIControl.State())
         button.layer.borderWidth = 2
-        button.layer.borderColor = UIColor.systemPurple.cgColor
+        button.layer.borderColor = Colors.Elements.element.cgColor
         button.layer.cornerRadius = 8
         button.layer.cornerCurve = .continuous
         return button
     }()
 
+
+    // MARK: - Properties
+    var presentedInitialLocation = false
+
+    // MARK: - Delegate
     weak var delegate: SelectLocationDelegate?
 
-    deinit {
-        searchTimer?.invalidate()
-        localSearch?.cancel()
-        geocoder.cancelGeocode()
-        // http://stackoverflow.com/questions/32675001/uisearchcontroller-warning-attempting-to-load-the-view-of-a-view-controller/
-        let _ = searchController.view
-    }
-    
+    // MARK: - Lifecycle
     public override func loadView() {
         view = mapView
     }
@@ -145,7 +149,7 @@ final class SelectLocationVC: BaseController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         title = "Выбор местоположения"
-        setupNavBar()
+        navigationItem.searchController = searchController
         
         mapView.addSubview(locationButton)
         
@@ -166,24 +170,14 @@ final class SelectLocationVC: BaseController {
             getCurrentLocation()
         }
     }
-    
-    private func setupNavBar() {
-        navigationItem.searchController = searchController
-        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
-        navigationItem.rightBarButtonItem = cancelBarButtonItem
-    }
-    
-    var presentedInitialLocation = false
-    
+
     override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         preferredContentSize.height = UIScreen.main.bounds.height
         
         locationButton.frame.origin = CGPoint(
-            x: view.frame.width - locationButton.frame.width - 20,
-            y: view.frame.height - locationButton.frame.height - 32
+            x: view.frame.width - locationButton.frame.width - 24,
+            y: view.frame.height - view.safeAreaInsets.bottom - locationButton.frame.height - 64
         )
         
         // setting initial location here since viewWillAppear is too early, and viewDidAppear is too late
@@ -191,6 +185,14 @@ final class SelectLocationVC: BaseController {
             setInitialLocation()
             presentedInitialLocation = true
         }
+    }
+
+    deinit {
+        searchTimer?.invalidate()
+        localSearch?.cancel()
+        geocoder.cancelGeocode()
+        // http://stackoverflow.com/questions/32675001/uisearchcontroller-warning-attempting-to-load-the-view-of-a-view-controller/
+        let _ = searchController.view
     }
     
     func setInitialLocation() {

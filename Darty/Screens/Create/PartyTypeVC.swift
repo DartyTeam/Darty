@@ -32,7 +32,6 @@ final class PartyTypeVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -54,22 +53,13 @@ final class PartyTypeVC: BaseController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavBar()
+        title = "Создание вечеринки"
         setupViews()
         setupConstraints()
     }
 
     // MARK: - Setup views
-    private func setupNavBar() {
-        title = "Создание вечеринки"
-        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 24, weight: .bold))
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(Colors.Elements.element, renderingMode: .alwaysOriginal)
-        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
-        navigationItem.rightBarButtonItem = cancelBarButtonItem
-    }
-    
     private func setupViews() {
-        view.backgroundColor = .systemBackground
         view.addSubview(logoView)
         view.addSubview(nextButton)
         view.addSubview(typeLabel)
@@ -96,7 +86,7 @@ extension PartyTypeVC {
         
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         
@@ -124,7 +114,7 @@ extension PartyTypeVC: UIPickerViewDataSource, UIPickerViewDelegate {
     
     // The data to return fopr the row and component (column) that's being passed in
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return PartyType.allCases[row].rawValue
+        return PartyType.allCases[row].description
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -139,7 +129,7 @@ extension PartyTypeVC: UIPickerViewDataSource, UIPickerViewDelegate {
         label.font = .sfProDisplay(ofSize: 18, weight: .semibold)
         
         // where data is an Array of String
-        label.text = PartyType.allCases[row].rawValue
+        label.text = PartyType.allCases[row].description
         
         return label
     }

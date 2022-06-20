@@ -81,20 +81,15 @@ final class PartiesVC: BaseController {
         segmentedControl.selectedSegmentIndex = 0
         let attrs: [NSAttributedString.Key : Any] = [
             .font: UIFont.sfProDisplay(ofSize: 16, weight: .semibold) ?? .systemFont(ofSize: 16),
-            .foregroundColor: UIColor.systemOrange
+            .foregroundColor: Colors.Elements.element
         ]
         segmentedControl.setTitleTextAttributes(attrs, for: UIControl.State())
         return segmentedControl
     }()
 
     private lazy var filterBarButtonItem = UIBarButtonItem(
-        image: UIImage(.slider.horizontal_3)
-            .withConfiguration(UIImage.SymbolConfiguration(font: .systemFont(
-                ofSize: 18,
-                weight: .semibold
-            )))
-            .withTintColor(.systemOrange, renderingMode: .alwaysOriginal),
-        style: .plain,
+        symbol: .slider.horizontal_3,
+        type: .normal,
         target: self,
         action: #selector(filterAction)
     )
@@ -216,7 +211,7 @@ final class PartiesVC: BaseController {
         ListenerService.shared.myPartiesObserve(parties: myParties, completion: { (result) in
             switch result {
             case .success(let parties):
-                self.myParties = parties
+                self.myParties = parties.sorted(by: { $0.date > $1.date })
                 self.reloadPartiesType()
                 
                 parties.forEach { party in
@@ -249,7 +244,6 @@ final class PartiesVC: BaseController {
 
     private func setupNavigationBar() {
         title = PartyListType.search.title
-        clearNavBar = false
         navigationItem.titleView?.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(segmentedPartiesPages)
         segmentedPartiesPages.snp.makeConstraints { make in
@@ -286,7 +280,7 @@ final class PartiesVC: BaseController {
 
     private func setupSearchBar() {
         searchController.searchBar.placeholder = Constants.searchPlaceholder
-        searchController.searchBar.tintColor = .systemOrange
+        searchController.searchBar.tintColor = Colors.Elements.element
         definesPresentationContext = true // Позволяет отпустить строку поиска, при переходе на другой экран
         searchController.searchBar.delegate = self
 
@@ -329,7 +323,8 @@ final class PartiesVC: BaseController {
             }
             print("asduhasdhuauhsdiuhasd: ", actualParties.isEmpty, archivedParties.isEmpty)
             let isEmpty = actualParties.isEmpty && archivedParties.isEmpty
-            update(isEmpty: isEmpty)
+            update(showSearchBarAndEmptyLabel: isEmpty)
+            update(showFilterButton: false)
         } else {
             if filteredParties.isEmpty {
                 snapshot.deleteSections([.parties])
@@ -337,7 +332,8 @@ final class PartiesVC: BaseController {
                 snapshot.appendItems(filteredParties, toSection: .parties)
             }
             snapshot.deleteSections([.archived])
-            update(isEmpty: filteredParties.isEmpty)
+            update(showSearchBarAndEmptyLabel: filteredParties.isEmpty)
+            update(showFilterButton: true)
         }
         print("asdijaisodaiojsdoijasd: ", snapshot.numberOfSections)
 
@@ -365,14 +361,13 @@ final class PartiesVC: BaseController {
         updateCountFor(sectionHeader: sectionHeader, section: .parties)
     }
 
-    private func update(isEmpty: Bool) {
-        emptyLabel.isHidden = !isEmpty
-        searchController.searchBar.isUserInteractionEnabled = !isEmpty
-        let isNeedShowFilterButton = !isEmpty && partyType == .search
-        navigationItem.setRightBarButton(
-            isNeedShowFilterButton ? filterBarButtonItem : nil,
-            animated: true
-        )
+    private func update(showSearchBarAndEmptyLabel: Bool) {
+        emptyLabel.isHidden = !showSearchBarAndEmptyLabel
+        searchController.searchBar.isUserInteractionEnabled = !showSearchBarAndEmptyLabel
+    }
+
+    private func update(showFilterButton: Bool) {
+        navigationItem.setRightBarButton(showFilterButton ? filterBarButtonItem : nil, animated: true)
     }
     
     // MARK: - Handlers
@@ -449,8 +444,8 @@ extension PartiesVC: UISearchBarDelegate {
         let items = self.dataSource.snapshot().itemIdentifiers(inSection: section)
         sectionHeader.configure(
             text: section.description(partiesCount: items.count),
-            font: .sfProRounded(ofSize: 26, weight: .medium),
-            textColor: .label,
+            font: .title,
+            textColor: Colors.Text.main,
             alignment: .natural
         )
     }
@@ -478,7 +473,7 @@ extension PartiesVC {
                     DispatchQueue.main.async {
                         let cell = collectionView.cellForItem(at: indexPath) as? PartyCell
                         cell?.setUser(
-                            rating: "000000",
+                            rating: nil,
                             username: user.username,
                             avatarStringUrl: user.avatarStringURL
                         )

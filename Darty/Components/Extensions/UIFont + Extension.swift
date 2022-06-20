@@ -77,6 +77,15 @@ extension UIFont {
             return UIFont.init(name: "SFCompactDisplay-Medium", size: size)
         case .thin:
             return UIFont.init(name: "SFCompactDisplay-Thin", size: size)
+        }
     }
-}
+
+    static let screenName = UIFont.sfProDisplay(ofSize: 24, weight: .semibold)
+    static let title = UIFont.sfProRounded(ofSize: 16, weight: .bold)
+    static let subtitle = UIFont.sfProDisplay(ofSize: 14, weight: .medium)
+    static let textOnPlate = UIFont.sfProRounded(ofSize: 12, weight: .medium)
+    static let message = UIFont.sfProText(ofSize: 12, weight: .regular)
+    static let placeholder = UIFont.sfProText(ofSize: 14, weight: .regular)
+    static let button = UIFont.sfProRounded(ofSize: 16, weight: .semibold)
+    static let smallest = UIFont.sfProDisplay(ofSize: 8, weight: .medium)
 }

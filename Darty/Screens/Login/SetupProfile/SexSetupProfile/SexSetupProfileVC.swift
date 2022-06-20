@@ -27,7 +27,6 @@ final class SexSetupProfileVC: BaseController {
     // MARK: - UI Elements
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemBlue
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
@@ -65,7 +64,7 @@ final class SexSetupProfileVC: BaseController {
         SexButtonModel(
             title: "Another",
             iconImage: UIImage(named: "anotherSex"),
-            backgroundColor: .systemOrange.withAlphaComponent(0.5),
+            backgroundColor: Colors.Elements.element.withAlphaComponent(0.5),
             sex: .another
         )
     ]
@@ -86,7 +85,7 @@ final class SexSetupProfileVC: BaseController {
 
     // MARK: - Setup views
     private func setupViews() {
-        if let image = UIImage(named: "sex.setup.background")?.withTintColor(.systemBlue.withAlphaComponent(0.5)) {
+        if let image = UIImage(named: "sex.setup.background")?.withTintColor(Colors.Elements.element.withAlphaComponent(0.5)) {
             addBackground(image)
         }
         view.backgroundColor = .systemBackground
@@ -127,7 +126,7 @@ extension SexSetupProfileVC {
             nextButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             nextButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -44),
-            nextButton.heightAnchor.constraint(equalToConstant: UIButton.defaultButtonHeight)
+            nextButton.heightAnchor.constraint(equalToConstant: DButtonStyle.fill.height)
         ])
         
         NSLayoutConstraint.activate([

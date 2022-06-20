@@ -23,7 +23,6 @@ final class PartyImagesVC: BaseController {
         let multiSetImagesView = MultiSetImagesView(
             maxPhotos: Constants.maxPhotosForSelect,
             shape: .rect,
-            color: .systemPurple,
             delegate: self
         )
         return multiSetImagesView
@@ -31,7 +30,6 @@ final class PartyImagesVC: BaseController {
     
     private lazy var nextButton: DButton = {
         let button = DButton(title: "Далее 􀰑")
-        button.backgroundColor = .systemPurple
         button.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -42,20 +40,12 @@ final class PartyImagesVC: BaseController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavBar()
+        title = "Создание вечеринки"
         setupViews()
         setupConstraints()
     }
 
-    // MARK: - Setup views
-    private func setupNavBar() {
-        title = "Создание вечеринки"
-        let cancelIconConfig = UIImage.SymbolConfiguration(font: UIFont.systemFont(ofSize: 20, weight: .bold))
-        let cancelIconImage = UIImage(systemName: "xmark.circle.fill", withConfiguration: cancelIconConfig)?.withTintColor(.systemPurple, renderingMode: .alwaysOriginal)
-        let cancelBarButtonItem = UIBarButtonItem(image: cancelIconImage, style: .plain, target: self, action: #selector(cancleAction))
-        navigationItem.rightBarButtonItem = cancelBarButtonItem
-    }
-    
+    // MARK: - Setup views    
     private func setupViews() {
         view.backgroundColor = .systemBackground
         view.addSubview(nextButton)
@@ -87,7 +77,7 @@ extension PartyImagesVC {
     private func setupConstraints() {
         nextButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(UIButton.defaultButtonHeight)
+            make.height.equalTo(DButtonStyle.fill.height)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-32)
         }
         
